@@ -5881,3 +5881,19 @@ Stage Summary:
 - src/components/views/profile-view.tsx: mobile section nav is now a compact horizontally scrollable chip strip; desktop untouched
 - .zscripts/dev-rmis.sh added (keepalive, not required for persistence), .zscripts/dev.sh patched with production-db guard
 - Server: Next.js dev on port 3000, disowned via official mechanism (pid 3717), health {app:ok, database:ok}
+
+---
+Task ID: mobile-profile-nav-02
+Agent: Z.ai Code (main)
+Task: Fix horizontal page overflow on mobile — chip strip content (1205px) stretched the whole page so swiping scrolled the page instead of the strip
+
+Work Log:
+- Diagnosed via live-DOM scan at 390px: 16 elements at 1215px width; pageScrollsX=true. Root cause: the sections grid item (left rail) had automatic min-size = content min-width; the nowrap chips (~1205px total) propagated up through nav → rail → implicit auto grid track, blowing out the page
+- Fix in src/components/views/profile-view.tsx: grid now grid-cols-[minmax(0,1fr)] (mobile) / lg:grid-cols-[352px_minmax(0,1fr)] (desktop); left rail item got min-w-0 — track can no longer be stretched by content
+- Re-verified at 390px: pageScrollsX=false, overflowCount=0, strip.scrollable=true (scrollWidth 1205 vs clientWidth 348, scrollLeft moves 0→400)
+- Also scanned signed-out landing page at 390px: clean (header exactly 390px, zero overflow)
+- bun run lint clean
+
+Stage Summary:
+- Horizontal swipe now scrolls ONLY the 01-07 chip strip; page never scrolls sideways
+- PDS dropzone card text wraps correctly at 390px again

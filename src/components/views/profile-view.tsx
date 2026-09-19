@@ -278,11 +278,11 @@ export function ProfileView() {
             it stays in view while the right content scrolls.
             On mobile: single column, nav sits above the content. */}
         <Reveal y={20}>
-          <div ref={sectionsRef} className="mt-6 grid scroll-mt-4 gap-6 lg:grid-cols-[352px_1fr]">
+          <div ref={sectionsRef} className="mt-6 grid scroll-mt-4 grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[352px_minmax(0,1fr)]">
             {/* LEFT RAIL — flat sharp nav card with the PDS upload strip
                 parked right below the section list. The whole rail sticks on
                 desktop as one unit (internal scroll when tall). */}
-            <div className="h-fit lg:sticky lg:top-16 lg:max-h-[calc(100dvh-80px)] lg:overflow-y-auto">
+            <div className="h-fit min-w-0 lg:sticky lg:top-16 lg:max-h-[calc(100dvh-80px)] lg:overflow-y-auto">
               {/* MOBILE (< lg) — single-row horizontal chip scroller. Seven
                   stacked rows used to eat most of a phone viewport before the
                   content even started; one swipeable strip fixes that. Same

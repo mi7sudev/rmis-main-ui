@@ -1,0 +1,266 @@
+- generic
+  - region "skip navigation" [ref=e1]
+    - link "Skip to main content" [ref=e2]
+    - link "Skip to footer" [ref=e3]
+  - banner
+    - navigation "global" [ref=e46]
+      - link "Accenture Home" [ref=e51]
+        - image "Accenture"
+      - toolbar
+        - list
+          - listitem [level=1]
+            - button "What we do" [expanded=false, ref=e81]
+              - StaticText "What we do"
+              - StaticText ""
+          - listitem [level=1]
+            - link "What we think" [ref=e82]
+              - StaticText "What we think"
+          - listitem [level=1]
+            - button "Who we are" [expanded=false, ref=e83]
+              - StaticText "Who we are"
+              - StaticText ""
+          - listitem [level=1]
+            - button "Careers" [expanded=false, ref=e84]
+              - StaticText "Careers"
+              - StaticText ""
+      - link "Search" [ref=e52]
+        - StaticText "Search"
+      - button "Country and language selector. Current Country: Hong Kong SAR China" [expanded=false, ref=e53]
+        - StaticText ""
+        - StaticText "Hong Kong SAR China"
+        - StaticText ""
+  - main
+    - generic
+      - generic
+        - link "Emerging Technology" [ref=e28]
+        - navigation "Page" [ref=e29]
+          - link "What to do" [ref=e47]
+            - StaticText "What to do"
+          - link "What’s trending" [ref=e48]
+            - StaticText "What’s trending"
+          - link "Leaders" [ref=e49]
+            - StaticText "Leaders"
+          - link "Careers" [ref=e50]
+            - StaticText "Careers"
+      - generic
+        - heading "Emerging technology solutions" [level=1, ref=e4]
+        - heading "In a rapidly changing world, embrace emerging technology to transform and achieve greater efficiency, effectiveness, and breakthrough innovation." [level=2, ref=e5]
+      - heading "Emerging technology now" [level=3, ref=e6]
+      - paragraph
+        - StaticText "96%"
+      - paragraph
+        - StaticText "of executives agree that the convergence of digital and physical worlds over the next decade will transform their industry"
+      - paragraph
+        - StaticText "95%"
+      - paragraph
+        - StaticText "of executives believe next generation computing will be a major driver of breakthroughs in their industry over the next decade"
+      - paragraph
+        - StaticText "93%"
+      - paragraph
+        - StaticText "of executives agree that with rapid technological advancements, it is more important than ever for organizations to innovate with purpose"
+      - paragraph
+        - StaticText "83%"
+      - paragraph
+        - StaticText "of executives believe science tech capabilities could help address society’s greatest challenges in health-related issues and diseases"
+      - generic
+        - heading "Reinvent with emerging technology" [level=2, ref=e7]
+        - link "QUANTUM SECURITY Shield your data for a quantum-safe future Breakthroughs in quantum computing will threaten 75% of the encryption that’s in use today. Kickstart your organization’s quantum security journey today to ensure long-term security and compliance. Learn more" [ref=e8]
+          - StaticText "QUANTUM SECURITY"
+          - generic
+            - heading "Shield your data for a quantum-safe future" [level=3, ref=e30]
+            - StaticText "Breakthroughs in quantum computing will threaten 75% of the encryption that’s in use today. Kickstart your organization’s quantum security journey today to ensure long-term security and compliance."
+          - StaticText "Learn more"
+        - link "Learn more: Unleash BioInnovation and elevate science with emerging technologies" [ref=e9]
+          - StaticText "BIOINNOVATION"
+          - generic
+            - heading "Revolutionize drug discovery and healthcare research with science and data" [level=3, ref=e31]
+            - StaticText "From AI-driven drug discovery to quantum computing for sustainability, BioInnovation is reshaping the future. Discover how to leverage these technologies now."
+          - StaticText "Learn more"
+        - link "SPACE TECH Harness space tech for a $1 trillion breakthrough Revolutionize disaster response, supply chains and agriculture with satellites, microgravity and data. With the space economy set to reach $1 trillion by 2040, how will you engage with the next frontier? Learn more" [ref=e10]
+          - StaticText "SPACE TECH"
+          - generic
+            - heading "Harness space tech for a $1 trillion breakthrough" [level=3, ref=e32]
+            - StaticText "Revolutionize disaster response, supply chains and agriculture with satellites, microgravity and data. With the space economy set to reach $1 trillion by 2040, how will you engage with the next frontier?"
+          - StaticText "Learn more"
+        - link "Learn more: Discover new materials to shape a sustainable future" [ref=e11]
+          - StaticText "MATERIAL SCIENCE"
+          - generic
+            - heading "Rethink product materials for enhanced sustainability and performance" [level=3, ref=e33]
+            - StaticText "Traditional material development is changing with digital innovation and sustainability concerns. Companies must embrace digital and smart materials for both environmental impact and performance improvements."
+          - StaticText "Learn more"
+        - link "BLOCKCHAIN & WEB3 Decentralized solutions to build digital trust and revolutionize operations Establish trust in the digital age with Blockchain & Web3. Improve security, transparency and efficiency, while fortifying your systems. You’ll be ready to thrive and lead in the new internet era. 76% of CEOs say citizens trust is critical to business competitiveness. Learn more" [ref=e12]
+          - StaticText "BLOCKCHAIN & WEB3"
+          - generic
+            - heading "Decentralized solutions to build digital trust and revolutionize operations" [level=3, ref=e34]
+            - StaticText "Establish trust in the digital age with Blockchain & Web3. Improve security, transparency and efficiency, while fortifying your systems. You’ll be ready to thrive and lead in the new internet era."
+          - StaticText "76%"
+          - StaticText "of CEOs say citizens trust is critical to business competitiveness."
+          - StaticText "Learn more"
+        - link "Learn more: A new wave of industrial revolution is coming " [ref=e13]
+          - StaticText "INDUSTRIAL SPATIAL COMPUTING"
+          - generic
+            - heading "Turn physical spaces into smart, data-driven environments" [level=3, ref=e35]
+            - StaticText "Join the augmented reality and real-time data revolution or risk falling behind. Discover how industrial spatial computing can enhance efficiency and reduce costs."
+          - StaticText "Learn more"
+        - link "ROBOTICS Automate to tackle repetitive tasks, cut costs and boost precision 68% of organizations are boosting robotics spending by 5% each year to supercharge automation and elevate customer experience. Are you ready to harness AI and robotics to propel your business forward? 68% of organizations expect to increase their robotics spend by up to 5% per year Learn more" [ref=e14]
+          - StaticText "ROBOTICS"
+          - generic
+            - heading "Automate to tackle repetitive tasks, cut costs and boost precision" [level=3, ref=e36]
+            - StaticText "68% of organizations are boosting robotics spending by 5% each year to supercharge automation and elevate customer experience. Are you ready to harness AI and robotics to propel your business forward?"
+          - StaticText "68%"
+          - StaticText "of organizations expect to increase their robotics spend by up to 5% per year"
+          - StaticText "Learn more"
+        - link "Learn more: Redefine reality: Smart spaces with VR/AR" [ref=e15]
+          - StaticText "CONSUMER SPATIAL COMPUTING"
+          - generic
+            - heading "Make every experience an immersive experience" [level=3, ref=e37]
+            - StaticText "With 71% of AR shoppers feeling more connected through virtual demos, consumer spatial computing is changing the game. Shift from screen-based interactions to immersive, context-aware experiences."
+          - StaticText "Learn more"
+      - generic
+        - heading "How to innovate" [level=3, ref=e16]
+        - tablist
+          - tab "Research and development" [selected, ref=e38]
+            - StaticText "Research and development"
+          - tab "Disruption is the new normal and innovation is the answer Apply R&D to prototype and develop breakthrough ideas to reinvent business models, create new products, and open markets. Co-invest to shape the genesis of new science and technology." [selected, ref=e39]
+            - generic
+              - StaticText "Disruption is the new normal and innovation is the answer"
+              - paragraph
+                - StaticText "Apply R&D to prototype and develop breakthrough ideas to reinvent business models, create new products, and open markets. Co-invest to shape the genesis of new science and technology."
+          - tab "Incubation services" [ref=e40]
+            - StaticText "Incubation services"
+          - tab [ref=e41]
+          - tab "Delivery" [ref=e42]
+            - StaticText "Delivery"
+          - tab [ref=e43]
+          - tab "Consulting services" [ref=e44]
+            - StaticText "Consulting services"
+          - tab [ref=e45]
+      - generic
+        - heading "What’s trending with emerging technology" [level=2, ref=e17]
+        - link "View all work: Stay ahead of change" [ref=e18]
+          - StaticText "View all work"
+        - generic
+          - generic
+            - generic
+              - button "Research Report: The quantum roadmap for healthcare leaders" [expanded=false, ref=e65]
+              - StaticText "RESEARCH REPORT"
+              - StaticText "The quantum roadmap for healthcare leaders"
+              - generic
+                - paragraph
+                  - StaticText "WEF & Accenture map how quantum technologies deliver speed, accuracy, efficiency, and trust. This report outlines actions health & life sciences leaders can take today to turn quantum maturity into impact."
+                - link "Expand: Quantum Technologies: Strategic Imperatives for Health and Healthcare Leaders" [ref=e73]
+                  - StaticText "Expand"
+            - generic
+              - button "Research Report: Quantum Tech: The Next Frontier for Resilient Manufacturing and Supply Chains" [expanded=false, ref=e66]
+              - StaticText "RESEARCH REPORT"
+              - StaticText "Quantum Tech: The Next Frontier for Resilient Manufacturing and Supply Chains"
+              - generic
+                - paragraph
+                  - StaticText "Quantum technologies offer a breakthrough: faster scheduling, secure networks, and advanced materials that redefine resilience. This report outlines a roadmap for scaling quantum solutions—from hybrid pilots to talent and security strategies."
+                - link "Expand: Quantum Technologies: Key Opportunities for Advanced Manufacturing and Supply Chains" [ref=e74]
+                  - StaticText "Expand"
+            - generic
+              - button "Research Report: Technology Vision 2025" [expanded=false, ref=e67]
+              - StaticText "RESEARCH REPORT"
+              - StaticText "Technology Vision 2025"
+              - generic
+                - paragraph
+                  - StaticText "AI is transforming business— driving autonomy, amplifying capabilities, and revolutionizing entire industries. From next-gen robotics to dynamic human-AI partnerships, discover the trends that are defining tomorrow, today."
+                - link "Expand: Technology Vision 2025" [ref=e75]
+                  - StaticText "Expand"
+            - generic
+              - button "Research Report: Space for growth" [expanded=false, ref=e68]
+              - StaticText "RESEARCH REPORT"
+              - StaticText "Space for growth"
+              - generic
+                - paragraph
+                  - StaticText "Accenture explores the space economy and how space-based technologies are driving business growth and resilience across industries."
+                - link "Expand: Space for growth" [ref=e76]
+                  - StaticText "Expand"
+            - generic
+              - button "Perspective: Breakthrough innovation: the megatrends of transformation" [expanded=false, ref=e69]
+              - StaticText "PERSPECTIVE"
+              - StaticText "Breakthrough innovation: the megatrends of transformation"
+              - generic
+                - paragraph
+                  - StaticText "Breakthrough innovation sits at the intersection of understanding the potential of next generation technologies and applying them in novel ways. We believe companies can engineer these game changers."
+                - link "Expand: Breakthrough innovation: the megatrends of transformation" [ref=e77]
+                  - StaticText "Expand"
+            - generic
+              - button "Research Report: Making reinvention real with gen AI: From experimentation to impact" [expanded=false, ref=e70]
+              - StaticText "RESEARCH REPORT"
+              - StaticText "Making reinvention real with gen AI: From experimentation to impact"
+              - generic
+                - paragraph
+                  - StaticText "Organizations across industries are looking to scale their gen AI use cases. Lessons learned from 2,000+ gen AI projects reveal how to move from experimentation to enterprise-level value."
+                - link "Expand: Making reinvention real with gen AI: From experimentation to impact" [ref=e78]
+                  - StaticText "Expand"
+            - generic
+              - button "Perspective: AI for everyone" [expanded=false, ref=e71]
+              - StaticText "PERSPECTIVE"
+              - StaticText "AI for everyone"
+              - generic
+                - paragraph
+                  - StaticText "With innovations like ChatGPT dominating headlines, the world is waking up to the transformative potential of generative AI. Find out how AI working side-by-side with people will impact science, business and society itself."
+                - link "Expand: AI for everyone" [ref=e79]
+                  - StaticText "Expand"
+            - generic
+              - button "Case Study: Pioneering quantum computing in R&D" [expanded=false, ref=e72]
+              - StaticText "CASE STUDY"
+              - StaticText "Pioneering quantum computing in R&D"
+              - generic
+                - paragraph
+                  - StaticText "Accenture Labs works with Biogen to apply quantum computing to accelerate drug discovery"
+                - link "Expand: Pioneering quantum computing in R&D" [ref=e80]
+                  - StaticText "Expand"
+          - button "Previous" [disabled, ref=e25]
+            - StaticText "Previous"
+          - button "Next" [ref=e26]
+            - StaticText "Next"
+      - generic
+        - heading "Awards & recognition" [level=2, ref=e19]
+        - generic
+          - button "Accenture named a Leader in Innovation Consulting by Forrester, Q2 2024" [expanded=false, ref=e27]
+      - generic
+        - heading "Our leader" [level=2, ref=e20]
+        - heading "Adam Burden" [level=3, ref=e21]
+        - paragraph
+          - StaticText "Global Innovation Lead"
+        - link " LinkedIn of Adam Burden" [ref=e22]
+          - StaticText "LinkedIn"
+      - heading "Technology careers" [level=3, ref=e23]
+      - paragraph
+        - StaticText "Be part of shaping the future and making positive changes in every business across every industry."
+      - button "Search open roles: Technology careers" [ref=e24]
+        - StaticText "Search open roles"
+  - contentinfo
+    - list
+      - listitem [level=1]
+        - link "Accenture Logo" [ref=e54]
+          - image "Accenture Logo"
+    - list
+      - listitem [level=1]
+        - link "Preference Center" [ref=e55]
+      - listitem [level=1]
+        - link "Careers" [ref=e56]
+      - listitem [level=1]
+        - link "About Us" [ref=e57]
+      - listitem [level=1]
+        - link "Contact Us" [ref=e58]
+      - listitem [level=1]
+        - link "Locations" [ref=e59]
+      - listitem [level=1]
+        - link "Sitemap" [ref=e60]
+      - listitem [level=1]
+        - link "Privacy Statement" [ref=e61]
+      - listitem [level=1]
+        - link "Terms & Conditions" [ref=e62]
+      - listitem [level=1]
+        - link "Cookie Policy & Settings" [ref=e63]
+          - StaticText "Cookie Policy/Settings"
+      - listitem [level=1]
+        - link "Accessibility Statement" [ref=e64]
+    - paragraph
+      - StaticText "© 2026 Accenture. All rights reserved."
+- StaticText ""
+- StaticText ""

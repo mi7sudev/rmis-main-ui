@@ -1,0 +1,1066 @@
+=== admin_permissions ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  action | varchar(255)
+  action_parameters | json
+  subject | varchar(255)
+  properties | json
+  conditions | json
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+
+=== admin_permissions_role_lnk ===
+  id | INTEGER NOT NULL PK
+  permission_id | INTEGER
+  role_id | INTEGER
+  permission_ord | float
+
+=== admin_roles ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  name | varchar(255)
+  code | varchar(255)
+  description | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+
+=== admin_users ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  firstname | varchar(255)
+  lastname | varchar(255)
+  username | varchar(255)
+  email | varchar(255)
+  password | varchar(255)
+  reset_password_token | varchar(255)
+  registration_token | varchar(255)
+  is_active | boolean
+  blocked | boolean
+  prefered_language | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+
+=== admin_users_roles_lnk ===
+  id | INTEGER NOT NULL PK
+  user_id | INTEGER
+  role_id | INTEGER
+  role_ord | float
+  user_ord | float
+
+=== applicant_accomplishments ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  title | TEXT
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  date_granted | date
+  category | varchar(255)
+  points | INTEGER
+  hr_remarks | varchar(255)
+  type | varchar(255)
+
+=== applicant_accomplishments_applicant_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_accomplishment_id | INTEGER
+  applicant_id | INTEGER
+  applicant_accomplishment_ord | float
+
+=== applicant_accomplishments_positions_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_accomplishment_id | INTEGER
+  postion_id | INTEGER
+  postion_ord | float
+  applicant_accomplishment_ord | float
+
+=== applicant_awards ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  date_granted | date
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  points | INTEGER
+  hr_remarks | varchar(255)
+  number | INTEGER
+  recognition_provider | varchar(255)
+  recognition_type | varchar(255)
+  award_type | varchar(255)
+  recognition_scope | varchar(255)
+  recognition_category | varchar(255)
+  recognition_subcategory | varchar(255)
+  recognition_details | varchar(255)
+
+=== applicant_awards_applicant_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_award_id | INTEGER
+  applicant_id | INTEGER
+  applicant_award_ord | float
+
+=== applicant_awards_positions_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_award_id | INTEGER
+  postion_id | INTEGER
+  postion_ord | float
+  applicant_award_ord | float
+
+=== applicant_educations ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  education_level | TEXT
+  degree | TEXT
+  course | TEXT
+  school_name | TEXT
+  ongoing | boolean
+  is_highest_education | boolean
+  year_from | date
+  year_to | date
+  highest_level | TEXT
+  units_earned | TEXT
+  year_graduated | TEXT
+  awards | TEXT
+  hr_remarks | TEXT
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  specify_others | TEXT
+
+=== applicant_educations_applicant_id_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_education_id | INTEGER
+  applicant_id | INTEGER
+  applicant_education_ord | float
+
+=== applicant_eligibilities ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  rating | TEXT
+  exam_date | datetime
+  exam_place | TEXT
+  license_number | TEXT
+  hr_remarks | TEXT
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  license_validity | datetime
+
+=== applicant_eligibilities_applicant_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_eligibility_id | INTEGER
+  applicant_id | INTEGER
+  applicant_eligibility_ord | float
+
+=== applicant_eligibilities_eligibility_category_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_eligibility_id | INTEGER
+  eligibility_id | INTEGER
+  eligibility_ord | float
+  applicant_eligibility_ord | float
+
+=== applicant_examinations ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  date_of_examination | datetime
+  place_of_examination | varchar(255)
+  remarks | TEXT
+  rating | float
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  notified | boolean
+  psychosocial_test | varchar(255)
+  exam_mode | varchar(255)
+  zoom_link | varchar(255)
+  year | varchar(255)
+  exam_type | varchar(255)
+
+=== applicant_examinations_applicants_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_examination_id | INTEGER
+  applicant_id | INTEGER
+  applicant_ord | float
+  applicant_examination_ord | float
+
+=== applicant_examinations_positions_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_examination_id | INTEGER
+  postion_id | INTEGER
+  postion_ord | float
+  applicant_examination_ord | float
+
+=== applicant_forms ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+
+=== applicant_forms_applicant_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_form_id | INTEGER
+  applicant_id | INTEGER
+
+=== applicant_interview_assessments ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  education_rating | INTEGER
+  work_experience_rating | INTEGER
+  training_rating | INTEGER
+  eligibility_rating | INTEGER
+  technical_skills_rating | INTEGER
+  organizational_awareness_rating | INTEGER
+  interpersonal_skills_rating | INTEGER
+  adaptability_rating | INTEGER
+  extra_curricular_rating | INTEGER
+  personal_development_rating | INTEGER
+  technology_application_rating | INTEGER
+  education_comments | TEXT
+  work_experience_comments | TEXT
+  training_comments | TEXT
+  eligibility_comments | TEXT
+  technical_skills_comments | TEXT
+  organizational_awareness_comments | TEXT
+  interpersonal_skills_comments | TEXT
+  adaptability_comments | TEXT
+  extra_curricular_comments | TEXT
+  personal_development_comments | TEXT
+  technology_application_comments | TEXT
+  overall_assessment_rating | varchar(255)
+  comment_and_recommendation | TEXT
+  type_of_application | varchar(255)
+  year | varchar(255)
+
+=== applicant_interview_assessments_applicants_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_interview_assessment_id | INTEGER
+  applicant_id | INTEGER
+  applicant_ord | float
+  applicant_interview_assessment_ord | float
+
+=== applicant_interview_assessments_interviewers_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_interview_assessment_id | INTEGER
+  interviewer_id | INTEGER
+  interviewer_ord | float
+  applicant_interview_assessment_ord | float
+
+=== applicant_interview_assessments_positions_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_interview_assessment_id | INTEGER
+  postion_id | INTEGER
+  postion_ord | float
+  applicant_interview_assessment_ord | float
+
+=== applicant_interviews ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  date_of_interview | datetime
+  interview_mode | varchar(255)
+  place_of_interview | varchar(255)
+  remarks | varchar(255)
+  notified | boolean
+  zoom_link | varchar(255)
+  year | varchar(255)
+  interview_type | varchar(255)
+
+=== applicant_interviews_applicants_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_interview_id | INTEGER
+  applicant_id | INTEGER
+  applicant_ord | float
+  applicant_interview_ord | float
+
+=== applicant_interviews_positions_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_interview_id | INTEGER
+  postion_id | INTEGER
+  postion_ord | float
+  applicant_interview_ord | float
+
+=== applicant_summary_profiles ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  year | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+
+=== applicant_summary_profiles_applicant_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_summary_profile_id | INTEGER
+  applicant_id | INTEGER
+
+=== applicant_trainings ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  title_of_training | TEXT
+  is_present_work | boolean
+  is_govt_service | boolean
+  inclusive_date_from | datetime
+  inclusive_date_to | datetime
+  number_hours | INTEGER
+  type_of_training | TEXT
+  specify_training | TEXT
+  hr_remarks | TEXT
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  hour_decimal | float
+
+=== applicant_trainings_applicant_id_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_training_id | INTEGER
+  applicant_id | INTEGER
+  applicant_training_ord | float
+
+=== applicant_work_experiences ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  position_title | TEXT
+  is_present_work | boolean
+  is_govt_service | boolean
+  inclusive_date_from | datetime
+  inclusive_date_to | datetime
+  status_of_employment | TEXT
+  monthly_salary | float
+  employer_name | TEXT
+  employer_address | TEXT
+  supervisor_name | varchar(255)
+  supervisor_position | TEXT
+  office | TEXT
+  reason_for_leaving | TEXT
+  accomplishment | TEXT
+  actual_duties | TEXT
+  hr_remarks | TEXT
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  year_decimal | float
+
+=== applicant_work_experiences_applicant_id_lnk ===
+  id | INTEGER NOT NULL PK
+  applicant_work_experience_id | INTEGER
+  applicant_id | INTEGER
+  applicant_work_experience_ord | float
+
+=== applicants ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  employee_number | varchar(255)
+  first_name | varchar(255)
+  middle_name | varchar(255)
+  last_name | varchar(255)
+  extension_name | varchar(255)
+  nickname | varchar(255)
+  mobile_number | bigint
+  contact_number | varchar(255)
+  telephone_number | varchar(255)
+  publication | varchar(255)
+  birth_date | date
+  birth_place | TEXT
+  email_address | varchar(255)
+  gender | varchar(255)
+  civil_status | varchar(255)
+  citizenship | varchar(255)
+  naturalized | varchar(255)
+  height | varchar(255)
+  weight | varchar(255)
+  blood_type | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  pagibig | varchar(255)
+  gsis | varchar(255)
+  philhealth | varchar(255)
+  tin | varchar(255)
+  sss | varchar(255)
+  govt_issued_id | varchar(255)
+  govt_id_issued_number | varchar(255)
+  govt_id_issued_place | varchar(255)
+  govt_id_date_issued | varchar(255)
+  govt_id_valid_until | varchar(255)
+  house_number | varchar(255)
+  street | varchar(255)
+  subdivision | varchar(255)
+  barangay | varchar(255)
+  city | varchar(255)
+  province | varchar(255)
+  country | varchar(255)
+  permanent_house_number | varchar(255)
+  permanent_street | varchar(255)
+  permanent_subdivision | varchar(255)
+  permanent_barangay | TEXT
+  permanent_city | varchar(255)
+  permanent_province | varchar(255)
+  permanent_country | varchar(255)
+  permanent_telephone_number | varchar(255)
+  image_path | varchar(255)
+  application_letter_path | varchar(255)
+  pds_path | TEXT
+  employment_certificate_path | varchar(255)
+  tor_path | varchar(255)
+  coe_path | varchar(255)
+  training_certificate_path | varchar(255)
+  info_sheet_path | varchar(255)
+  curriculum_vitae_path | varchar(255)
+  performance_path | varchar(255)
+  wexp_path | varchar(255)
+  pending_cases | TEXT
+  specify_referral | TEXT
+  remarks | TEXT
+  qualified | boolean
+  zip_code | TEXT
+  permanent_zip_code | TEXT
+  employee_id | TEXT
+  status_of_eployment | TEXT
+  submitted_date | datetime
+  institution | boolean
+  application_status | boolean
+  place_of_birth | TEXT
+  is_pwd | boolean
+  is_government | boolean
+  respondent_to | varchar(255)
+  religion | varchar(255)
+  present_address | varchar(255)
+  ethnicity | varchar(255)
+  character_reference | json
+  contact_number_secondary | varchar(255)
+  admin_case | boolean
+  admin_case_details | varchar(255)
+  crime_charge | boolean
+  crime_date | date
+  crime_case_status | varchar(255)
+  is_fillouted | boolean
+
+=== applications ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  date_applied | datetime
+  application_status | varchar(255)
+  snapshot_profile | json
+  snapshot_awards | json
+  snapshot_experiences | json
+  snapshot_trainings | json
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  snapshot_eligibilities | json
+  snapshot_educations | json
+  snapshot_attachment | json
+
+=== applications_applicant_lnk ===
+  id | INTEGER NOT NULL PK
+  application_id | INTEGER
+  applicant_id | INTEGER
+  application_ord | float
+
+=== applications_job_lnk ===
+  id | INTEGER NOT NULL PK
+  application_id | INTEGER
+  jobposting_id | INTEGER
+  application_ord | float
+
+=== components_evaluation_education_percentages ===
+  id | INTEGER NOT NULL PK
+  qualification | varchar(255)
+  percentage | float
+
+=== components_evaluation_educations ===
+  id | INTEGER NOT NULL PK
+  attainment_level | varchar(255)
+
+=== components_evaluation_educations_cmps ===
+  id | INTEGER NOT NULL PK
+  entity_id | INTEGER
+  cmp_id | INTEGER
+  component_type | varchar(255)
+  field | varchar(255)
+  order | float
+
+=== components_evaluation_training_percentages ===
+  id | INTEGER NOT NULL PK
+  min_hours | INTEGER
+  max_hours | INTEGER
+  percentage | float
+  training | varchar(255)
+
+=== components_evaluation_trainings ===
+  id | INTEGER NOT NULL PK
+  hours_completed | INTEGER
+  classification | varchar(255)
+
+=== components_evaluation_trainings_cmps ===
+  id | INTEGER NOT NULL PK
+  entity_id | INTEGER
+  cmp_id | INTEGER
+  component_type | varchar(255)
+  field | varchar(255)
+  order | float
+
+=== components_evaluation_work_experience_percentages ===
+  id | INTEGER NOT NULL PK
+  years | INTEGER
+  percentage | float
+
+=== components_evaluation_work_experiences ===
+  id | INTEGER NOT NULL PK
+  source | varchar(255)
+  qualification_standard | INTEGER
+
+=== components_evaluation_work_experiences_cmps ===
+  id | INTEGER NOT NULL PK
+  entity_id | INTEGER
+  cmp_id | INTEGER
+  component_type | varchar(255)
+  field | varchar(255)
+  order | float
+
+=== courses ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  name | varchar(255)
+  abbri | varchar(255)
+  category | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  level | varchar(255)
+
+=== courses_applicant_education_lnk ===
+  id | INTEGER NOT NULL PK
+  course_id | INTEGER
+  applicant_education_id | INTEGER
+  course_ord | float
+
+=== customs ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  name | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  margin | varchar(255)
+  section_number | varchar(255)
+
+=== eligibilities ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  name | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  index | INTEGER
+
+=== eligibilities_user_lnk ===
+  id | INTEGER NOT NULL PK
+  eligibility_id | INTEGER
+  user_id | INTEGER
+  eligibility_ord | float
+
+=== evaluation_criterias ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  effectivity_date | datetime
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  type | varchar(255)
+  education_criteria | json
+  training_criteria | json
+  work_exp_criteria | json
+
+=== evaluation_criterias_user_lnk ===
+  id | INTEGER NOT NULL PK
+  evaluation_criteria_id | INTEGER
+  user_id | INTEGER
+  evaluation_criteria_ord | float
+
+=== files ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  name | varchar(255)
+  alternative_text | varchar(255)
+  caption | varchar(255)
+  width | INTEGER
+  height | INTEGER
+  formats | json
+  hash | varchar(255)
+  ext | varchar(255)
+  mime | varchar(255)
+  size | float
+  url | varchar(255)
+  preview_url | varchar(255)
+  provider | varchar(255)
+  provider_metadata | json
+  folder_path | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+
+=== files_folder_lnk ===
+  id | INTEGER NOT NULL PK
+  file_id | INTEGER
+  folder_id | INTEGER
+  file_ord | float
+
+=== files_related_mph ===
+  id | INTEGER NOT NULL PK
+  file_id | INTEGER
+  related_id | INTEGER
+  related_type | varchar(255)
+  field | varchar(255)
+  order | float
+
+=== i18n_locale ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  name | varchar(255)
+  code | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+
+=== interviewers ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  name | varchar(255)
+  division | varchar(255)
+  section | varchar(255)
+  position | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+
+=== jobpostings ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  position_type | TEXT
+  duties_responsibilities | TEXT
+  contract_date_from | datetime
+  contract_date_to | datetime
+  publish_date | datetime
+  deadline_date | datetime
+  processing_date | datetime
+  brief_description | TEXT
+  compensation_package | TEXT
+  other_qualifications | TEXT
+  other_qualifications_richtext | TEXT
+  brief_description_richtext | TEXT
+  compensation_package_richtext | TEXT
+  number_of_vacancy | INTEGER
+
+=== jobpostings_applicants_lnk ===
+  id | INTEGER NOT NULL PK
+  jobposting_id | INTEGER
+  applicant_id | INTEGER
+  applicant_ord | float
+  jobposting_ord | float
+
+=== jobpostings_postions_lnk ===
+  id | INTEGER NOT NULL PK
+  jobposting_id | INTEGER
+  postion_id | INTEGER
+  postion_ord | float
+  jobposting_ord | float
+
+=== jobpostings_user_lnk ===
+  id | INTEGER NOT NULL PK
+  jobposting_id | INTEGER
+  user_id | INTEGER
+  jobposting_ord | float
+
+=== merged_awards_accomp73efd_applicant_accomplishments_lnk ===
+  id | INTEGER NOT NULL PK
+  merged_awards_accomplishment_id | INTEGER
+  applicant_accomplishment_id | INTEGER
+  applicant_accomplishment_ord | float
+
+=== merged_awards_accomplishments ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  year | varchar(255)
+
+=== merged_awards_accomplishments_applicant_awards_lnk ===
+  id | INTEGER NOT NULL PK
+  merged_awards_accomplishment_id | INTEGER
+  applicant_award_id | INTEGER
+  applicant_award_ord | float
+
+=== merged_awards_accomplishments_applicant_lnk ===
+  id | INTEGER NOT NULL PK
+  merged_awards_accomplishment_id | INTEGER
+  applicant_id | INTEGER
+  merged_awards_accomplishment_ord | float
+
+=== merged_awards_accomplishments_position_lnk ===
+  id | INTEGER NOT NULL PK
+  merged_awards_accomplishment_id | INTEGER
+  postion_id | INTEGER
+
+=== notifications ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  name | varchar(255)
+  notification_description | varchar(255)
+  notification_date | date
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+
+=== notifications_applicant_lnk ===
+  id | INTEGER NOT NULL PK
+  notification_id | INTEGER
+  applicant_id | INTEGER
+  notification_ord | float
+
+=== place_of_assignments ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  name | TEXT
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+
+=== place_of_assignments_user_lnk ===
+  id | INTEGER NOT NULL PK
+  place_of_assignment_id | INTEGER
+  user_id | INTEGER
+  place_of_assignment_ord | float
+
+=== postions ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  position_type | TEXT
+  item_number | TEXT
+  position_title | TEXT
+  position_status | TEXT
+  position_salary_grade | TEXT
+  special_skill | TEXT
+  area_code | TEXT
+  area_type | TEXT
+  level | TEXT
+  classification | varchar(255)
+  education_criteria | TEXT
+  training_type | TEXT
+  other_training | TEXT
+  preferred_qualification | TEXT
+  competency_requirements | TEXT
+  years_required | INTEGER
+  hours_required | INTEGER
+  office_id | INTEGER
+  department_id | INTEGER
+  place_of_assignment_id | INTEGER
+  section_id | INTEGER
+  tranche_id | INTEGER
+  salary_grade_id | INTEGER
+  step_id | INTEGER
+  salary_amount | float
+  division_id | bigint
+  incumbent_id | bigint
+  date_vacated | datetime
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  salary_grade | TEXT
+  education | TEXT
+  experience | TEXT
+  training | varchar(255)
+  eligibility | TEXT
+  division | varchar(255)
+  section | varchar(255)
+  competency_requirements_richtext | json
+  csc_eligibility_group | TEXT
+  position_salary_step | varchar(255)
+  position_salary_amount | varchar(255)
+  csc_eligibility | varchar(255)
+  csc_education | varchar(255)
+  csc_work_experience | varchar(255)
+  csc_training_requirements | varchar(255)
+  hrmis_id | INTEGER
+  position_level | INTEGER
+
+=== postions_deleted_by_lnk ===
+  id | INTEGER NOT NULL PK
+  postion_id | INTEGER
+  user_id | INTEGER
+
+=== postions_eligibilities_lnk ===
+  id | INTEGER NOT NULL PK
+  postion_id | INTEGER
+  eligibility_id | INTEGER
+  eligibility_ord | float
+
+=== postions_place_of_assignment_lnk ===
+  id | INTEGER NOT NULL PK
+  postion_id | INTEGER
+  place_of_assignment_id | INTEGER
+  postion_ord | float
+
+=== postions_specific_eligibilities_lnk ===
+  id | INTEGER NOT NULL PK
+  postion_id | INTEGER
+  specific_eligibility_id | INTEGER
+  specific_eligibility_ord | float
+
+=== projects ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  code | TEXT
+  name | TEXT
+  description | varchar(255)
+  position_type | TEXT
+  contract_date_from | datetime
+  contract_date_to | datetime
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+
+=== projects_place_of_assignment_lnk ===
+  id | INTEGER NOT NULL PK
+  project_id | INTEGER
+  place_of_assignment_id | INTEGER
+
+=== projects_user_lnk ===
+  id | INTEGER NOT NULL PK
+  project_id | INTEGER
+  user_id | INTEGER
+  project_ord | float
+
+=== specific_eligibilities ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  name | TEXT
+  level | INTEGER
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  index | INTEGER
+
+=== specific_eligibilities_admin_lnk ===
+  id | INTEGER NOT NULL PK
+  specific_eligibility_id | INTEGER
+  user_id | INTEGER
+  specific_eligibility_ord | float
+
+=== specific_eligibilities_applicant_eligibility_lnk ===
+  id | INTEGER NOT NULL PK
+  specific_eligibility_id | INTEGER
+  applicant_eligibility_id | INTEGER
+  specific_eligibility_ord | float
+
+=== specific_eligibilities_applicant_lnk ===
+  id | INTEGER NOT NULL PK
+  specific_eligibility_id | INTEGER
+  applicant_id | INTEGER
+  specific_eligibility_ord | float
+
+=== specific_eligibilities_eligibility_lnk ===
+  id | INTEGER NOT NULL PK
+  specific_eligibility_id | INTEGER
+  eligibility_id | INTEGER
+  specific_eligibility_ord | float
+
+=== up_permissions ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  action | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+
+=== up_permissions_role_lnk ===
+  id | INTEGER NOT NULL PK
+  permission_id | INTEGER
+  role_id | INTEGER
+  permission_ord | float
+
+=== up_roles ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  name | varchar(255)
+  description | varchar(255)
+  type | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+
+=== up_users ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  username | varchar(255)
+  email | varchar(255)
+  provider | varchar(255)
+  password | varchar(255)
+  reset_password_token | varchar(255)
+  confirmation_token | varchar(255)
+  confirmed | boolean
+  blocked | boolean
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+  is_admin | boolean
+  is_applicant | boolean
+  first_name | TEXT
+  middle_name | TEXT
+  last_name | varchar(255)
+  otp | TEXT
+  encrypted_id | TEXT
+  no_of_attemps | INTEGER
+  information_fillouted | boolean
+
+=== up_users_applicant_id_lnk ===
+  id | INTEGER NOT NULL PK
+  user_id | INTEGER
+  applicant_id | INTEGER
+
+=== up_users_postion_lnk ===
+  id | INTEGER NOT NULL PK
+  user_id | INTEGER
+  postion_id | INTEGER
+  user_ord | float
+
+=== up_users_postion_update_lnk ===
+  id | INTEGER NOT NULL PK
+  user_id | INTEGER
+  postion_id | INTEGER
+  user_ord | float
+
+=== up_users_role_lnk ===
+  id | INTEGER NOT NULL PK
+  user_id | INTEGER
+  role_id | INTEGER
+  user_ord | float
+
+=== upload_folders ===
+  id | INTEGER NOT NULL PK
+  document_id | varchar(255)
+  name | varchar(255)
+  path_id | INTEGER
+  path | varchar(255)
+  created_at | datetime
+  updated_at | datetime
+  published_at | datetime
+  created_by_id | INTEGER
+  updated_by_id | INTEGER
+  locale | varchar(255)
+
+=== upload_folders_parent_lnk ===
+  id | INTEGER NOT NULL PK
+  folder_id | INTEGER
+  inv_folder_id | INTEGER
+  folder_ord | float
+

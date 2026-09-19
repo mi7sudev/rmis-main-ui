@@ -1,0 +1,307 @@
+        {/* ===== Job search — Accenture careers pattern: filter rail +
+               results toolbar + sharp cards with square "+" quick-view +
+               numbered pagination. Card body opens the full posting; the
+               "+" expands an inline quick view (facts + actions). ===== */}
+        <div ref={resultsTopRef} aria-hidden className="scroll-mt-24" />
+        {jobs.length === 0 ? (
+          <div className="mt-8 border border-border bg-card p-12 text-center">
+            <div className="mx-auto grid size-14 place-items-center border border-border bg-secondary text-primary">
+              <Briefcase className="size-6" strokeWidth={1.5} />
+            </div>
+            <h3 className="mt-4 text-xl font-semibold tracking-[-0.01em]">No open positions</h3>
+            <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">Check back later.</p>
+          </div>
+        ) : (
+          <div className="mt-8 grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
+            {/* ---- Filter rail ---- */}
+            <div>
+              {/* Mobile — the rail collapses behind a toggle */}
+              <button
+                onClick={() => setMobileFiltersOpen((v) => !v)}
+                aria-expanded={mobileFiltersOpen}
+                className="flex h-11 w-full items-center justify-between border border-border bg-card px-4 lg:hidden"
+              >
+                <span className="flex items-center gap-2.5 text-sm font-semibold text-foreground">
+                  <SlidersHorizontal className="size-4" strokeWidth={1.5} />
+                  Filters
+                  {hasActiveFilters && (
+                    <span className="grid size-5 place-items-center bg-primary text-[10px] font-bold tabular-nums text-white">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </span>
+                {mobileFiltersOpen ? (
+                  <ChevronUp className="size-4 text-muted-foreground" strokeWidth={2} />
+                ) : (
+                  <ChevronDown className="size-4 text-muted-foreground" strokeWidth={2} />
+                )}
+              </button>
+
+              <aside
+                className={`mt-4 border border-border bg-card p-5 lg:sticky lg:top-[85px] lg:mt-0 lg:self-start lg:border-0 lg:bg-transparent lg:p-0 ${
+                  mobileFiltersOpen ? "block" : "hidden lg:block"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold tracking-[-0.01em] text-foreground">Filters</h2>
+                  <button
+                    onClick={clearFilters}
+                    disabled={!hasActiveFilters}
+                    className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+                  >
+                    Clear filters
+                    <RotateCcw className="size-3.5" strokeWidth={1.5} />
+                  </button>
+                </div>
+
+                <FilterGroup title="Location" open={locationOpen} onToggle={() => setLocationOpen((v) => !v)}>
+                  <div className="relative">
+                    <Search
+                      className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                      strokeWidth={1.5}
+                    />
+                    <Input
+                      value={locationQuery}
+                      onChange={(e) => setLocationQuery(e.target.value)}
+                      placeholder="Search locations"
+                      aria-label="Search locations"
+                      className="pl-9"
+                    />
+                  </div>
+                </FilterGroup>
+
+                <FilterGroup title="Division" open={divisionOpen} onToggle={() => setDivisionOpen((v) => !v)}>
+                  <div className="space-y-1">
+                    {divisionFacets.map(([code, count]) => {
+                      const checked = divisionFilter.includes(code);
+                      const label = divisionLabel(code) ?? code;
+                      return (
+                        <label key={code} className="group flex cursor-pointer items-center gap-3 py-1.5" title={label}>
+                          <input
+                            type="checkbox"
+                            className="sr-only"
+                            checked={checked}
+                            onChange={() => toggleDivision(code)}
+                          />
+                          <span
+                            aria-hidden
+                            className={`flex size-4 shrink-0 items-center justify-center border transition-colors ${
+                              checked
+                                ? "border-primary bg-primary text-white"
+                                : "border-muted-foreground/40 bg-transparent group-hover:border-foreground/60"
+                            }`}
+                          >
+                            {checked && <Check className="size-3" strokeWidth={3} />}
+                          </span>
+                          <span className="min-w-0 flex-1 truncate text-sm text-foreground">{label}</span>
+                          <span className="shrink-0 text-sm tabular-nums text-muted-foreground">{count}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </FilterGroup>
+              </aside>
+            </div>
+
+            {/* ---- Results ---- */}
+            <div className="min-w-0">
+              {/* Toolbar — "N Results | Sort by …" */}
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b border-border pb-4">
+                <p className="text-lg font-semibold tabular-nums tracking-[-0.01em] text-foreground">
+                  {filteredJobs.length} {filteredJobs.length === 1 ? "Result" : "Results"}
+                </p>
+                <div className="flex items-center gap-3">
+                  <span aria-hidden className="hidden h-5 w-px bg-border sm:block" />
+                  <div className="flex items-center gap-2">
+                    <span className="hidden text-sm text-muted-foreground sm:inline">Sort by</span>
+                    <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortKey)}>
+                      <SelectTrigger className="h-9 w-[132px] text-sm font-semibold" aria-label="Sort results">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SORT_OPTIONS.map((o) => (
+                          <SelectItem key={o.value} value={o.value}>
+                            {o.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {filteredJobs.length === 0 ? (
+                <div className="mt-6 border border-border bg-card p-12 text-center">
+                  <div className="mx-auto grid size-14 place-items-center border border-border bg-secondary text-primary">
+                    <Search className="size-6" strokeWidth={1.5} />
+                  </div>
+                  <h3 className="mt-4 text-xl font-semibold tracking-[-0.01em]">No positions match your filters</h3>
+                  <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+                    Adjust the location search or division filters to see more results.
+                  </p>
+                  {hasActiveFilters && (
+                    <Button variant="outline" onClick={clearFilters} className="mt-6">
+                      <RotateCcw className="size-4" strokeWidth={1.5} />
+                      Clear filters
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-3 pt-6 sm:space-y-4">
+                    {pagedJobs.map((job, i) => {
+                      const applied = !!job.applications?.length;
+                      const pos = job.position;
+                      const title = pos?.positionTitle || job.title || "Position Title Unavailable";
+                      const place = jobPlace(job);
+                      const salary = pos?.salaryAmount;
+                      const deadline = job.deadlineDate;
+                      const overdue = deadline ? new Date(deadline).getTime() < Date.now() : false;
+                      const expanded = expandedId === job.id;
+
+                      // Meta — pipe-separated vitals, the Accenture card register
+                      // (place | type | pay | closes); overdue flips the closer to red.
+                      const meta: { label: string; className?: string }[] = [];
+                      if (place) meta.push({ label: place });
+                      if (job.positionType) meta.push({ label: job.positionType });
+                      if (salary != null) meta.push({ label: `${formatCurrency(salary)} monthly`, className: "tabular-nums" });
+                      meta.push({
+                        label: overdue ? "Closed" : deadline ? `Closes ${formatDate(deadline)}` : "Open until filled",
+                        className: overdue ? "font-semibold text-danger-ink" : "tabular-nums",
+                      });
+
+                      return (
+                        <Reveal key={job.id} delay={Math.min(i, 6) * 0.04} y={14}>
+                          <div className="group relative border border-border bg-card transition-colors duration-200 hover:border-foreground/25">
+                            {/* Momentum rule — brand bar wipes in across the card on hover */}
+                            <span
+                              aria-hidden
+                              className="pointer-events-none absolute inset-x-0 top-0 z-10 h-0.5 origin-left scale-x-0 bg-primary transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100"
+                            />
+                            <div className="flex items-stretch">
+                              <button
+                                onClick={() => openJob(job)}
+                                aria-label={`View posting — ${title}`}
+                                className="min-w-0 flex-1 px-5 py-6 text-left sm:px-7"
+                              >
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                                  <h3 className="min-w-0 text-lg font-semibold leading-snug tracking-[-0.01em] text-foreground sm:text-xl">
+                                    {humanizeTitle(title)}
+                                  </h3>
+                                  {applied && <Badge variant="gold" className="shrink-0">Applied</Badge>}
+                                </div>
+                                <div className="mt-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-muted-foreground">
+                                  {meta.map((m, idx) => (
+                                    <Fragment key={idx}>
+                                      {idx > 0 && <span aria-hidden className="select-none text-muted-foreground/50">|</span>}
+                                      <span className={m.className}>{m.label}</span>
+                                    </Fragment>
+                                  ))}
+                                </div>
+                              </button>
+                              <div className="flex shrink-0 items-center pr-5 sm:pr-7">
+                                <button
+                                  onClick={() => setExpandedId(expanded ? null : job.id)}
+                                  aria-expanded={expanded}
+                                  aria-label={expanded ? `Hide quick view — ${title}` : `Quick view — ${title}`}
+                                  className="grid size-10 shrink-0 place-items-center bg-primary text-white transition-colors duration-200 hover:bg-primary/85"
+                                >
+                                  <Plus
+                                    className={`size-4 transition-transform duration-300 ${expanded ? "rotate-45" : ""}`}
+                                    strokeWidth={2.5}
+                                  />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Quick view — inline expansion (facts + actions) */}
+                            {expanded && (
+                              <div className="border-t border-border px-5 pb-6 pt-5 sm:px-7">
+                                {job.briefDescription && (
+                                  <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+                                    {job.briefDescription}
+                                  </p>
+                                )}
+                                <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 xl:grid-cols-6">
+                                  <QuickFact label="Item No." value={pos?.itemNumber || "—"} />
+                                  <QuickFact label="Vacancies" value={job.numberOfVacancy != null ? String(job.numberOfVacancy) : "—"} />
+                                  <QuickFact
+                                    label="Salary Grade"
+                                    value={pos?.salaryGrade ? `SG ${pos.salaryGrade}${pos.salaryStep ? `/${pos.salaryStep}` : ""}` : "—"}
+                                  />
+                                  <QuickFact label="Monthly Salary" value={salary != null ? formatCurrency(salary) : "—"} />
+                                  <QuickFact label="Published" value={formatDate(job.publishDate)} />
+                                  <QuickFact label="Deadline" value={formatDate(job.deadlineDate)} tone={overdue ? "danger" : undefined} />
+                                </dl>
+                                <div className="mt-6 flex flex-wrap items-center gap-3">
+                                  {applied ? (
+                                    <Badge variant="gold">Applied — track it in My Applications</Badge>
+                                  ) : (
+                                    <Button size="sm" onClick={() => requestApply(job)} disabled={overdue}>
+                                      Apply now
+                                      <ArrowRight className="size-4" />
+                                    </Button>
+                                  )}
+                                  <Button size="sm" variant="outline" onClick={() => openJob(job)}>
+                                    View full posting
+                                  </Button>
+                                  {overdue && !applied && (
+                                    <span className="flex items-center gap-1.5 text-xs font-semibold text-danger-ink">
+                                      <AlertCircle className="size-3.5" strokeWidth={1.5} />
+                                      Deadline passed
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </Reveal>
+                      );
+                    })}
+                  </div>
+
+                  {totalPages > 1 && (
+                    <nav className="mt-10 flex items-center justify-center gap-1.5 sm:gap-2" aria-label="Job list pages">
+                      <button
+                        onClick={() => goToPage(safePage - 1)}
+                        disabled={safePage === 1}
+                        aria-label="Previous page"
+                        className="grid size-10 place-items-center text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+                      >
+                        <ArrowLeft className="size-4" strokeWidth={2} />
+                      </button>
+                      {pageWindow(safePage, totalPages).map((p, idx) =>
+                        p === "ellipsis" ? (
+                          <span key={`e${idx}`} className="grid size-10 place-items-center text-sm text-muted-foreground">
+                            …
+                          </span>
+                        ) : (
+                          <button
+                            key={p}
+                            onClick={() => goToPage(p)}
+                            aria-current={p === safePage ? "page" : undefined}
+                            className={`grid h-10 min-w-10 items-center justify-center border px-2 text-sm tabular-nums transition-colors ${
+                              p === safePage
+                                ? "border-primary border-b-2 font-semibold text-primary"
+                                : "border-transparent text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            {p}
+                          </button>
+                        ),
+                      )}
+                      <button
+                        onClick={() => goToPage(safePage + 1)}
+                        disabled={safePage === totalPages}
+                        aria-label="Next page"
+                        className="grid size-10 place-items-center text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+                      >
+                        <ArrowRight className="size-4" strokeWidth={2} />
+                      </button>
+                    </nav>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}

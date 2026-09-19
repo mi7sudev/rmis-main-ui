@@ -1,0 +1,500 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================================
+   LENIS SMOOTH SCROLL — recommended base styles
+   (https://github.com/darkroomengineering/lenis)
+   ============================================================================ */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ============================================================================
+   RMIS — AUTHENTIC ACCENTURE DESIGN SYSTEM (source-of-truth port)
+   ----------------------------------------------------------------------------
+   Ported from the measured accenture.com token sheet. The brand accent is
+   RMIS electric blue #1591DC standing in for Accenture purple #A100FF.
+
+   DUAL-MODE SYSTEM (next-themes, class strategy):
+   · .dark  → the SOFT CHARCOAL canvas sheet (#16181D — dark mode without
+     the eye-strain of pure black)
+   · :root  → the LIGHT sheet: white canvas, #F1F1EF surface blocks, black ink
+   Both speak the same Accenture language:
+   · Sharp 0px corners everywhere — rectilinear, tech-forward
+   · NO drop shadows — depth via colour-blocking and borders only
+   · Electric blue #1591DC is THE interactive accent in both modes
+   · Big bold display type (Inter as the Graphik stand-in), Fraunces as the
+     GT Sectra Fine editorial stand-in
+   · Focus states: solid 2px #1591DC outline
+   · Royal gold survives ONLY as a small heritage accent (kickers, badges);
+     it is mode-tuned — #E8A317 on black, deep #8A6210 on white — so 12px
+     kicker caps stay legible on the light canvas.
+   · "Ink" tokens pair a status wash with its readable text colour per mode
+     (e.g. danger-ink: #FF8296 on black vs #C40823 on white).
+   ============================================================================ */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-brand: var(--brand);
+  --color-brand-light: var(--brand-light);
+  --color-gold: var(--gold);
+  --color-ink: var(--ink);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-accent-1: var(--accent-1);
+  --color-accent-2: var(--accent-2);
+  --color-accent-3: var(--accent-3);
+  /* Mode-tuned ink pairings — wash + readable text colour per mode */
+  --color-danger-ink: var(--danger-ink);
+  --color-success-ink: var(--success-ink);
+  --color-warning-ink: var(--warning-ink);
+  --color-info-ink: var(--info-ink);
+  --color-tablehead: var(--tablehead);
+  --color-input-hover: var(--input-hover);
+  /* Status tokens (semantic) */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  /* Accenture geometry — SHARP. Every radius collapses to 0. */
+  --radius-sm: 0rem;
+  --radius-md: 0rem;
+  --radius-lg: 0rem;
+  --radius-xl: 0rem;
+  --radius-2xl: 0rem;
+  /* Accenture elevation = colour-blocking. Legacy shadow tokens are
+     neutralised so any stray shadow-* class renders flat. */
+  --shadow-soft: 0 0 #0000;
+  --shadow-lift: 0 0 #0000;
+  --shadow-pop: 0 0 #0000;
+}
+
+/* ============================================================================
+   FLUID TYPE CURVE — measured live from accenture.com/us-en/careers/jobsearch
+   Fixed at the 1440 reference below 1440px, then scales ×(viewport/1440) up
+   to a ×4/3 cap at 1920px:
+     14→18.67 · 16→21.33 · 18→24 · 20→26.67 · 24→32 · 30→40
+   Overrides Tailwind's font-size tokens so every text-* utility rides the
+   curve system-wide (frontpage, boards, admin, dialogs). Paired line-height
+   ratios are unitless and scale automatically. text-xs stays fixed (micro-
+   tags / badges keep a consistent size).
+   ============================================================================ */
+@theme {
+  /* Accenture motion signature (audited 0.55s cubic-bezier(0.85,0,0,1)) */
+  --ease-deliberate: cubic-bezier(0.85, 0, 0, 1);
+
+  --text-xs: 0.75rem;                                /* 12px — deliberately fixed */
+  --text-sm: clamp(0.875rem, 0.9722vw, 1.1667rem);   /* 14 → 18.67 */
+  --text-base: clamp(1rem, 1.1111vw, 1.3333rem);     /* 16 → 21.33 */
+  --text-lg: clamp(1.125rem, 1.25vw, 1.5rem);        /* 18 → 24 */
+  --text-xl: clamp(1.25rem, 1.3889vw, 1.6667rem);    /* 20 → 26.67 */
+  --text-2xl: clamp(1.5rem, 1.6667vw, 2rem);         /* 24 → 32 */
+  --text-3xl: clamp(1.875rem, 2.0833vw, 2.5rem);     /* 30 → 40 */
+}
+
+:root {
+  /* ----------------------------------------------------------------------------
+   * ACCENTURE TOKEN SHEET — LIGHT MODE (:root default)
+   * White canvas · black ink · primary #1591DC · surface block #F1F1EF
+   * ---------------------------------------------------------------------------- */
+  --radius: 0rem;
+
+  /* Brand — electric blue (replaces Accenture purple #A100FF) */
+  --brand: #1591DC;
+  --brand-light: #0E7ABF;         /* link tint — deep enough for white canvas */
+  --primary: #1591DC;
+  --primary-hover: #0E7ABF;       /* darkened primary — button hover */
+  --primary-foreground: #FFFFFF;
+  --royal-gold: #8A6210;
+
+  /* Core surfaces */
+  --canvas: #FFFFFF;
+  --ink: #000000;
+  --surface: #F1F1EF;             /* the signature Accenture surface block */
+  --surface-foreground: #000000;
+  --gold: #8A6210;                /* heritage accent — deepened for white */
+
+  /* Decorative colour-block accents (Accenture accent hues) */
+  --accent-1: #0041F0;            /* bright blue block */
+  --accent-2: #E2062E;            /* red block / destructive */
+  --accent-3: #0A4A74;            /* deep blue block */
+
+  /* Page canvas = pure white, black ink */
+  --background: #FFFFFF;
+  --foreground: #000000;
+  --card: #F7F7F5;                /* raised panel — a breath off the canvas */
+  --card-foreground: #000000;
+  --popover: #FFFFFF;
+  --popover-foreground: #000000;
+
+  /* Secondary / muted — the surface block family */
+  --secondary: #F1F1EF;
+  --secondary-foreground: #000000;
+  --muted: #F1F1EF;
+  --muted-foreground: #5A5A58;
+
+  /* Accent = interactive hover wash (light ghost-hover) */
+  --accent: #E8E8E6;
+  --accent-foreground: #000000;
+
+  /* Destructive = accent red */
+  --destructive: #E2062E;
+
+  /* Borders — measured light hairline; input stroke per states spec */
+  --border: #E0E0DE;
+  --input: #A2A2A0;               /* their measured light input stroke */
+  --input-hover: #5A5A58;         /* darkens on hover (inverse of the dark mode) */
+  --ring: #1591DC;                /* focus-visible = 2px blue outline */
+
+  /* Semantic status colors (light-tuned) */
+  --success: #178A50;
+  --success-foreground: #FFFFFF;
+  --warning: #B45309;
+  --warning-foreground: #FFFFFF;
+  --danger: #E2062E;
+  --danger-foreground: #FFFFFF;
+  --info: #0041F0;
+  --info-foreground: #FFFFFF;
+
+  /* Mode-tuned status inks — wash/text pairs that read on white */
+  --danger-ink: #C40823;
+  --success-ink: #157F45;
+  --warning-ink: #8A6210;
+  --info-ink: #0E7ABF;
+  --tablehead: #F1F1EF;           /* table header band (matches surface) */
+  --scrollbar-thumb: #C6C6C4;
+
+  /* Chart palette — blue-led with accent blocks */
+  --chart-1: #1591DC;
+  --chart-2: #E8A317;
+  --chart-3: #0041F0;
+  --chart-4: #E2062E;
+  --chart-5: #616160;
+
+  /* Sidebar — white navigation rail with black ink */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: #1591DC;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F1F1EF;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #E0E0DE;
+  --sidebar-ring: #1591DC;
+}
+
+/* ----------------------------------------------------------------------------
+   DARK MODE (.dark) — the SOFT CHARCOAL canvas sheet. The heritage look was
+   pure #000; it read as an eye-straining void, so the sheet is lifted to a
+   quiet charcoal ramp (#16181D canvas → #1D2026 cards → #262A31 blocks) with
+   a whisper of cool blue in the hue so it sits next to #1591DC cleanly.
+   Same relative structure as before: canvas < card < popover < muted < accent.
+   The --surface token INVERTS to charcoal #1D2026 (same as --card) with white
+   ink, so .block-surface ledger cards/panels/tooltips read as dark blocks
+   in dark mode (mirroring the light sheet's white-on-#F1F1EF register).
+   next-themes toggles this class on <html>.
+   ---------------------------------------------------------------------------- */
+.dark {
+  --brand: #1591DC;
+  --brand-light: #8ECBF0;         /* lightened link tint for the charcoal canvas */
+  --primary: #1591DC;
+  --primary-hover: #0E7ABF;
+  --primary-foreground: #FFFFFF;
+  --royal-gold: #E8A317;
+
+  --canvas: #16181D;
+  --ink: #FFFFFF;
+  --surface: #1D2026;             /* charcoal block — inverts with white ink in dark mode */
+  --surface-foreground: #FFFFFF;
+  --gold: #E8A317;
+
+  --accent-1: #0041F0;
+  --accent-2: #E2062E;
+  --accent-3: #0A4A74;
+
+  --background: #16181D;
+  --foreground: #FFFFFF;
+  --card: #1D2026;
+  --card-foreground: #FFFFFF;
+  --popover: #202329;
+  --popover-foreground: #FFFFFF;
+
+  --secondary: #262A31;
+  --secondary-foreground: #FFFFFF;
+  --muted: #262A31;
+  --muted-foreground: #A6ADB6;
+
+  --accent: #2F343C;
+  --accent-foreground: #FFFFFF;
+
+  --destructive: #E2062E;
+
+  --border: #292D34;
+  --input: #565B63;
+  --input-hover: #A2A2A0;         /* brightens on hover, per the states spec */
+  --ring: #1591DC;
+
+  --success: #2FBF71;
+  --success-foreground: #000000;
+  --warning: #F5A623;
+  --warning-foreground: #000000;
+  --danger: #E2062E;
+  --danger-foreground: #FFFFFF;
+  --info: #0041F0;
+  --info-foreground: #FFFFFF;
+
+  /* Status inks tuned for the charcoal canvas (light inks on /10 washes) */
+  --danger-ink: #FF8296;
+  --success-ink: #6EE7B7;
+  --warning-ink: #FCD34D;
+  --info-ink: #5FB8F0;
+  --tablehead: #1B1E24;
+  --scrollbar-thumb: #383D45;
+
+  --chart-1: #1591DC;
+  --chart-2: #E8A317;
+  --chart-3: #0041F0;
+  --chart-4: #E2062E;
+  --chart-5: #A6A6A6;
+
+  --sidebar: #16181D;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #1591DC;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #2F343C;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #292D34;
+  --sidebar-ring: #1591DC;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    color-scheme: light;
+    background-color: var(--background);
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* Horizontal-overflow guard: clip (not hidden) so the body never becomes
+       a scroll container — one long unbroken string can't scroll the page
+       (and its sticky rails) sideways. Zero effect when nothing overflows. */
+    overflow-x: clip;
+    font-feature-settings: "rlig" 1, "calt" 1, "tnum" 1;
+    font-family: var(--font-sans), "Inter", -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  /* Accenture headline voice — Graphik-style: medium weights, tight tracking.
+     Display sizes opt into weight 600 + uppercase via the display utilities. */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans), "Inter", sans-serif;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection {
+    background-color: var(--primary);
+    color: #FFFFFF;
+  }
+  /* Focus-visible: solid 2px blue outline (Accenture states spec) */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  /* Scrollbar — mode-tuned via tokens (thumb + canvas-matching border) */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border: 2px solid var(--background);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+  }
+}
+
+/* ============================================================================
+   TYPOGRAPHY SCALE — measured from the Accenture token sheet
+   (Inter stands in for Graphik; add .display-serif for GT Sectra moments)
+   ============================================================================ */
+
+@layer utilities {
+  /* Display XXL-strong — hero: 100px/500/uppercase/-3px on 1440 viewports.
+     Accenture law (audited across 11 pages): display type is HUGE-MEDIUM-TIGHT
+     — weight 500, never bold. Hierarchy lives in the scale jump, not weight. */
+  .display-hero {
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    font-size: clamp(2.75rem, 1.2rem + 7vw, 6.25rem);
+  }
+  /* Display XL — 48px/500/-1.44px (the audited H2 section tier) */
+  .display-xl {
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    font-size: clamp(2rem, 1.1rem + 3.8vw, 3rem);
+  }
+  /* Display LG — 40px/500/-1.2px (the audited mid-display tier) */
+  .display-lg {
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.12;
+    font-size: clamp(1.625rem, 1.1rem + 2.2vw, 2.5rem);
+  }
+  /* Heading MD — 24px/500 → 32px at 1920 (rides the Accenture fluid curve) */
+  .heading-md {
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    font-size: clamp(1.5rem, 1.6667vw, 2rem);
+  }
+  /* Editorial serif display (GT Sectra Fine stand-in) — pair with a size */
+  .display-serif {
+    font-family: var(--font-serif), Georgia, "Times New Roman", serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  /* Serif standfirst — the audited ONE-per-page editorial counter-voice
+     (GT Sectra Fine 24px/300 under the H1). Pair with a fluid text size. */
+  .standfirst {
+    font-family: var(--font-serif), Georgia, "Times New Roman", serif;
+    font-weight: 300;
+    font-style: normal;
+    line-height: 1.45;
+    letter-spacing: 0;
+  }
+  /* Stat numerals — numbers as display typography (audited: 48px/500/−1.44px).
+     Weight 500 + tight tracking + tabular figures; never bold. */
+  .stat-numeral {
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Kicker / eyebrow — the audited single uppercase voice:
+     14px / 500 / UPPERCASE / +0.02em (0.28px @14px). Merger of the old
+     12px/600/+0.16em and 10px/bold micro-label systems. */
+  .kicker {
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+  }
+  .kicker-gold {
+    color: var(--gold);
+  }
+
+  /* ---- Colour-blocking utilities (Accenture elevation strategy) ----------
+     Light blocks carry BLACK text; brand blocks carry white/gold ink. ---- */
+  .block-surface {
+    background-color: var(--surface);
+    color: var(--surface-foreground);
+  }
+  .block-ink {
+    background-color: #FFFFFF;
+    color: #000000;
+  }
+  .block-primary {
+    background-color: var(--primary);
+    color: #FFFFFF;
+  }
+  .block-accent {
+    background-color: var(--accent-1);
+    color: #FFFFFF;
+  }
+  .block-red {
+    background-color: var(--accent-2);
+    color: #FFFFFF;
+  }
+  .block-deep {
+    background-color: var(--accent-3);
+    color: #FFFFFF;
+  }
+  .block-gold {
+    background-color: var(--gold);
+    color: #000000;
+  }
+
+  /* Accenture signature ">" momentum link */
+  .link-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+  }
+  .link-arrow::after {
+    content: ">";
+    font-weight: 400;
+    transition: transform 0.15s ease;
+  }
+  .link-arrow:hover::after {
+    transform: translateX(3px);
+  }
+}

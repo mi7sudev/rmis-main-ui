@@ -1,0 +1,18 @@
+{
+  "id": "a94b06dd-5499-4489-9a23-f9014842ea22",
+  "applicantId": 568,
+  "uploadedById": 130,
+  "fileName": "a94b06dd-5499-4489-9a23-f9014842ea22.pdf",
+  "originalName": "Delimios CV.pdf",
+  "mimeType": "application/pdf",
+  "size": 66090,
+  "filePath": "upload/568/a94b06dd-5499-4489-9a23-f9014842ea22.pdf",
+  "category": "RESUME",
+  "status": "FAILED",
+  "extractedJson": null,
+  "extractionError": "AI_API_KEY is not set. Document Intelligence cannot run. Add AI_API_KEY to your .env file (see .env.example).",
+  "extractedAt": null,
+  "createdAt": "2026-09-13T16:32:45.238Z",
+  "updatedAt": "2026-09-13T16:32:46.533Z",
+  "fileTableId": 257
+}

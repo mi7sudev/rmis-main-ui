@@ -1,0 +1,44 @@
+# ============================================================================
+# RMIS — Intranet reverse proxy (Caddy)
+#
+# Purpose: let employees open the app at the bare intranet IP
+#   http://10.10.120.X          (no port in the URL)
+# while Next.js runs on port 3000 behind it.
+#
+# Install on the production server (Debian/Ubuntu):
+#   sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https
+#   curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+#   curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+#   sudo apt update && sudo apt install caddy
+#
+# Then copy this file to /etc/caddy/Caddyfile and:
+#   sudo systemctl reload caddy
+#
+# 10.10.120.X is YOUR server's LAN IP — run `ip -4 addr show` to find it.
+# Caddy serves on port 80 for every Host (IP or hostname) automatically.
+# ============================================================================
+
+{
+	# Intranet: no public domain, so automatic HTTPS is disabled.
+	auto_https off
+	admin off
+}
+
+:80 {
+	# Allow PDS / certificate uploads (app limit is 10 MB per file).
+	request_body {
+		max_size 12MB
+	}
+
+	reverse_proxy 127.0.0.1:3000 {
+		header_up Host {host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Real-IP {remote_host}
+	}
+
+	# Serve long-lived static assets with caching headers (Next.js already
+	# fingerprints them; this keeps repeat visits fast on the LAN).
+	@static path /_next/static/*
+	header @static Cache-Control "public, max-age=31536000, immutable"
+}

@@ -1,0 +1,1508 @@
+// ============================================================================
+// RMIS — Recruitment Management Information System (DOST-MIRDC)
+// Prisma schema mapping EXACTLY to the RMIS production SQLite database
+// (db/production-data.db) — the database is owned and accessed 100% by this
+// Next.js app via Prisma.
+//
+// IMPORTANT — READ BEFORE EDITING:
+//   * This schema is a PURE MAPPING. NEVER run `prisma db push` or migrations
+//     against the production DB — it would destroy real data.
+//   * Every model uses `@@map("table_name")` to map to the physical table.
+//   * Every field uses `@map("column_name")` to map to the physical column.
+//   * Legacy junction tables (`*_lnk`) are modelled as explicit join models (no Prisma
+//     `@relation` declarations) because they carry extra `*_ord` columns that
+//     Prisma's implicit m2m cannot represent.
+//   * DATE columns stored as TEXT ("1993-07-25") are typed as `String?`.
+//   * DATETIME columns stored as epoch milliseconds are typed as `DateTime?`.
+//   * JSON-typed SQLite columns are declared as `Unsupported("json")?`.
+//     DEVIATION from the task spec: Prisma 6.11's SQLite connector cannot
+//     deserialize SQLite `json`-declared columns — it throws
+//     "Conversion failed: Value json not supported" whenever a query returns
+//     a row with NULL in such a column. `Unsupported` makes Prisma skip the
+//     column entirely, so `findMany` works for all rows. To READ a json
+//     column's value, use `db.$queryRaw` (see `src/lib/raw-json.ts` helper).
+//     This matches the original Prisma introspection's choice.
+//   * `govt_id_date_issued` and `govt_id_valid_until` are varchar → `String?`.
+//   * Internal framework housekeeping tables (admin_*, strapi_*, i18n_locale,
+//     sqlite_sequence) are intentionally excluded — the app does not need them.
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// SECTION 1 — AUTH & USERS
+// ============================================================================
+
+/// Users table (`up_users`) — legacy RMIS user accounts.
+model User {
+  id                  Int       @id @default(autoincrement()) @map("id")
+  documentId          String?   @map("document_id")
+  username            String?   @map("username")
+  email               String?   @map("email")
+  provider            String?   @map("provider")
+  password            String?   @map("password")
+  resetPasswordToken  String?   @map("reset_password_token")
+  confirmationToken   String?   @map("confirmation_token")
+  confirmed           Boolean?  @map("confirmed")
+  blocked             Boolean?  @map("blocked")
+  createdAt           DateTime? @map("created_at")
+  updatedAt           DateTime? @map("updated_at")
+  publishedAt         DateTime? @map("published_at")
+  createdById         Int?      @map("created_by_id")
+  updatedById         Int?      @map("updated_by_id")
+  locale              String?   @map("locale")
+  isAdmin             Boolean?  @map("is_admin")
+  isApplicant         Boolean?  @map("is_applicant")
+  firstName           String?   @map("first_name")
+  middleName          String?   @map("middle_name")
+  lastName            String?   @map("last_name")
+  otp                 String?   @map("otp")
+  encryptedId         String?   @map("encrypted_id")
+  noOfAttempts        Int?      @map("no_of_attemps")
+  informationFillouted Boolean?  @map("information_fillouted")
+
+  @@index([createdById], map: "up_users_created_by_id_fk")
+  @@index([updatedById], map: "up_users_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "up_users_documents_idx")
+  @@map("up_users")
+}
+
+model Role {
+  id          Int       @id @default(autoincrement()) @map("id")
+  documentId  String?   @map("document_id")
+  name        String?   @map("name")
+  description String?   @map("description")
+  type        String?   @map("type")
+  createdAt   DateTime? @map("created_at")
+  updatedAt   DateTime? @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  createdById Int?      @map("created_by_id")
+  updatedById Int?      @map("updated_by_id")
+  locale      String?   @map("locale")
+
+  @@index([createdById], map: "up_roles_created_by_id_fk")
+  @@index([updatedById], map: "up_roles_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "up_roles_documents_idx")
+  @@map("up_roles")
+}
+
+model UserRoleLink {
+  id     Int   @id @default(autoincrement()) @map("id")
+  userId Int?   @map("user_id")
+  roleId Int?   @map("role_id")
+  userOrd Float? @map("user_ord")
+
+  @@index([userId], map: "up_users_role_lnk_user_fk")
+  @@index([roleId], map: "up_users_role_lnk_role_fk")
+  @@index([userOrd], map: "up_users_role_lnk_user_ord_fk")
+  @@map("up_users_role_lnk")
+}
+
+model UserApplicantLink {
+  id          Int @id @default(autoincrement()) @map("id")
+  userId      Int? @map("user_id")
+  applicantId Int? @map("applicant_id")
+
+  @@index([userId], map: "up_users_applicant_id_lnk_user_fk")
+  @@index([applicantId], map: "up_users_applicant_id_lnk_applicant_fk")
+  @@map("up_users_applicant_id_lnk")
+}
+
+model UserPositionLink {
+  id        Int   @id @default(autoincrement()) @map("id")
+  userId    Int?   @map("user_id")
+  postionId Int?   @map("postion_id")
+  userOrd   Float? @map("user_ord")
+
+  @@index([userId], map: "up_users_postion_lnk_user_fk")
+  @@index([postionId], map: "up_users_postion_lnk_postion_fk")
+  @@index([userOrd], map: "up_users_postion_lnk_user_ord_fk")
+  @@map("up_users_postion_lnk")
+}
+
+model UserPositionUpdateLink {
+  id        Int   @id @default(autoincrement()) @map("id")
+  userId    Int?   @map("user_id")
+  postionId Int?   @map("postion_id")
+  userOrd   Float? @map("user_ord")
+
+  @@index([userId], map: "up_users_postion_update_lnk_user_fk")
+  @@index([postionId], map: "up_users_postion_update_lnk_postion_fk")
+  @@index([userOrd], map: "up_users_postion_update_lnk_user_ord_fk")
+  @@map("up_users_postion_update_lnk")
+}
+
+model Permission {
+  id          Int       @id @default(autoincrement()) @map("id")
+  documentId  String?   @map("document_id")
+  action      String?   @map("action")
+  createdAt   DateTime? @map("created_at")
+  updatedAt   DateTime? @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  createdById Int?      @map("created_by_id")
+  updatedById Int?      @map("updated_by_id")
+  locale      String?   @map("locale")
+
+  @@index([createdById], map: "up_permissions_created_by_id_fk")
+  @@index([updatedById], map: "up_permissions_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "up_permissions_documents_idx")
+  @@map("up_permissions")
+}
+
+model PermissionRoleLink {
+  id           Int   @id @default(autoincrement()) @map("id")
+  permissionId Int?   @map("permission_id")
+  roleId       Int?   @map("role_id")
+  permissionOrd Float? @map("permission_ord")
+
+  @@index([permissionId], map: "up_permissions_role_lnk_perm_fk")
+  @@index([roleId], map: "up_permissions_role_lnk_role_fk")
+  @@index([permissionOrd], map: "up_permissions_role_lnk_perm_ord_fk")
+  @@map("up_permissions_role_lnk")
+}
+
+// ============================================================================
+// SECTION 2 — APPLICANT & PROFILE
+// ============================================================================
+
+/// Core applicant profile — ~90 columns. Note: `birth_date` and `crime_date`
+/// are stored as TEXT ("1993-07-25") so they are typed `String?`.
+/// `govt_id_date_issued` / `govt_id_valid_until` are varchar → `String?`.
+model Applicant {
+  id                        Int       @id @default(autoincrement()) @map("id")
+  documentId                String?   @map("document_id")
+  employeeNumber            String?   @map("employee_number")
+  firstName                 String?   @map("first_name")
+  middleName                String?   @map("middle_name")
+  lastName                  String?   @map("last_name")
+  extensionName             String?   @map("extension_name")
+  nickname                  String?   @map("nickname")
+  mobileNumber              BigInt?   @map("mobile_number")
+  contactNumber             String?   @map("contact_number")
+  telephoneNumber           String?   @map("telephone_number")
+  publication               String?   @map("publication")
+  birthDate                 String?   @map("birth_date")
+  birthPlace                String?   @map("birth_place")
+  emailAddress              String?   @map("email_address")
+  gender                    String?   @map("gender")
+  civilStatus               String?   @map("civil_status")
+  citizenship               String?   @map("citizenship")
+  naturalized               String?   @map("naturalized")
+  height                    String?   @map("height")
+  weight                    String?   @map("weight")
+  bloodType                 String?   @map("blood_type")
+  createdAt                 DateTime? @map("created_at")
+  updatedAt                 DateTime? @map("updated_at")
+  publishedAt               DateTime? @map("published_at")
+  createdById               Int?      @map("created_by_id")
+  updatedById               Int?      @map("updated_by_id")
+  locale                    String?   @map("locale")
+  pagibig                   String?   @map("pagibig")
+  gsis                      String?   @map("gsis")
+  philhealth                String?   @map("philhealth")
+  tin                       String?   @map("tin")
+  sss                       String?   @map("sss")
+  govtIssuedId              String?   @map("govt_issued_id")
+  govtIdIssuedNumber        String?   @map("govt_id_issued_number")
+  govtIdIssuedPlace         String?   @map("govt_id_issued_place")
+  govtIdDateIssued          String?   @map("govt_id_date_issued")
+  govtIdValidUntil          String?   @map("govt_id_valid_until")
+  houseNumber               String?   @map("house_number")
+  street                    String?   @map("street")
+  subdivision               String?   @map("subdivision")
+  barangay                  String?   @map("barangay")
+  city                      String?   @map("city")
+  province                  String?   @map("province")
+  country                   String?   @map("country")
+  permanentHouseNumber      String?   @map("permanent_house_number")
+  permanentStreet           String?   @map("permanent_street")
+  permanentSubdivision      String?   @map("permanent_subdivision")
+  permanentBarangay         String?   @map("permanent_barangay")
+  permanentCity             String?   @map("permanent_city")
+  permanentProvince         String?   @map("permanent_province")
+  permanentCountry          String?   @map("permanent_country")
+  permanentTelephoneNumber  String?   @map("permanent_telephone_number")
+  imagePath                 String?   @map("image_path")
+  applicationLetterPath     String?   @map("application_letter_path")
+  pdsPath                   String?   @map("pds_path")
+  employmentCertificatePath String?   @map("employment_certificate_path")
+  torPath                   String?   @map("tor_path")
+  coePath                   String?   @map("coe_path")
+  trainingCertificatePath   String?   @map("training_certificate_path")
+  infoSheetPath             String?   @map("info_sheet_path")
+  curriculumVitaePath       String?   @map("curriculum_vitae_path")
+  performancePath           String?   @map("performance_path")
+  wexpPath                  String?   @map("wexp_path")
+  pendingCases              String?   @map("pending_cases")
+  specifyReferral           String?   @map("specify_referral")
+  remarks                   String?   @map("remarks")
+  qualified                 Boolean?  @map("qualified")
+  zipCode                   String?   @map("zip_code")
+  permanentZipCode          String?   @map("permanent_zip_code")
+  employeeId                String?   @map("employee_id")
+  statusOfEployment         String?   @map("status_of_eployment")
+  submittedDate             DateTime? @map("submitted_date")
+  institution               Boolean?  @map("institution")
+  applicationStatus         Boolean?  @map("application_status")
+  placeOfBirth              String?   @map("place_of_birth")
+  isPwd                     Boolean?  @map("is_pwd")
+  isGovernment              Boolean?  @map("is_government")
+  respondentTo              String?   @map("respondent_to")
+  religion                  String?   @map("religion")
+  presentAddress            String?   @map("present_address")
+  ethnicity                 String?   @map("ethnicity")
+  characterReference        Unsupported("json")? @map("character_reference")
+  contactNumberSecondary    String?   @map("contact_number_secondary")
+  adminCase                 Boolean?  @map("admin_case")
+  adminCaseDetails          String?   @map("admin_case_details")
+  crimeCharge               Boolean?  @map("crime_charge")
+  crimeDate                 String?   @map("crime_date")
+  crimeCaseStatus           String?   @map("crime_case_status")
+  isFillouted               Boolean?  @map("is_fillouted")
+
+  @@index([createdById], map: "applicants_created_by_id_fk")
+  @@index([updatedById], map: "applicants_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "applicants_documents_idx")
+  @@map("applicants")
+}
+
+model ApplicantEducation {
+  id                 Int       @id @default(autoincrement()) @map("id")
+  documentId         String?   @map("document_id")
+  educationLevel     String?   @map("education_level")
+  degree             String?   @map("degree")
+  course             String?   @map("course")
+  specifyOthers      String?   @map("specify_others")
+  schoolName         String?   @map("school_name")
+  ongoing            Boolean?  @map("ongoing")
+  isHighestEducation Boolean?  @map("is_highest_education")
+  /// Stored as TEXT ("2006-01-01" or year string). DO NOT change to DateTime.
+  yearFrom           String?   @map("year_from")
+  /// Stored as TEXT ("2010-01-01" or year string). DO NOT change to DateTime.
+  yearTo             String?   @map("year_to")
+  highestLevel       String?   @map("highest_level")
+  unitsEarned        String?   @map("units_earned")
+  yearGraduated      String?   @map("year_graduated")
+  awards             String?   @map("awards")
+  hrRemarks          String?   @map("hr_remarks")
+  createdAt          DateTime? @map("created_at")
+  updatedAt          DateTime? @map("updated_at")
+  publishedAt        DateTime? @map("published_at")
+  createdById        Int?      @map("created_by_id")
+  updatedById        Int?      @map("updated_by_id")
+  locale             String?   @map("locale")
+
+  @@index([createdById], map: "applicant_educations_created_by_id_fk")
+  @@index([updatedById], map: "applicant_educations_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "applicant_educations_documents_idx")
+  @@map("applicant_educations")
+}
+
+model ApplicantEducationLink {
+  id                    Int   @id @default(autoincrement()) @map("id")
+  applicantEducationId  Int?   @map("applicant_education_id")
+  applicantId           Int?   @map("applicant_id")
+  applicantEducationOrd Float? @map("applicant_education_ord")
+
+  @@index([applicantEducationId], map: "appl_edu_lnk_edu_fk")
+  @@index([applicantId], map: "appl_edu_lnk_appl_fk")
+  @@index([applicantEducationOrd], map: "appl_edu_lnk_ord_fk")
+  @@map("applicant_educations_applicant_id_lnk")
+}
+
+model ApplicantWorkExperience {
+  id                 Int       @id @default(autoincrement()) @map("id")
+  documentId         String?   @map("document_id")
+  positionTitle      String?   @map("position_title")
+  isPresentWork      Boolean?  @map("is_present_work")
+  isGovtService      Boolean?  @map("is_govt_service")
+  inclusiveDateFrom  DateTime? @map("inclusive_date_from")
+  inclusiveDateTo    DateTime? @map("inclusive_date_to")
+  statusOfEmployment String?   @map("status_of_employment")
+  monthlySalary      Float?    @map("monthly_salary")
+  employerName       String?   @map("employer_name")
+  employerAddress    String?   @map("employer_address")
+  supervisorName     String?   @map("supervisor_name")
+  supervisorPosition String?   @map("supervisor_position")
+  office             String?   @map("office")
+  reasonForLeaving   String?   @map("reason_for_leaving")
+  accomplishment     String?   @map("accomplishment")
+  actualDuties       String?   @map("actual_duties")
+  hrRemarks          String?   @map("hr_remarks")
+  createdAt          DateTime? @map("created_at")
+  updatedAt          DateTime? @map("updated_at")
+  publishedAt        DateTime? @map("published_at")
+  createdById        Int?      @map("created_by_id")
+  updatedById        Int?      @map("updated_by_id")
+  locale             String?   @map("locale")
+  yearDecimal        Float?    @map("year_decimal")
+
+  @@index([createdById], map: "appl_wexp_created_by_id_fk")
+  @@index([updatedById], map: "appl_wexp_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "appl_wexp_documents_idx")
+  @@map("applicant_work_experiences")
+}
+
+model ApplicantWorkExperienceLink {
+  id                          Int   @id @default(autoincrement()) @map("id")
+  applicantWorkExperienceId   Int?   @map("applicant_work_experience_id")
+  applicantId                 Int?   @map("applicant_id")
+  applicantWorkExperienceOrd  Float? @map("applicant_work_experience_ord")
+
+  @@index([applicantWorkExperienceId], map: "appl_wexp_lnk_wexp_fk")
+  @@index([applicantId], map: "appl_wexp_lnk_appl_fk")
+  @@index([applicantWorkExperienceOrd], map: "appl_wexp_lnk_ord_fk")
+  @@map("applicant_work_experiences_applicant_id_lnk")
+}
+
+model ApplicantTraining {
+  id                Int       @id @default(autoincrement()) @map("id")
+  documentId        String?   @map("document_id")
+  titleOfTraining   String?   @map("title_of_training")
+  isPresentWork     Boolean?  @map("is_present_work")
+  isGovtService     Boolean?  @map("is_govt_service")
+  inclusiveDateFrom DateTime? @map("inclusive_date_from")
+  inclusiveDateTo   DateTime? @map("inclusive_date_to")
+  numberHours       Int?      @map("number_hours")
+  typeOfTraining    String?   @map("type_of_training")
+  specifyTraining   String?   @map("specify_training")
+  hrRemarks         String?   @map("hr_remarks")
+  createdAt         DateTime? @map("created_at")
+  updatedAt         DateTime? @map("updated_at")
+  publishedAt       DateTime? @map("published_at")
+  createdById       Int?      @map("created_by_id")
+  updatedById       Int?      @map("updated_by_id")
+  locale            String?   @map("locale")
+  hourDecimal       Float?    @map("hour_decimal")
+
+  @@index([createdById], map: "appl_trn_created_by_id_fk")
+  @@index([updatedById], map: "appl_trn_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "appl_trn_documents_idx")
+  @@map("applicant_trainings")
+}
+
+model ApplicantTrainingLink {
+  id                  Int   @id @default(autoincrement()) @map("id")
+  applicantTrainingId Int?   @map("applicant_training_id")
+  applicantId         Int?   @map("applicant_id")
+  applicantTrainingOrd Float? @map("applicant_training_ord")
+
+  @@index([applicantTrainingId], map: "appl_trn_lnk_trn_fk")
+  @@index([applicantId], map: "appl_trn_lnk_appl_fk")
+  @@index([applicantTrainingOrd], map: "appl_trn_lnk_ord_fk")
+  @@map("applicant_trainings_applicant_id_lnk")
+}
+
+model ApplicantEligibility {
+  id              Int       @id @default(autoincrement()) @map("id")
+  documentId      String?   @map("document_id")
+  rating          String?   @map("rating")
+  examDate        DateTime? @map("exam_date")
+  examPlace       String?   @map("exam_place")
+  licenseNumber   String?   @map("license_number")
+  licenseValidity DateTime? @map("license_validity")
+  hrRemarks       String?   @map("hr_remarks")
+  createdAt       DateTime? @map("created_at")
+  updatedAt       DateTime? @map("updated_at")
+  publishedAt     DateTime? @map("published_at")
+  createdById     Int?      @map("created_by_id")
+  updatedById     Int?      @map("updated_by_id")
+  locale          String?   @map("locale")
+
+  @@index([createdById], map: "appl_elig_created_by_id_fk")
+  @@index([updatedById], map: "appl_elig_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "appl_elig_documents_idx")
+  @@map("applicant_eligibilities")
+}
+
+model ApplicantEligibilityLink {
+  id                     Int   @id @default(autoincrement()) @map("id")
+  applicantEligibilityId Int?   @map("applicant_eligibility_id")
+  applicantId            Int?   @map("applicant_id")
+  applicantEligibilityOrd Float? @map("applicant_eligibility_ord")
+
+  @@index([applicantEligibilityId], map: "appl_elig_lnk_elig_fk")
+  @@index([applicantId], map: "appl_elig_lnk_appl_fk")
+  @@index([applicantEligibilityOrd], map: "appl_elig_lnk_ord_fk")
+  @@map("applicant_eligibilities_applicant_lnk")
+}
+
+model ApplicantEligibilityCategoryLink {
+  id                     Int   @id @default(autoincrement()) @map("id")
+  applicantEligibilityId Int?   @map("applicant_eligibility_id")
+  eligibilityId          Int?   @map("eligibility_id")
+  eligibilityOrd         Float? @map("eligibility_ord")
+  applicantEligibilityOrd Float? @map("applicant_eligibility_ord")
+
+  @@index([applicantEligibilityId], map: "appl_elig_cat_lnk_elig_fk")
+  @@index([eligibilityId], map: "appl_elig_cat_lnk_cat_fk")
+  @@map("applicant_eligibilities_eligibility_category_lnk")
+}
+
+model ApplicantAward {
+  id                    Int       @id @default(autoincrement()) @map("id")
+  documentId            String?   @map("document_id")
+  /// Stored as TEXT ("2025-09-15"). DO NOT change to DateTime.
+  dateGranted           String?   @map("date_granted")
+  createdAt             DateTime? @map("created_at")
+  updatedAt             DateTime? @map("updated_at")
+  publishedAt           DateTime? @map("published_at")
+  createdById           Int?      @map("created_by_id")
+  updatedById           Int?      @map("updated_by_id")
+  locale                String?   @map("locale")
+  points                Int?      @map("points")
+  hrRemarks             String?   @map("hr_remarks")
+  number                Int?      @map("number")
+  recognitionProvider   String?   @map("recognition_provider")
+  recognitionType       String?   @map("recognition_type")
+  awardType             String?   @map("award_type")
+  recognitionScope      String?   @map("recognition_scope")
+  recognitionCategory   String?   @map("recognition_category")
+  recognitionSubcategory String?  @map("recognition_subcategory")
+  recognitionDetails    String?   @map("recognition_details")
+
+  @@index([createdById], map: "appl_awd_created_by_id_fk")
+  @@index([updatedById], map: "appl_awd_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "appl_awd_documents_idx")
+  @@map("applicant_awards")
+}
+
+model ApplicantAwardLink {
+  id              Int   @id @default(autoincrement()) @map("id")
+  applicantAwardId Int?  @map("applicant_award_id")
+  applicantId     Int?   @map("applicant_id")
+  applicantAwardOrd Float? @map("applicant_award_ord")
+
+  @@index([applicantAwardId], map: "appl_awd_lnk_awd_fk")
+  @@index([applicantId], map: "appl_awd_lnk_appl_fk")
+  @@index([applicantAwardOrd], map: "appl_awd_lnk_ord_fk")
+  @@map("applicant_awards_applicant_lnk")
+}
+
+model ApplicantAwardPositionLink {
+  id              Int   @id @default(autoincrement()) @map("id")
+  applicantAwardId Int?  @map("applicant_award_id")
+  postionId       Int?   @map("postion_id")
+  postionOrd      Float? @map("postion_ord")
+  applicantAwardOrd Float? @map("applicant_award_ord")
+
+  @@index([applicantAwardId], map: "appl_awd_pos_lnk_awd_fk")
+  @@index([postionId], map: "appl_awd_pos_lnk_pos_fk")
+  @@map("applicant_awards_positions_lnk")
+}
+
+model ApplicantAccomplishment {
+  id          Int       @id @default(autoincrement()) @map("id")
+  documentId  String?   @map("document_id")
+  title       String?   @map("title")
+  createdAt   DateTime? @map("created_at")
+  updatedAt   DateTime? @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  createdById Int?      @map("created_by_id")
+  updatedById Int?      @map("updated_by_id")
+  locale      String?   @map("locale")
+  /// Stored as TEXT. DO NOT change to DateTime.
+  dateGranted String?   @map("date_granted")
+  category    String?   @map("category")
+  type        String?   @map("type")
+  points      Int?      @map("points")
+  hrRemarks   String?   @map("hr_remarks")
+
+  @@index([createdById], map: "appl_acc_created_by_id_fk")
+  @@index([updatedById], map: "appl_acc_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "appl_acc_documents_idx")
+  @@map("applicant_accomplishments")
+}
+
+model ApplicantAccomplishmentLink {
+  id                       Int   @id @default(autoincrement()) @map("id")
+  applicantAccomplishmentId Int?  @map("applicant_accomplishment_id")
+  applicantId              Int?   @map("applicant_id")
+  applicantAccomplishmentOrd Float? @map("applicant_accomplishment_ord")
+
+  @@index([applicantAccomplishmentId], map: "appl_acc_lnk_acc_fk")
+  @@index([applicantId], map: "appl_acc_lnk_appl_fk")
+  @@index([applicantAccomplishmentOrd], map: "appl_acc_lnk_ord_fk")
+  @@map("applicant_accomplishments_applicant_lnk")
+}
+
+model ApplicantAccomplishmentPositionLink {
+  id                       Int   @id @default(autoincrement()) @map("id")
+  applicantAccomplishmentId Int?  @map("applicant_accomplishment_id")
+  postionId                Int?   @map("postion_id")
+  postionOrd               Float? @map("postion_ord")
+  applicantAccomplishmentOrd Float? @map("applicant_accomplishment_ord")
+
+  @@index([applicantAccomplishmentId], map: "appl_acc_pos_lnk_acc_fk")
+  @@index([postionId], map: "appl_acc_pos_lnk_pos_fk")
+  @@map("applicant_accomplishments_positions_lnk")
+}
+
+/// Legacy applicant-form content table. The actual attachment
+/// relations are stored in `files_related_mph` (FileRelatedLink).
+model ApplicantForm {
+  id          Int       @id @default(autoincrement()) @map("id")
+  documentId  String?   @map("document_id")
+  createdAt   DateTime? @map("created_at")
+  updatedAt   DateTime? @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  createdById Int?      @map("created_by_id")
+  updatedById Int?      @map("updated_by_id")
+  locale      String?   @map("locale")
+
+  @@index([createdById], map: "appl_frm_created_by_id_fk")
+  @@index([updatedById], map: "appl_frm_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "appl_frm_documents_idx")
+  @@map("applicant_forms")
+}
+
+model ApplicantFormLink {
+  id             Int @id @default(autoincrement()) @map("id")
+  applicantFormId Int? @map("applicant_form_id")
+  applicantId    Int? @map("applicant_id")
+
+  @@index([applicantFormId], map: "appl_frm_lnk_frm_fk")
+  @@index([applicantId], map: "appl_frm_lnk_appl_fk")
+  @@map("applicant_forms_applicant_lnk")
+}
+
+model ApplicantSummaryProfile {
+  id          Int       @id @default(autoincrement()) @map("id")
+  documentId  String?   @map("document_id")
+  year        String?   @map("year")
+  createdAt   DateTime? @map("created_at")
+  updatedAt   DateTime? @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  createdById Int?      @map("created_by_id")
+  updatedById Int?      @map("updated_by_id")
+  locale      String?   @map("locale")
+
+  @@index([createdById], map: "appl_sum_created_by_id_fk")
+  @@index([updatedById], map: "appl_sum_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "appl_sum_documents_idx")
+  @@map("applicant_summary_profiles")
+}
+
+model ApplicantSummaryProfileLink {
+  id                         Int @id @default(autoincrement()) @map("id")
+  applicantSummaryProfileId  Int? @map("applicant_summary_profile_id")
+  applicantId                Int? @map("applicant_id")
+
+  @@index([applicantSummaryProfileId], map: "appl_sum_lnk_sum_fk")
+  @@index([applicantId], map: "appl_sum_lnk_appl_fk")
+  @@map("applicant_summary_profiles_applicant_lnk")
+}
+
+// ============================================================================
+// SECTION 3 — JOBS & POSITIONS
+// ============================================================================
+
+model JobPosting {
+  id                            Int       @id @default(autoincrement()) @map("id")
+  documentId                    String?   @map("document_id")
+  createdAt                     DateTime? @map("created_at")
+  updatedAt                     DateTime? @map("updated_at")
+  publishedAt                   DateTime? @map("published_at")
+  createdById                   Int?      @map("created_by_id")
+  updatedById                   Int?      @map("updated_by_id")
+  locale                        String?   @map("locale")
+  positionType                  String?   @map("position_type")
+  dutiesResponsibilities        String?   @map("duties_responsibilities")
+  contractDateFrom              DateTime? @map("contract_date_from")
+  contractDateTo                DateTime? @map("contract_date_to")
+  publishDate                   DateTime? @map("publish_date")
+  deadlineDate                  DateTime? @map("deadline_date")
+  processingDate                DateTime? @map("processing_date")
+  briefDescription              String?   @map("brief_description")
+  compensationPackage           String?   @map("compensation_package")
+  otherQualifications           String?   @map("other_qualifications")
+  otherQualificationsRichtext   String?   @map("other_qualifications_richtext")
+  briefDescriptionRichtext      String?   @map("brief_description_richtext")
+  compensationPackageRichtext   String?   @map("compensation_package_richtext")
+  numberOfVacancy               Int?      @map("number_of_vacancy")
+
+  @@index([createdById], map: "jobpostings_created_by_id_fk")
+  @@index([updatedById], map: "jobpostings_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "jobpostings_documents_idx")
+  @@map("jobpostings")
+}
+
+model JobPostingPositionLink {
+  id           Int   @id @default(autoincrement()) @map("id")
+  jobpostingId Int?   @map("jobposting_id")
+  postionId    Int?   @map("postion_id")
+  postionOrd   Float? @map("postion_ord")
+  jobpostingOrd Float? @map("jobposting_ord")
+
+  @@index([jobpostingId], map: "jobpostings_postions_lnk_jb_fk")
+  @@index([postionId], map: "jobpostings_postions_lnk_pos_fk")
+  @@map("jobpostings_postions_lnk")
+}
+
+model JobPostingApplicantLink {
+  id           Int   @id @default(autoincrement()) @map("id")
+  jobpostingId Int?   @map("jobposting_id")
+  applicantId  Int?   @map("applicant_id")
+  applicantOrd Float? @map("applicant_ord")
+  jobpostingOrd Float? @map("jobposting_ord")
+
+  @@index([jobpostingId], map: "jobpostings_appl_lnk_jb_fk")
+  @@index([applicantId], map: "jobpostings_appl_lnk_appl_fk")
+  @@map("jobpostings_applicants_lnk")
+}
+
+model JobPostingUserLink {
+  id           Int   @id @default(autoincrement()) @map("id")
+  jobpostingId Int?   @map("jobposting_id")
+  userId       Int?   @map("user_id")
+  jobpostingOrd Float? @map("jobposting_ord")
+
+  @@index([jobpostingId], map: "jobpostings_user_lnk_jb_fk")
+  @@index([userId], map: "jobpostings_user_lnk_user_fk")
+  @@map("jobpostings_user_lnk")
+}
+
+/// NOTE: Production table name is `postions` (typo preserved intentionally).
+model Position {
+  id                            Int       @id @default(autoincrement()) @map("id")
+  documentId                    String?   @map("document_id")
+  positionType                  String?   @map("position_type")
+  itemNumber                    String?   @map("item_number")
+  positionTitle                 String?   @map("position_title")
+  positionStatus                String?   @map("position_status")
+  positionSalaryGrade           String?   @map("position_salary_grade")
+  positionSalaryStep            String?   @map("position_salary_step")
+  positionSalaryAmount          String?   @map("position_salary_amount")
+  salaryGrade                   String?   @map("salary_grade")
+  salaryAmount                  Float?    @map("salary_amount")
+  positionLevel                 Int?      @map("position_level")
+  hrmisId                       Int?      @map("hrmis_id")
+  specialSkill                  String?   @map("special_skill")
+  areaCode                      String?   @map("area_code")
+  areaType                      String?   @map("area_type")
+  level                         String?   @map("level")
+  classification                String?   @map("classification")
+  educationCriteria             String?   @map("education_criteria")
+  trainingType                  String?   @map("training_type")
+  otherTraining                 String?   @map("other_training")
+  preferredQualification        String?   @map("preferred_qualification")
+  competencyRequirements        String?   @map("competency_requirements")
+  competencyRequirementsRichtext Unsupported("json")? @map("competency_requirements_richtext")
+  cscEligibility                String?   @map("csc_eligibility")
+  cscEligibilityGroup           String?   @map("csc_eligibility_group")
+  cscEducation                  String?   @map("csc_education")
+  cscWorkExperience             String?   @map("csc_work_experience")
+  cscTrainingRequirements       String?   @map("csc_training_requirements")
+  education                     String?   @map("education")
+  experience                    String?   @map("experience")
+  training                      String?   @map("training")
+  eligibility                   String?   @map("eligibility")
+  division                      String?   @map("division")
+  section                       String?   @map("section")
+  officeId                      Int?      @map("office_id")
+  departmentId                  Int?      @map("department_id")
+  placeOfAssignmentId           Int?      @map("place_of_assignment_id")
+  sectionId                     Int?      @map("section_id")
+  trancheId                     Int?      @map("tranche_id")
+  salaryGradeId                 Int?      @map("salary_grade_id")
+  stepId                        Int?      @map("step_id")
+  divisionId                    BigInt?   @map("division_id")
+  incumbentId                   BigInt?   @map("incumbent_id")
+  dateVacated                   DateTime? @map("date_vacated")
+  yearsRequired                 Int?      @map("years_required")
+  hoursRequired                 Int?      @map("hours_required")
+  createdAt                     DateTime? @map("created_at")
+  updatedAt                     DateTime? @map("updated_at")
+  publishedAt                   DateTime? @map("published_at")
+  createdById                   Int?      @map("created_by_id")
+  updatedById                   Int?      @map("updated_by_id")
+  locale                        String?   @map("locale")
+
+  @@index([createdById], map: "postions_created_by_id_fk")
+  @@index([updatedById], map: "postions_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "postions_documents_idx")
+  @@index([placeOfAssignmentId], map: "postions_place_of_assignment_id_fk")
+  @@index([divisionId], map: "postions_division_id_fk")
+  @@index([incumbentId], map: "postions_incumbent_id_fk")
+  @@map("postions")
+}
+
+model PositionPlaceOfAssignmentLink {
+  id                  Int   @id @default(autoincrement()) @map("id")
+  postionId           Int?   @map("postion_id")
+  placeOfAssignmentId Int?   @map("place_of_assignment_id")
+  postionOrd          Float? @map("postion_ord")
+
+  @@index([postionId], map: "postions_poa_lnk_pos_fk")
+  @@index([placeOfAssignmentId], map: "postions_poa_lnk_poa_fk")
+  @@map("postions_place_of_assignment_lnk")
+}
+
+model PositionEligibilityLink {
+  id            Int   @id @default(autoincrement()) @map("id")
+  postionId     Int?   @map("postion_id")
+  eligibilityId Int?   @map("eligibility_id")
+  eligibilityOrd Float? @map("eligibility_ord")
+
+  @@index([postionId], map: "postions_elig_lnk_pos_fk")
+  @@index([eligibilityId], map: "postions_elig_lnk_elig_fk")
+  @@map("postions_eligibilities_lnk")
+}
+
+model PositionSpecificEligibilityLink {
+  id                   Int   @id @default(autoincrement()) @map("id")
+  postionId            Int?   @map("postion_id")
+  specificEligibilityId Int?  @map("specific_eligibility_id")
+  specificEligibilityOrd Float? @map("specific_eligibility_ord")
+
+  @@index([postionId], map: "postions_selig_lnk_pos_fk")
+  @@index([specificEligibilityId], map: "postions_selig_lnk_selig_fk")
+  @@map("postions_specific_eligibilities_lnk")
+}
+
+model PositionDeletedByLink {
+  id        Int @id @default(autoincrement()) @map("id")
+  postionId Int? @map("postion_id")
+  userId    Int? @map("user_id")
+
+  @@index([postionId], map: "postions_del_by_lnk_pos_fk")
+  @@index([userId], map: "postions_del_by_lnk_user_fk")
+  @@map("postions_deleted_by_lnk")
+}
+
+model PlaceOfAssignment {
+  id          Int       @id @default(autoincrement()) @map("id")
+  documentId  String?   @map("document_id")
+  name        String?   @map("name")
+  createdAt   DateTime? @map("created_at")
+  updatedAt   DateTime? @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  createdById Int?      @map("created_by_id")
+  updatedById Int?      @map("updated_by_id")
+  locale      String?   @map("locale")
+
+  @@index([createdById], map: "poa_created_by_id_fk")
+  @@index([updatedById], map: "poa_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "poa_documents_idx")
+  @@map("place_of_assignments")
+}
+
+// ============================================================================
+// SECTION 4 — APPLICATIONS
+// ============================================================================
+
+model Application {
+  id                  Int       @id @default(autoincrement()) @map("id")
+  documentId          String?   @map("document_id")
+  dateApplied         DateTime? @map("date_applied")
+  applicationStatus   String?   @map("application_status")
+  snapshotProfile     Unsupported("json")? @map("snapshot_profile")
+  snapshotAwards      Unsupported("json")? @map("snapshot_awards")
+  snapshotExperiences Unsupported("json")? @map("snapshot_experiences")
+  snapshotTrainings   Unsupported("json")? @map("snapshot_trainings")
+  snapshotEligibilities Unsupported("json")? @map("snapshot_eligibilities")
+  snapshotEducations  Unsupported("json")? @map("snapshot_educations")
+  snapshotAttachment  Unsupported("json")? @map("snapshot_attachment")
+  createdAt           DateTime? @map("created_at")
+  updatedAt           DateTime? @map("updated_at")
+  publishedAt         DateTime? @map("published_at")
+  createdById         Int?      @map("created_by_id")
+  updatedById         Int?      @map("updated_by_id")
+  locale              String?   @map("locale")
+
+  @@index([createdById], map: "applications_created_by_id_fk")
+  @@index([updatedById], map: "applications_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "applications_documents_idx")
+  @@map("applications")
+}
+
+model ApplicationApplicantLink {
+  id            Int   @id @default(autoincrement()) @map("id")
+  applicationId Int?   @map("application_id")
+  applicantId   Int?   @map("applicant_id")
+  applicationOrd Float? @map("application_ord")
+
+  @@index([applicationId], map: "applications_appl_lnk_app_fk")
+  @@index([applicantId], map: "applications_appl_lnk_appl_fk")
+  @@map("applications_applicant_lnk")
+}
+
+model ApplicationJobLink {
+  id            Int   @id @default(autoincrement()) @map("id")
+  applicationId Int?   @map("application_id")
+  jobpostingId  Int?   @map("jobposting_id")
+  applicationOrd Float? @map("application_ord")
+
+  @@index([applicationId], map: "applications_job_lnk_app_fk")
+  @@index([jobpostingId], map: "applications_job_lnk_jb_fk")
+  @@map("applications_job_lnk")
+}
+
+// ============================================================================
+// SECTION 5 — INTERVIEWS & ASSESSMENTS
+// ============================================================================
+
+model Interview {
+  id               Int       @id @default(autoincrement()) @map("id")
+  documentId       String?   @map("document_id")
+  createdAt        DateTime? @map("created_at")
+  updatedAt        DateTime? @map("updated_at")
+  publishedAt      DateTime? @map("published_at")
+  createdById      Int?      @map("created_by_id")
+  updatedById      Int?      @map("updated_by_id")
+  locale           String?   @map("locale")
+  dateOfInterview  DateTime? @map("date_of_interview")
+  interviewMode    String?   @map("interview_mode")
+  placeOfInterview String?   @map("place_of_interview")
+  remarks          String?   @map("remarks")
+  notified         Boolean?  @map("notified")
+  zoomLink         String?   @map("zoom_link")
+  year             String?   @map("year")
+  interviewType    String?   @map("interview_type")
+
+  @@index([createdById], map: "appl_int_created_by_id_fk")
+  @@index([updatedById], map: "appl_int_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "appl_int_documents_idx")
+  @@map("applicant_interviews")
+}
+
+model InterviewApplicantLink {
+  id                  Int   @id @default(autoincrement()) @map("id")
+  applicantInterviewId Int?  @map("applicant_interview_id")
+  applicantId         Int?   @map("applicant_id")
+  applicantOrd        Float? @map("applicant_ord")
+  applicantInterviewOrd Float? @map("applicant_interview_ord")
+
+  @@index([applicantInterviewId], map: "appl_int_appl_lnk_int_fk")
+  @@index([applicantId], map: "appl_int_appl_lnk_appl_fk")
+  @@map("applicant_interviews_applicants_lnk")
+}
+
+model InterviewPositionLink {
+  id                  Int   @id @default(autoincrement()) @map("id")
+  applicantInterviewId Int?  @map("applicant_interview_id")
+  postionId           Int?   @map("postion_id")
+  postionOrd          Float? @map("postion_ord")
+  applicantInterviewOrd Float? @map("applicant_interview_ord")
+
+  @@index([applicantInterviewId], map: "appl_int_pos_lnk_int_fk")
+  @@index([postionId], map: "appl_int_pos_lnk_pos_fk")
+  @@map("applicant_interviews_positions_lnk")
+}
+
+model Assessment {
+  id                                Int       @id @default(autoincrement()) @map("id")
+  documentId                        String?   @map("document_id")
+  createdAt                         DateTime? @map("created_at")
+  updatedAt                         DateTime? @map("updated_at")
+  publishedAt                       DateTime? @map("published_at")
+  createdById                       Int?      @map("created_by_id")
+  updatedById                       Int?      @map("updated_by_id")
+  locale                            String?   @map("locale")
+  educationRating                   Int?      @map("education_rating")
+  workExperienceRating              Int?      @map("work_experience_rating")
+  trainingRating                    Int?      @map("training_rating")
+  eligibilityRating                 Int?      @map("eligibility_rating")
+  technicalSkillsRating             Int?      @map("technical_skills_rating")
+  organizationalAwarenessRating     Int?      @map("organizational_awareness_rating")
+  interpersonalSkillsRating         Int?      @map("interpersonal_skills_rating")
+  adaptabilityRating                Int?      @map("adaptability_rating")
+  extraCurricularRating             Int?      @map("extra_curricular_rating")
+  personalDevelopmentRating         Int?      @map("personal_development_rating")
+  technologyApplicationRating       Int?      @map("technology_application_rating")
+  educationComments                 String?   @map("education_comments")
+  workExperienceComments            String?   @map("work_experience_comments")
+  trainingComments                  String?   @map("training_comments")
+  eligibilityComments               String?   @map("eligibility_comments")
+  technicalSkillsComments           String?   @map("technical_skills_comments")
+  organizationalAwarenessComments   String?   @map("organizational_awareness_comments")
+  interpersonalSkillsComments       String?   @map("interpersonal_skills_comments")
+  adaptabilityComments              String?   @map("adaptability_comments")
+  extraCurricularComments           String?   @map("extra_curricular_comments")
+  personalDevelopmentComments       String?   @map("personal_development_comments")
+  technologyApplicationComments     String?   @map("technology_application_comments")
+  overallAssessmentRating           String?   @map("overall_assessment_rating")
+  commentAndRecommendation          String?   @map("comment_and_recommendation")
+  typeOfApplication                 String?   @map("type_of_application")
+  year                              String?   @map("year")
+
+  @@index([createdById], map: "appl_int_asm_created_by_id_fk")
+  @@index([updatedById], map: "appl_int_asm_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "appl_int_asm_documents_idx")
+  @@map("applicant_interview_assessments")
+}
+
+model AssessmentApplicantLink {
+  id                            Int   @id @default(autoincrement()) @map("id")
+  applicantInterviewAssessmentId Int?  @map("applicant_interview_assessment_id")
+  applicantId                   Int?   @map("applicant_id")
+  applicantOrd                  Float? @map("applicant_ord")
+  applicantInterviewAssessmentOrd Float? @map("applicant_interview_assessment_ord")
+
+  @@index([applicantInterviewAssessmentId], map: "appl_int_asm_appl_lnk_asm_fk")
+  @@index([applicantId], map: "appl_int_asm_appl_lnk_appl_fk")
+  @@map("applicant_interview_assessments_applicants_lnk")
+}
+
+model AssessmentInterviewerLink {
+  id                            Int   @id @default(autoincrement()) @map("id")
+  applicantInterviewAssessmentId Int?  @map("applicant_interview_assessment_id")
+  interviewerId                 Int?   @map("interviewer_id")
+  interviewerOrd                Float? @map("interviewer_ord")
+  applicantInterviewAssessmentOrd Float? @map("applicant_interview_assessment_ord")
+
+  @@index([applicantInterviewAssessmentId], map: "appl_int_asm_int_lnk_asm_fk")
+  @@index([interviewerId], map: "appl_int_asm_int_lnk_int_fk")
+  @@map("applicant_interview_assessments_interviewers_lnk")
+}
+
+model AssessmentPositionLink {
+  id                            Int   @id @default(autoincrement()) @map("id")
+  applicantInterviewAssessmentId Int?  @map("applicant_interview_assessment_id")
+  postionId                     Int?   @map("postion_id")
+  postionOrd                    Float? @map("postion_ord")
+  applicantInterviewAssessmentOrd Float? @map("applicant_interview_assessment_ord")
+
+  @@index([applicantInterviewAssessmentId], map: "appl_int_asm_pos_lnk_asm_fk")
+  @@index([postionId], map: "appl_int_asm_pos_lnk_pos_fk")
+  @@map("applicant_interview_assessments_positions_lnk")
+}
+
+model Examination {
+  id                 Int       @id @default(autoincrement()) @map("id")
+  documentId         String?   @map("document_id")
+  dateOfExamination  DateTime? @map("date_of_examination")
+  placeOfExamination String?   @map("place_of_examination")
+  remarks            String?   @map("remarks")
+  rating             Float?    @map("rating")
+  createdAt          DateTime? @map("created_at")
+  updatedAt          DateTime? @map("updated_at")
+  publishedAt        DateTime? @map("published_at")
+  createdById        Int?      @map("created_by_id")
+  updatedById        Int?      @map("updated_by_id")
+  locale             String?   @map("locale")
+  notified           Boolean?  @map("notified")
+  psychosocialTest   String?   @map("psychosocial_test")
+  examMode           String?   @map("exam_mode")
+  zoomLink           String?   @map("zoom_link")
+  year               String?   @map("year")
+  examType           String?   @map("exam_type")
+
+  @@index([createdById], map: "appl_exm_created_by_id_fk")
+  @@index([updatedById], map: "appl_exm_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "appl_exm_documents_idx")
+  @@map("applicant_examinations")
+}
+
+model ExaminationApplicantLink {
+  id                    Int   @id @default(autoincrement()) @map("id")
+  applicantExaminationId Int?  @map("applicant_examination_id")
+  applicantId           Int?   @map("applicant_id")
+  applicantOrd          Float? @map("applicant_ord")
+  applicantExaminationOrd Float? @map("applicant_examination_ord")
+
+  @@index([applicantExaminationId], map: "appl_exm_appl_lnk_exm_fk")
+  @@index([applicantId], map: "appl_exm_appl_lnk_appl_fk")
+  @@map("applicant_examinations_applicants_lnk")
+}
+
+model ExaminationPositionLink {
+  id                    Int   @id @default(autoincrement()) @map("id")
+  applicantExaminationId Int?  @map("applicant_examination_id")
+  postionId             Int?   @map("postion_id")
+  postionOrd            Float? @map("postion_ord")
+  applicantExaminationOrd Float? @map("applicant_examination_ord")
+
+  @@index([applicantExaminationId], map: "appl_exm_pos_lnk_exm_fk")
+  @@index([postionId], map: "appl_exm_pos_lnk_pos_fk")
+  @@map("applicant_examinations_positions_lnk")
+}
+
+model Interviewer {
+  id          Int       @id @default(autoincrement()) @map("id")
+  documentId  String?   @map("document_id")
+  name        String?   @map("name")
+  division    String?   @map("division")
+  section     String?   @map("section")
+  position    String?   @map("position")
+  createdAt   DateTime? @map("created_at")
+  updatedAt   DateTime? @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  createdById Int?      @map("created_by_id")
+  updatedById Int?      @map("updated_by_id")
+  locale      String?   @map("locale")
+
+  @@index([createdById], map: "int_created_by_id_fk")
+  @@index([updatedById], map: "int_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "int_documents_idx")
+  @@map("interviewers")
+}
+
+// ============================================================================
+// SECTION 6 — REFERENCE DATA
+// ============================================================================
+
+model Eligibility {
+  id          Int       @id @default(autoincrement()) @map("id")
+  documentId  String?   @map("document_id")
+  name        String?   @map("name")
+  createdAt   DateTime? @map("created_at")
+  updatedAt   DateTime? @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  createdById Int?      @map("created_by_id")
+  updatedById Int?      @map("updated_by_id")
+  locale      String?   @map("locale")
+  index       Int?      @map("index")
+
+  @@index([createdById], map: "elig_created_by_id_fk")
+  @@index([updatedById], map: "elig_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "elig_documents_idx")
+  @@map("eligibilities")
+}
+
+model EligibilityUserLink {
+  id             Int   @id @default(autoincrement()) @map("id")
+  eligibilityId  Int?   @map("eligibility_id")
+  userId         Int?   @map("user_id")
+  eligibilityOrd Float? @map("eligibility_ord")
+
+  @@index([eligibilityId], map: "elig_user_lnk_elig_fk")
+  @@index([userId], map: "elig_user_lnk_user_fk")
+  @@map("eligibilities_user_lnk")
+}
+
+model SpecificEligibility {
+  id          Int       @id @default(autoincrement()) @map("id")
+  documentId  String?   @map("document_id")
+  name        String?   @map("name")
+  level       Int?      @map("level")
+  index       Int?      @map("index")
+  createdAt   DateTime? @map("created_at")
+  updatedAt   DateTime? @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  createdById Int?      @map("created_by_id")
+  updatedById Int?      @map("updated_by_id")
+  locale      String?   @map("locale")
+
+  @@index([createdById], map: "selig_created_by_id_fk")
+  @@index([updatedById], map: "selig_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "selig_documents_idx")
+  @@map("specific_eligibilities")
+}
+
+model SpecificEligibilityAdminLink {
+  id                    Int   @id @default(autoincrement()) @map("id")
+  specificEligibilityId Int?   @map("specific_eligibility_id")
+  userId                Int?   @map("user_id")
+  specificEligibilityOrd Float? @map("specific_eligibility_ord")
+
+  @@index([specificEligibilityId], map: "selig_admin_lnk_selig_fk")
+  @@index([userId], map: "selig_admin_lnk_user_fk")
+  @@map("specific_eligibilities_admin_lnk")
+}
+
+model SpecificEligibilityApplicantLink {
+  id                    Int   @id @default(autoincrement()) @map("id")
+  specificEligibilityId Int?   @map("specific_eligibility_id")
+  applicantId           Int?   @map("applicant_id")
+  specificEligibilityOrd Float? @map("specific_eligibility_ord")
+
+  @@index([specificEligibilityId], map: "selig_appl_lnk_selig_fk")
+  @@index([applicantId], map: "selig_appl_lnk_appl_fk")
+  @@map("specific_eligibilities_applicant_lnk")
+}
+
+model SpecificEligibilityEligibilityLink {
+  id                    Int   @id @default(autoincrement()) @map("id")
+  specificEligibilityId Int?   @map("specific_eligibility_id")
+  eligibilityId         Int?   @map("eligibility_id")
+  specificEligibilityOrd Float? @map("specific_eligibility_ord")
+
+  @@index([specificEligibilityId], map: "selig_elig_lnk_selig_fk")
+  @@index([eligibilityId], map: "selig_elig_lnk_elig_fk")
+  @@map("specific_eligibilities_eligibility_lnk")
+}
+
+model SpecificEligibilityApplicantEligibilityLink {
+  id                    Int   @id @default(autoincrement()) @map("id")
+  specificEligibilityId Int?   @map("specific_eligibility_id")
+  applicantEligibilityId Int?  @map("applicant_eligibility_id")
+  specificEligibilityOrd Float? @map("specific_eligibility_ord")
+
+  @@index([specificEligibilityId], map: "selig_ae_lnk_selig_fk")
+  @@index([applicantEligibilityId], map: "selig_ae_lnk_ae_fk")
+  @@map("specific_eligibilities_applicant_eligibility_lnk")
+}
+
+model Course {
+  id          Int       @id @default(autoincrement()) @map("id")
+  documentId  String?   @map("document_id")
+  name        String?   @map("name")
+  abbri       String?   @map("abbri")
+  category    String?   @map("category")
+  level       String?   @map("level")
+  createdAt   DateTime? @map("created_at")
+  updatedAt   DateTime? @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  createdById Int?      @map("created_by_id")
+  updatedById Int?      @map("updated_by_id")
+  locale      String?   @map("locale")
+
+  @@index([createdById], map: "course_created_by_id_fk")
+  @@index([updatedById], map: "course_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "course_documents_idx")
+  @@map("courses")
+}
+
+model CourseApplicantEducationLink {
+  id                    Int   @id @default(autoincrement()) @map("id")
+  courseId              Int?   @map("course_id")
+  applicantEducationId  Int?   @map("applicant_education_id")
+  courseOrd             Float? @map("course_ord")
+
+  @@index([courseId], map: "course_appl_edu_lnk_course_fk")
+  @@index([applicantEducationId], map: "course_appl_edu_lnk_edu_fk")
+  @@map("courses_applicant_education_lnk")
+}
+
+model EvaluationCriteria {
+  id               Int       @id @default(autoincrement()) @map("id")
+  documentId       String?   @map("document_id")
+  effectivityDate  DateTime? @map("effectivity_date")
+  createdAt        DateTime? @map("created_at")
+  updatedAt        DateTime? @map("updated_at")
+  publishedAt      DateTime? @map("published_at")
+  createdById      Int?      @map("created_by_id")
+  updatedById      Int?      @map("updated_by_id")
+  locale           String?   @map("locale")
+  type             String?   @map("type")
+  educationCriteria Unsupported("json")? @map("education_criteria")
+  trainingCriteria Unsupported("json")? @map("training_criteria")
+  workExpCriteria  Unsupported("json")? @map("work_exp_criteria")
+
+  @@index([createdById], map: "eval_crit_created_by_id_fk")
+  @@index([updatedById], map: "eval_crit_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "eval_crit_documents_idx")
+  @@map("evaluation_criterias")
+}
+
+model EvaluationCriteriaUserLink {
+  id                   Int   @id @default(autoincrement()) @map("id")
+  evaluationCriteriaId Int?   @map("evaluation_criteria_id")
+  userId               Int?   @map("user_id")
+  evaluationCriteriaOrd Float? @map("evaluation_criteria_ord")
+
+  @@index([evaluationCriteriaId], map: "eval_crit_user_lnk_ec_fk")
+  @@index([userId], map: "eval_crit_user_lnk_user_fk")
+  @@map("evaluation_criterias_user_lnk")
+}
+
+model Notification {
+  id                     Int       @id @default(autoincrement()) @map("id")
+  documentId             String?   @map("document_id")
+  name                   String?   @map("name")
+  notificationDescription String?  @map("notification_description")
+  /// Stored as TEXT. DO NOT change to DateTime.
+  notificationDate       String?   @map("notification_date")
+  createdAt              DateTime? @map("created_at")
+  updatedAt              DateTime? @map("updated_at")
+  publishedAt            DateTime? @map("published_at")
+  createdById            Int?      @map("created_by_id")
+  updatedById            Int?      @map("updated_by_id")
+  locale                 String?   @map("locale")
+
+  @@index([createdById], map: "notif_created_by_id_fk")
+  @@index([updatedById], map: "notif_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "notif_documents_idx")
+  @@map("notifications")
+}
+
+model NotificationApplicantLink {
+  id              Int   @id @default(autoincrement()) @map("id")
+  notificationId  Int?   @map("notification_id")
+  applicantId     Int?   @map("applicant_id")
+  notificationOrd Float? @map("notification_ord")
+
+  @@index([notificationId], map: "notif_appl_lnk_notif_fk")
+  @@index([applicantId], map: "notif_appl_lnk_appl_fk")
+  @@map("notifications_applicant_lnk")
+}
+
+// ============================================================================
+// SECTION 7 — MERGED AWARDS / ACCOMPLISHMENTS
+// ============================================================================
+
+model MergedAwardsAccomplishment {
+  id          Int       @id @default(autoincrement()) @map("id")
+  documentId  String?   @map("document_id")
+  createdAt   DateTime? @map("created_at")
+  updatedAt   DateTime? @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  createdById Int?      @map("created_by_id")
+  updatedById Int?      @map("updated_by_id")
+  locale      String?   @map("locale")
+  year        String?   @map("year")
+
+  @@index([createdById], map: "maa_created_by_id_fk")
+  @@index([updatedById], map: "maa_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "maa_documents_idx")
+  @@map("merged_awards_accomplishments")
+}
+
+model MergedAwardsAccomplishmentLink {
+  id                          Int   @id @default(autoincrement()) @map("id")
+  mergedAwardsAccomplishmentId Int?  @map("merged_awards_accomplishment_id")
+  applicantId                 Int?   @map("applicant_id")
+  mergedAwardsAccomplishmentOrd Float? @map("merged_awards_accomplishment_ord")
+
+  @@index([mergedAwardsAccomplishmentId], map: "maa_appl_lnk_maa_fk")
+  @@index([applicantId], map: "maa_appl_lnk_appl_fk")
+  @@map("merged_awards_accomplishments_applicant_lnk")
+}
+
+model MergedAwardsAccomplishmentAwardLink {
+  id                          Int   @id @default(autoincrement()) @map("id")
+  mergedAwardsAccomplishmentId Int?  @map("merged_awards_accomplishment_id")
+  applicantAwardId            Int?   @map("applicant_award_id")
+  applicantAwardOrd           Float? @map("applicant_award_ord")
+
+  @@index([mergedAwardsAccomplishmentId], map: "maa_awd_lnk_maa_fk")
+  @@index([applicantAwardId], map: "maa_awd_lnk_awd_fk")
+  @@map("merged_awards_accomplishments_applicant_awards_lnk")
+}
+
+model MergedAwardsAccomplishmentAccomplishmentLink {
+  id                          Int   @id @default(autoincrement()) @map("id")
+  mergedAwardsAccomplishmentId Int?  @map("merged_awards_accomplishment_id")
+  applicantAccomplishmentId   Int?   @map("applicant_accomplishment_id")
+  applicantAccomplishmentOrd  Float? @map("applicant_accomplishment_ord")
+
+  @@index([mergedAwardsAccomplishmentId], map: "maa_acc_lnk_maa_fk")
+  @@index([applicantAccomplishmentId], map: "maa_acc_lnk_acc_fk")
+  @@map("merged_awards_accomp73efd_applicant_accomplishments_lnk")
+}
+
+model MergedAwardsAccomplishmentPositionLink {
+  id                          Int @id @default(autoincrement()) @map("id")
+  mergedAwardsAccomplishmentId Int? @map("merged_awards_accomplishment_id")
+  postionId                   Int? @map("postion_id")
+
+  @@index([mergedAwardsAccomplishmentId], map: "maa_pos_lnk_maa_fk")
+  @@index([postionId], map: "maa_pos_lnk_pos_fk")
+  @@map("merged_awards_accomplishments_position_lnk")
+}
+
+// ============================================================================
+// SECTION 8 — PROJECTS
+// ============================================================================
+
+model Project {
+  id               Int       @id @default(autoincrement()) @map("id")
+  documentId       String?   @map("document_id")
+  code             String?   @map("code")
+  name             String?   @map("name")
+  description      String?   @map("description")
+  positionType     String?   @map("position_type")
+  contractDateFrom DateTime? @map("contract_date_from")
+  contractDateTo   DateTime? @map("contract_date_to")
+  createdAt        DateTime? @map("created_at")
+  updatedAt        DateTime? @map("updated_at")
+  publishedAt      DateTime? @map("published_at")
+  createdById      Int?      @map("created_by_id")
+  updatedById      Int?      @map("updated_by_id")
+  locale           String?   @map("locale")
+
+  @@index([createdById], map: "proj_created_by_id_fk")
+  @@index([updatedById], map: "proj_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "proj_documents_idx")
+  @@map("projects")
+}
+
+model ProjectPlaceOfAssignmentLink {
+  id                  Int @id @default(autoincrement()) @map("id")
+  projectId           Int? @map("project_id")
+  placeOfAssignmentId Int? @map("place_of_assignment_id")
+
+  @@index([projectId], map: "proj_poa_lnk_proj_fk")
+  @@index([placeOfAssignmentId], map: "proj_poa_lnk_poa_fk")
+  @@map("projects_place_of_assignment_lnk")
+}
+
+model ProjectUserLink {
+  id        Int   @id @default(autoincrement()) @map("id")
+  projectId Int?   @map("project_id")
+  userId    Int?   @map("user_id")
+  projectOrd Float? @map("project_ord")
+
+  @@index([projectId], map: "proj_user_lnk_proj_fk")
+  @@index([userId], map: "proj_user_lnk_user_fk")
+  @@map("projects_user_lnk")
+}
+
+// ============================================================================
+// SECTION 9 — FILES (file-upload storage)
+// ============================================================================
+
+model File {
+  id               Int       @id @default(autoincrement()) @map("id")
+  documentId       String?   @map("document_id")
+  name             String?   @map("name")
+  alternativeText  String?   @map("alternative_text")
+  caption          String?   @map("caption")
+  width            Int?      @map("width")
+  height           Int?      @map("height")
+  formats          Unsupported("json")? @map("formats")
+  hash             String?   @map("hash")
+  ext              String?   @map("ext")
+  mime             String?   @map("mime")
+  size             Float?    @map("size")
+  url              String?   @map("url")
+  previewUrl       String?   @map("preview_url")
+  provider         String?   @map("provider")
+  providerMetadata Unsupported("json")? @map("provider_metadata")
+  folderPath       String?   @map("folder_path")
+  createdAt        DateTime? @map("created_at")
+  updatedAt        DateTime? @map("updated_at")
+  publishedAt      DateTime? @map("published_at")
+  createdById      Int?      @map("created_by_id")
+  updatedById      Int?      @map("updated_by_id")
+  locale           String?   @map("locale")
+
+  @@index([createdById], map: "files_created_by_id_fk")
+  @@index([updatedById], map: "files_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "files_documents_idx")
+  @@map("files")
+}
+
+model FileFolderLink {
+  id       Int   @id @default(autoincrement()) @map("id")
+  fileId   Int?   @map("file_id")
+  folderId Int?   @map("folder_id")
+  fileOrd  Float? @map("file_ord")
+
+  @@index([fileId], map: "files_folder_lnk_file_fk")
+  @@index([folderId], map: "files_folder_lnk_folder_fk")
+  @@map("files_folder_lnk")
+}
+
+/// Polymorphic relation table — maps files to ANY linked content row.
+/// Column names use `related_*` (not `morph_*`) per the production DB.
+/// `order` is a SQL reserved word — Prisma field is `order` with @map("order").
+model FileRelatedLink {
+  id         Int    @id @default(autoincrement()) @map("id")
+  fileId     Int?    @map("file_id")
+  relatedId  Int?    @map("related_id")
+  relatedType String? @map("related_type")
+  field      String? @map("field")
+  order      Float?  @map("order")
+
+  @@index([fileId], map: "files_related_mph_file_fk")
+  @@index([relatedId, relatedType], map: "files_related_mph_morph_fk")
+  @@map("files_related_mph")
+}
+
+model UploadFolder {
+  id          Int       @id @default(autoincrement()) @map("id")
+  documentId  String?   @map("document_id")
+  name        String?   @map("name")
+  pathId      Int?      @map("path_id")
+  path        String?   @map("path")
+  createdAt   DateTime? @map("created_at")
+  updatedAt   DateTime? @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  createdById Int?      @map("created_by_id")
+  updatedById Int?      @map("updated_by_id")
+  locale      String?   @map("locale")
+
+  @@index([createdById], map: "up_folders_created_by_id_fk")
+  @@index([updatedById], map: "up_folders_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "up_folders_documents_idx")
+  @@map("upload_folders")
+}
+
+model UploadFolderParentLink {
+  id          Int   @id @default(autoincrement()) @map("id")
+  folderId    Int?   @map("folder_id")
+  invFolderId Int?   @map("inv_folder_id")
+  folderOrd   Float? @map("folder_ord")
+
+  @@index([folderId], map: "up_folders_parent_lnk_folder_fk")
+  @@index([invFolderId], map: "up_folders_parent_lnk_inv_fk")
+  @@map("upload_folders_parent_lnk")
+}
+
+// ============================================================================
+// SECTION 10 — CUSTOM (unused scaffolding, preserved for fidelity)
+// ============================================================================
+
+model Custom {
+  id            Int       @id @default(autoincrement()) @map("id")
+  documentId    String?   @map("document_id")
+  name          String?   @map("name")
+  createdAt     DateTime? @map("created_at")
+  updatedAt     DateTime? @map("updated_at")
+  publishedAt   DateTime? @map("published_at")
+  createdById   Int?      @map("created_by_id")
+  updatedById   Int?      @map("updated_by_id")
+  locale        String?   @map("locale")
+  margin        String?   @map("margin")
+  sectionNumber String?   @map("section_number")
+
+  @@index([createdById], map: "customs_created_by_id_fk")
+  @@index([updatedById], map: "customs_updated_by_id_fk")
+  @@index([documentId, locale, publishedAt], map: "customs_documents_idx")
+  @@map("customs")
+}
+
+// ============================================================================
+// SMS gateway log — every outbound SMS attempt (all providers, including the
+// dev "mock" driver) is persisted here for auditing + the admin SMS panel.
+// ============================================================================
+model SmsLog {
+  id          Int      @id @default(autoincrement())
+  to          String
+  message     String
+  provider    String
+  /// "sent" | "failed" | "mock"
+  status      String
+  providerRef String?  @map("provider_ref")
+  error       String?
+  relatedType String?  @map("related_type")
+  relatedId   Int?     @map("related_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("sms_logs")
+}
+
+// Outbound email audit trail — mirrors SmsLog. Every send (real or mock)
+// lands here so admins can audit exactly what was sent to whom, and the
+// shortlist email is provable even in the mock dev driver.
+model EmailLog {
+  id          Int      @id @default(autoincrement())
+  to          String
+  subject     String
+  bodyText    String   @map("body_text")
+  bodyHtml    String?  @map("body_html")
+  provider    String
+  /// "sent" | "failed" | "mock" | "skipped"
+  status      String
+  providerRef String?  @map("provider_ref")
+  error       String?
+  relatedType String?  @map("related_type")
+  relatedId   Int?     @map("related_id")
+  /// JSON metadata of sent attachments: [{ name, bytes }] — content is NEVER
+  /// persisted here (only the provider receives the actual file bytes).
+  attachments String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("email_logs")
+}

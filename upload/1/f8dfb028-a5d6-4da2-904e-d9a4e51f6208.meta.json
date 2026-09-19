@@ -1,0 +1,18 @@
+{
+  "id": "f8dfb028-a5d6-4da2-904e-d9a4e51f6208",
+  "applicantId": 1,
+  "uploadedById": 3,
+  "fileName": "f8dfb028-a5d6-4da2-904e-d9a4e51f6208.xlsx",
+  "originalName": "CS Form No. 212 Revised 2026 Personal Data Sheet PDS.xlsx",
+  "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "size": 148920,
+  "filePath": "upload/1/f8dfb028-a5d6-4da2-904e-d9a4e51f6208.xlsx",
+  "category": "PDS",
+  "status": "FAILED",
+  "extractedJson": "{\"personalInfo\":{\"lastName\":{\"value\":null,\"confidence\":\"none\",\"source\":\"C1 §I surname\"},\"firstName\":{\"value\":null,\"confidence\":\"none\",\"source\":\"C1 §I first name\"},\"middleName\":{\"value\":null,\"confidence\":\"none\",\"source\":\"C1 §I middle name\"},\"extensionName\":{\"value\":null,\"confidence\":\"none\",\"source\":\"C1 §I name extension\"},\"birthDate\":{\"value\":null,\"confidence\":\"none\",\"source\":\"C1 §I birth date\"},\"birthPlace\":{\"value\":null,\"confidence\":\"none\",\"source\":\"C1 §I birth place\"}},\"educations\":[],\"workExperiences\":[],\"trainings\":[],\"eligibilities\":[],\"awards\":[],\"documentType\":\"PDS\",\"warnings\":[]}",
+  "extractionError": "This looks like a blank CS Form 212 (PDS) template — no filled-out information was found. Please fill it out in Excel, save it, then upload the completed form.",
+  "extractedAt": "2026-09-17T04:55:22.411Z",
+  "createdAt": "2026-09-17T04:55:18.531Z",
+  "updatedAt": "2026-09-17T04:55:22.411Z",
+  "fileTableId": 7
+}

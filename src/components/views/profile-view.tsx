@@ -9,7 +9,7 @@
 // document intelligence.
 // =============================================================================
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useSession } from "@/components/session-provider";
 import { apiFetch } from "@/lib/client";
 import { Button } from "@/components/ui/button";
@@ -68,6 +68,9 @@ export function ProfileView() {
   const { user, refresh: refreshSession } = useSession();
   const data = useProfileData();
   const sectionsRef = useRef<HTMLDivElement>(null);
+  // Mobile chip scroller — refs per section id so the active chip can be
+  // auto-centered inside the horizontal strip when the section changes.
+  const chipRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const {
     loading, error, profile, loadAll, activeSection, setActiveSection,
     reference, personalForm, personalDirty,
@@ -80,6 +83,19 @@ export function ProfileView() {
   } = data;
 
   void user;
+
+  // Keep the active chip visible in the mobile horizontal strip. The chips
+  // only exist below the lg breakpoint (desktop renders the vertical rail),
+  // so on desktop both refs are null and this is a no-op. `block:"nearest"`
+  // prevents any vertical page jump while `inline:"center"` does the
+  // horizontal centering.
+  useEffect(() => {
+    chipRefs.current[activeSection]?.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+  }, [activeSection]);
 
   // ── ONE-EXTRACTION LOCK ──
   // A document with a live extraction result (EXTRACTED / PARTIALLY_EXTRACTED
@@ -267,7 +283,54 @@ export function ProfileView() {
                 parked right below the section list. The whole rail sticks on
                 desktop as one unit (internal scroll when tall). */}
             <div className="h-fit lg:sticky lg:top-16 lg:max-h-[calc(100dvh-80px)] lg:overflow-y-auto">
-              <nav className="rounded-none border border-border bg-card p-2">
+              {/* MOBILE (< lg) — single-row horizontal chip scroller. Seven
+                  stacked rows used to eat most of a phone viewport before the
+                  content even started; one swipeable strip fixes that. Same
+                  visual language: 01–07 numbering, fill-state icon, solid
+                  primary active block. Scrollbar hidden, active chip
+                  auto-centered (see effect above). */}
+              <nav
+                aria-label="Profile sections"
+                className="rounded-none border border-border bg-card p-2 lg:hidden"
+              >
+                <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {SECTIONS.map((s, i) => {
+                    const isActive = activeSection === s.id;
+                    const filled = completion.checks[s.id];
+                    return (
+                      <button
+                        key={s.id}
+                        ref={(el) => {
+                          chipRefs.current[s.id] = el;
+                        }}
+                        onClick={() => setActiveSection(s.id)}
+                        aria-current={isActive ? "page" : undefined}
+                        className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-none px-3 py-2.5 text-sm font-semibold transition-colors ${
+                          isActive
+                            ? "bg-primary text-primary-foreground"
+                            : "border border-border bg-card text-foreground hover:bg-secondary"
+                        }`}
+                      >
+                        <span className={`text-xs font-extrabold tabular-nums ${isActive ? "text-white/70" : "text-muted-foreground"}`}>
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <span>{s.label}</span>
+                        {filled ? (
+                          <CheckCircle2 className="size-4 shrink-0 text-success" strokeWidth={2} />
+                        ) : (
+                          <CircleDot className={`size-4 shrink-0 ${isActive ? "text-white/40" : "text-muted-foreground/40"}`} strokeWidth={1.5} />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </nav>
+
+              {/* DESKTOP (lg+) — full vertical nav rail (unchanged) */}
+              <nav
+                aria-label="Profile sections"
+                className="hidden rounded-none border border-border bg-card p-2 lg:block"
+              >
                 <p className="kicker px-3 pb-1.5 pt-2.5 text-sm! text-muted-foreground">Sections</p>
                 <div className="flex flex-col gap-1">
                   {SECTIONS.map((s, i) => {

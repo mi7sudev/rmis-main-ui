@@ -5862,3 +5862,22 @@ Stage Summary:
 - Applicant sidebar (desktop rail, mobile drawer, command palette) no longer lists "Positions" — Portal section is Home-only, Account is Profile. The jobs board remains fully reachable from the homepage "View All" (and empty-state CTA), with a proper "Portal › Positions" breadcrumb instead of "Overview".
 - Files changed: src/config/navigation.ts, src/components/shell/workspace-header.tsx.
 - Note: Task 12 (remove blue wipe + skeletons) was already completed and recorded in the previous worklog entry; this task is the follow-up sidebar change only.
+
+---
+Task ID: mobile-profile-nav-01
+Agent: Z.ai Code (main)
+Task: Mobile UX — make the 01-07 profile section nav a horizontally scrollable strip instead of a tall vertical stack
+
+Work Log:
+- Located the section nav in src/components/views/profile-view.tsx (vertical 7-row stack rendered at all breakpoints)
+- Added a mobile-only (< lg) horizontal chip scroller: 01-07 numbering + label + fill-state icon, shrink-0 chips, hidden scrollbar ([scrollbar-width:none] + [&::-webkit-scrollbar]:hidden), same flat/rounded-none design language
+- Desktop (lg+) vertical nav rail preserved unchanged via hidden lg:block
+- Added useEffect + chipRefs: active chip auto-centers horizontally (scrollIntoView inline:center, block:nearest) when activeSection changes
+- Ran bun run lint — clean
+- Browser-verified: 390x844 viewport → single-row scrollable strip, tap "04 Training" → content switches + chip auto-centers; 1440x900 → vertical rail unchanged with shared active state
+- Fixed dev server persistence: used the platform's official .zscripts/dev.sh mechanism (per earlier worklog discovery); added a db:push SAFETY GUARD in .zscripts/dev.sh that skips prisma db push when DATABASE_URL targets production-data.db
+
+Stage Summary:
+- src/components/views/profile-view.tsx: mobile section nav is now a compact horizontally scrollable chip strip; desktop untouched
+- .zscripts/dev-rmis.sh added (keepalive, not required for persistence), .zscripts/dev.sh patched with production-db guard
+- Server: Next.js dev on port 3000, disowned via official mechanism (pid 3717), health {app:ok, database:ok}

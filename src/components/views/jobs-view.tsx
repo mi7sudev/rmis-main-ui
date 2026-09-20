@@ -11,6 +11,7 @@
 // ============================================================================
 
 import { Fragment, useEffect, useMemo, useRef, useState, useCallback } from "react";
+import type { ReactNode } from "react";
 import { apiFetch, formatCurrency, formatDate } from "@/lib/client";
 import { useNav } from "@/components/nav-provider";
 import { useSession } from "@/components/session-provider";
@@ -1075,6 +1076,33 @@ function JobDetailView({
 }) {
   const pos = job.position;
   const reduced = useReducedMotion();
+  // Sticky offsets depend on the surrounding shell: the public SiteHeader is
+  // 53px (mobile) / 65px (sm+) tall when condensed, while the authed
+  // WorkspaceHeader is a fixed h-16 (64px). The back bar docks under the
+  // header; the summary rail docks under BOTH bars (+ breathing gap).
+  const { user } = useSession();
+  const backBarTop = user ? "top-16" : "top-[53px] sm:top-[65px]";
+  const railTop = user ? "lg:top-[148px]" : "lg:top-[149px]";
+
+  // Application-window state — display only; submission rules stay the API's.
+  const deadlineMs = job.deadlineDate ? new Date(job.deadlineDate).getTime() : null;
+  const closed = deadlineMs != null && deadlineMs < Date.now();
+  const closingSoon = !closed && deadlineMs != null && deadlineMs < Date.now() + 7 * 86400000;
+  const statusChip = deadlineMs == null ? null : (
+    <span
+      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] ${
+        closed
+          ? "border-destructive/40 bg-destructive/10 text-danger-ink"
+          : closingSoon
+            ? "border-warning/40 bg-warning/10 text-warning"
+            : "border-success/40 bg-success/10 text-success"
+      }`}
+    >
+      <span aria-hidden className={`size-1.5 rounded-full ${closed ? "bg-destructive" : closingSoon ? "bg-warning" : "bg-success"}`} />
+      {closed ? "Closed" : closingSoon ? "Closing soon" : "Open"}
+    </span>
+  );
+
   return (
     <motion.div
       initial={reduced ? false : { opacity: 0 }}
@@ -1082,8 +1110,8 @@ function JobDetailView({
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       className="text-foreground"
     >
-      {/* Top bar — sticky UNDER the condensed SiteHeader */}
-      <div className="sticky top-[53px] z-30 flex items-center justify-between border-b border-border bg-background/95 px-4 py-3 backdrop-blur sm:top-[65px] sm:px-6">
+      {/* Top bar — sticky UNDER the condensed SiteHeader / workspace header */}
+      <div className={`sticky z-30 flex items-center justify-between border-b border-border bg-background/95 px-4 py-3 backdrop-blur sm:px-6 ${backBarTop}`}>
         <button onClick={onClose} className="group flex h-11 items-center gap-2 rounded-full px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
           <ArrowRight className="size-4 rotate-180 transition-transform duration-200 group-hover:translate-x-[-3px]" strokeWidth={2} />
           Back to Positions
@@ -1093,17 +1121,20 @@ function JobDetailView({
         </button>
       </div>
 
-      {/* Hero — mode-aware canvas, muted kicker, primary accent rule */}
+      {/* Hero — mode-aware canvas, muted kicker + live status, primary accent
+          rule. Constrained to the reading width the body uses below so the
+          page no longer sprawls edge to edge. */}
       <div className="border-b border-border px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-        <div className="mx-auto max-w-[1400px] 2xl:max-w-[1680px]">
-          <motion.p
+        <div className="mx-auto max-w-6xl">
+          <motion.div
             initial={reduced ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-            className="kicker text-muted-foreground"
+            className="flex flex-wrap items-center gap-3"
           >
-            Position Details
-          </motion.p>
+            <p className="kicker text-muted-foreground">Position Details</p>
+            {statusChip}
+          </motion.div>
           <motion.h1
             initial={reduced ? false : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1126,94 +1157,172 @@ function JobDetailView({
         </div>
       </div>
 
-      {/* Body */}
-      <div className="mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-        {/* Summary grid */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <SummaryCell icon={<FileText className="size-4" strokeWidth={1.5} />} label="Item No." value={pos?.itemNumber || "—"} />
-          <SummaryCell icon={<Users className="size-4" strokeWidth={1.5} />} label="Vacancies" value={job.numberOfVacancy != null ? String(job.numberOfVacancy) : "—"} />
-          <SummaryCell icon={<Banknote className="size-4" strokeWidth={1.5} />} label="Salary Grade" value={pos?.salaryGrade ? `SG ${pos.salaryGrade}${pos.salaryStep ? `/${pos.salaryStep}` : ""}` : "—"} />
-          <SummaryCell icon={<Banknote className="size-4" strokeWidth={1.5} />} label="Monthly Salary" value={pos?.salaryAmount ? formatCurrency(pos.salaryAmount) : "—"} />
-        </div>
-
-        {/* Dates */}
-        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <DateCell icon={<Calendar className="size-4" strokeWidth={1.5} />} label="Published" value={formatDate(job.publishDate)} />
-          <DateCell icon={<Clock className="size-4" strokeWidth={1.5} />} label="Deadline" value={formatDate(job.deadlineDate)} urgent={!!job.deadlineDate && new Date(job.deadlineDate).getTime() < Date.now() + 7 * 86400000} />
-          <DateCell icon={<Calendar className="size-4" strokeWidth={1.5} />} label="Processing" value={formatDate(job.processingDate)} />
-        </div>
-
-        {/* Sections */}
-        {job.briefDescriptionHtml ? (
-          <Section title="Brief Description" icon={<FileText className="size-4" strokeWidth={1.5} />}>
-            <SafeHtml html={job.briefDescriptionHtml} className="max-w-none overflow-x-auto text-foreground/90" />
-          </Section>
-        ) : job.briefDescription ? (
-          <Section title="Brief Description" icon={<FileText className="size-4" strokeWidth={1.5} />}>
-            <p className="text-sm font-medium text-foreground/90">{job.briefDescription}</p>
-          </Section>
-        ) : null}
-
-        {pos && (pos.cscEducation || pos.cscWorkExperience || pos.cscTrainingRequirements || pos.cscEligibilityGroup || pos.specialSkill) && (
-          <Section title="Minimum Qualification Requirements" icon={<GraduationCap className="size-4" strokeWidth={1.5} />}>
-            <dl className="divide-y divide-border/70 overflow-hidden rounded-xl border border-border">
-              {pos.cscEducation && <ReqRow icon={<GraduationCap className="size-4" strokeWidth={1.5} />} label="Education" value={pos.cscEducation} />}
-              {pos.cscWorkExperience && <ReqRow icon={<Briefcase className="size-4" strokeWidth={1.5} />} label="Work Experience" value={pos.cscWorkExperience} />}
-              {pos.cscTrainingRequirements && <ReqRow icon={<Award className="size-4" strokeWidth={1.5} />} label="Training" value={pos.cscTrainingRequirements} />}
-              {pos.cscEligibilityGroup && pos.cscEligibilityGroup !== "N/A" && <ReqRow icon={<CheckCircle2 className="size-4" strokeWidth={1.5} />} label="Eligibility" value={pos.cscEligibilityGroup} />}
-              {pos.specialSkill && <ReqRow icon={<BadgeCheck className="size-4" strokeWidth={1.5} />} label="License / Certification" value={pos.specialSkill} />}
-            </dl>
-          </Section>
-        )}
-
-        {job.dutiesResponsibilitiesHtml && (
-          <Section title="Duties & Responsibilities" icon={<FileText className="size-4" strokeWidth={1.5} />}>
-            <SafeHtml html={job.dutiesResponsibilitiesHtml} className="max-w-none overflow-x-auto text-foreground/90" />
-          </Section>
-        )}
-
-        {job.compensationPackageHtml && (
-          <Section title="Compensation Package" icon={<Banknote className="size-4" strokeWidth={1.5} />}>
-            <SafeHtml html={job.compensationPackageHtml} className="max-w-none overflow-x-auto text-foreground/90" />
-          </Section>
-        )}
-
-        {job.otherQualificationsHtml && (
-          <Section title="Other Qualifications" icon={<CheckCircle2 className="size-4" strokeWidth={1.5} />}>
-            <SafeHtml html={job.otherQualificationsHtml} className="max-w-none overflow-x-auto text-foreground/90" />
-          </Section>
-        )}
-
-        {/* Apply section */}
-        <div className="mt-8 border-t border-border pt-6">
-          {applied ? (
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-3 rounded-xl border border-success/40 bg-success/10 px-4 py-3.5">
-                <CheckCircle2 className="size-6 text-success" strokeWidth={1.5} />
-                <p className="text-sm font-semibold text-success">Successfully Applied</p>
+      {/* Body — reading column + sticky summary rail. The posting sections
+          live in a ~780px document column; the vital stats and the apply
+          action move into a sticky card that follows the reader on desktop
+          (mobile keeps the stat grids and the bottom apply in flow). */}
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
+          {/* Main column */}
+          <div className="min-w-0">
+            {/* Vitals — in-flow stat grids on small screens; the desktop rail
+                card carries the same facts. */}
+            <div className="lg:hidden">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <SummaryCell icon={<FileText className="size-4" strokeWidth={1.5} />} label="Item No." value={pos?.itemNumber || "—"} />
+                <SummaryCell icon={<Users className="size-4" strokeWidth={1.5} />} label="Vacancies" value={job.numberOfVacancy != null ? String(job.numberOfVacancy) : "—"} />
+                <SummaryCell icon={<Banknote className="size-4" strokeWidth={1.5} />} label="Salary Grade" value={pos?.salaryGrade ? `SG ${pos.salaryGrade}${pos.salaryStep ? `/${pos.salaryStep}` : ""}` : "—"} />
+                <SummaryCell icon={<Banknote className="size-4" strokeWidth={1.5} />} label="Monthly Salary" value={pos?.salaryAmount ? formatCurrency(pos.salaryAmount) : "—"} />
               </div>
-              {onCancel && (
-                <button onClick={() => onCancel(job)} disabled={cancelling} className="group flex h-11 items-center gap-2 self-start rounded-lg border border-input px-5 text-sm font-medium text-foreground transition-colors hover:border-destructive/60 hover:bg-destructive/5 hover:text-danger-ink disabled:opacity-50">
-                  {cancelling ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" strokeWidth={1.5} />}
-                  {cancelling ? "Cancelling…" : "Cancel Application"}
-                </button>
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <DateCell icon={<Calendar className="size-4" strokeWidth={1.5} />} label="Published" value={formatDate(job.publishDate)} />
+                <DateCell icon={<Clock className="size-4" strokeWidth={1.5} />} label="Deadline" value={formatDate(job.deadlineDate)} urgent={!!job.deadlineDate && new Date(job.deadlineDate).getTime() < Date.now() + 7 * 86400000} />
+                <DateCell icon={<Calendar className="size-4" strokeWidth={1.5} />} label="Processing" value={formatDate(job.processingDate)} />
+              </div>
+            </div>
+
+            <div className="lg:[&>*:first-child]:mt-0">
+              {job.briefDescriptionHtml ? (
+                <Section title="Brief Description" icon={<FileText className="size-4" strokeWidth={1.5} />}>
+                  <SafeHtml html={job.briefDescriptionHtml} className="max-w-none overflow-x-auto text-foreground/90" />
+                </Section>
+              ) : job.briefDescription ? (
+                <Section title="Brief Description" icon={<FileText className="size-4" strokeWidth={1.5} />}>
+                  <p className="text-sm font-medium text-foreground/90">{job.briefDescription}</p>
+                </Section>
+              ) : null}
+
+              {pos && (pos.cscEducation || pos.cscWorkExperience || pos.cscTrainingRequirements || pos.cscEligibilityGroup || pos.specialSkill) && (
+                <Section title="Minimum Qualification Requirements" icon={<GraduationCap className="size-4" strokeWidth={1.5} />}>
+                  <dl className="divide-y divide-border/70 overflow-hidden rounded-xl border border-border">
+                    {pos.cscEducation && <ReqRow icon={<GraduationCap className="size-4" strokeWidth={1.5} />} label="Education" value={pos.cscEducation} />}
+                    {pos.cscWorkExperience && <ReqRow icon={<Briefcase className="size-4" strokeWidth={1.5} />} label="Work Experience" value={pos.cscWorkExperience} />}
+                    {pos.cscTrainingRequirements && <ReqRow icon={<Award className="size-4" strokeWidth={1.5} />} label="Training" value={pos.cscTrainingRequirements} />}
+                    {pos.cscEligibilityGroup && pos.cscEligibilityGroup !== "N/A" && <ReqRow icon={<CheckCircle2 className="size-4" strokeWidth={1.5} />} label="Eligibility" value={pos.cscEligibilityGroup} />}
+                    {pos.specialSkill && <ReqRow icon={<BadgeCheck className="size-4" strokeWidth={1.5} />} label="License / Certification" value={pos.specialSkill} />}
+                  </dl>
+                </Section>
+              )}
+
+              {job.dutiesResponsibilitiesHtml && (
+                <Section title="Duties & Responsibilities" icon={<FileText className="size-4" strokeWidth={1.5} />}>
+                  <SafeHtml html={job.dutiesResponsibilitiesHtml} className="max-w-none overflow-x-auto text-foreground/90" />
+                </Section>
+              )}
+
+              {job.compensationPackageHtml && (
+                <Section title="Compensation Package" icon={<Banknote className="size-4" strokeWidth={1.5} />}>
+                  <SafeHtml html={job.compensationPackageHtml} className="max-w-none overflow-x-auto text-foreground/90" />
+                </Section>
+              )}
+
+              {job.otherQualificationsHtml && (
+                <Section title="Other Qualifications" icon={<CheckCircle2 className="size-4" strokeWidth={1.5} />}>
+                  <SafeHtml html={job.otherQualificationsHtml} className="max-w-none overflow-x-auto text-foreground/90" />
+                </Section>
               )}
             </div>
-          ) : (
-            <Button onClick={() => onApply(job)} disabled={applying} size="lg" className="w-full">
-              {applying ? <Loader2 className="size-5 animate-spin" /> : <Briefcase className="size-5" strokeWidth={1.5} />}
-              {applying ? "Processing…" : "Submit Application"}
-              {!applying && <ArrowRight className="size-5" />}
-            </Button>
-          )}
-          {job.deadlineDate && new Date(job.deadlineDate) < new Date() && !applied && (
-            <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-danger-ink">
-              <AlertCircle className="size-4" strokeWidth={1.5} /> Deadline passed
+
+            {/* Apply — mobile & tablet; on lg+ the rail CTA is always on screen */}
+            <div className="mt-8 border-t border-border pt-6 lg:hidden">
+              {applied ? (
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-3 rounded-xl border border-success/40 bg-success/10 px-4 py-3.5">
+                    <CheckCircle2 className="size-6 text-success" strokeWidth={1.5} />
+                    <p className="text-sm font-semibold text-success">Successfully Applied</p>
+                  </div>
+                  {onCancel && (
+                    <button onClick={() => onCancel(job)} disabled={cancelling} className="group flex h-11 items-center gap-2 self-start rounded-lg border border-input px-5 text-sm font-medium text-foreground transition-colors hover:border-destructive/60 hover:bg-destructive/5 hover:text-danger-ink disabled:opacity-50">
+                      {cancelling ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" strokeWidth={1.5} />}
+                      {cancelling ? "Cancelling…" : "Cancel Application"}
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <Button onClick={() => onApply(job)} disabled={applying} size="lg" className="w-full">
+                  {applying ? <Loader2 className="size-5 animate-spin" /> : <Briefcase className="size-5" strokeWidth={1.5} />}
+                  {applying ? "Processing…" : "Submit Application"}
+                  {!applying && <ArrowRight className="size-5" />}
+                </Button>
+              )}
+              {job.deadlineDate && new Date(job.deadlineDate) < new Date() && !applied && (
+                <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-danger-ink">
+                  <AlertCircle className="size-4" strokeWidth={1.5} /> Deadline passed
+                </div>
+              )}
             </div>
-          )}
+          </div>
+
+          {/* Summary rail — sticky vitals + apply action (desktop only) */}
+          <aside className="hidden lg:block">
+            <div className={`sticky ${railTop}`}>
+              <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+                <div className="border-b border-border px-5 py-4">
+                  <p className="kicker text-muted-foreground">Position Summary</p>
+                </div>
+                <div className="divide-y divide-border/60 px-5">
+                  <RailRow icon={<FileText className="size-4" strokeWidth={1.5} />} label="Item No." value={pos?.itemNumber || "—"} />
+                  <RailRow icon={<Users className="size-4" strokeWidth={1.5} />} label="Vacancies" value={job.numberOfVacancy != null ? String(job.numberOfVacancy) : "—"} />
+                  <RailRow icon={<Banknote className="size-4" strokeWidth={1.5} />} label="Salary Grade" value={pos?.salaryGrade ? `SG ${pos.salaryGrade}${pos.salaryStep ? `/${pos.salaryStep}` : ""}` : "—"} />
+                  <RailRow icon={<Banknote className="size-4" strokeWidth={1.5} />} label="Monthly Salary" value={pos?.salaryAmount ? formatCurrency(pos.salaryAmount) : "—"} accent />
+                  <RailRow icon={<MapPin className="size-4" strokeWidth={1.5} />} label="Place of Assignment" value={pos?.placeOfAssignment?.name || "—"} />
+                  <RailRow icon={<Building2 className="size-4" strokeWidth={1.5} />} label="Division" value={pos?.division ? divisionLabel(pos.division) : "—"} />
+                  <RailRow icon={<Briefcase className="size-4" strokeWidth={1.5} />} label="Position Type" value={job.positionType || "—"} />
+                  <RailRow icon={<Calendar className="size-4" strokeWidth={1.5} />} label="Published" value={formatDate(job.publishDate)} />
+                  <RailRow icon={<Clock className="size-4" strokeWidth={1.5} />} label="Deadline" value={formatDate(job.deadlineDate)} urgent={!!job.deadlineDate && new Date(job.deadlineDate).getTime() < Date.now() + 7 * 86400000} />
+                </div>
+                <div className="border-t border-border bg-secondary/50 px-5 py-4">
+                  {applied ? (
+                    <div className="flex flex-col gap-2.5">
+                      <div className="flex items-center gap-2.5 rounded-xl border border-success/40 bg-success/10 px-3.5 py-3">
+                        <CheckCircle2 className="size-5 shrink-0 text-success" strokeWidth={1.5} />
+                        <p className="text-sm font-semibold text-success">Successfully Applied</p>
+                      </div>
+                      {onCancel && (
+                        <button onClick={() => onCancel(job)} disabled={cancelling} className="flex h-10 items-center justify-center gap-2 rounded-lg border border-input text-sm font-medium text-foreground transition-colors hover:border-destructive/60 hover:bg-destructive/5 hover:text-danger-ink disabled:opacity-50">
+                          {cancelling ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" strokeWidth={1.5} />}
+                          {cancelling ? "Cancelling…" : "Cancel Application"}
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <Button onClick={() => onApply(job)} disabled={applying} className="w-full">
+                        {applying ? <Loader2 className="size-4 animate-spin" /> : <Briefcase className="size-4" strokeWidth={1.5} />}
+                        {applying ? "Processing…" : "Submit Application"}
+                        {!applying && <ArrowRight className="size-4" />}
+                      </Button>
+                      {closed && (
+                        <p className="mt-2.5 flex items-center gap-1.5 text-xs font-semibold text-danger-ink">
+                          <AlertCircle className="size-3.5" strokeWidth={1.5} /> Deadline passed
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
     </motion.div>
+  );
+}
+
+// RailRow — one fact row of the sticky Position Summary card (desktop rail):
+// kicker label left, semibold value right; `accent` lifts the monthly salary
+// into brand blue, `urgent` flips the deadline into the warning tone.
+function RailRow({ icon, label, value, accent, urgent }: { icon: ReactNode; label: string; value: string; accent?: boolean; urgent?: boolean }) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-2.5">
+      <span className="flex shrink-0 items-center gap-1.5 text-muted-foreground">
+        {icon}
+        <span className="kicker">{label}</span>
+      </span>
+      <span className={`min-w-0 break-words text-right text-sm font-semibold tracking-[-0.01em] ${urgent ? "text-warning" : accent ? "text-[15px] text-primary" : "text-foreground"}`}>
+        {value}
+      </span>
+    </div>
   );
 }
 

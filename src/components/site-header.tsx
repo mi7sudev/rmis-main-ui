@@ -67,7 +67,7 @@ export function SiteHeader() {
         >
           <span className="flex shrink-0 items-center rounded-none bg-transparent px-2.5 py-1.5 sm:px-3 sm:py-2 dark:bg-parchment">
             <img
-              src="/MIRDC.png"
+              src="/MIRDC-mark.png"
               alt="MIRDC"
               className={`${logoH} w-auto object-contain transition-all duration-300`}
             />

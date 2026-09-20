@@ -6343,3 +6343,24 @@ Work Log:
 Stage Summary:
 - Sidebar brand mark is now the single official MIRDC emblem (public/MIRDC-mark.png, square, transparent), sized 56px expanded / 40px collapsed / 40px mobile drawer — roughly 2x the visual presence of the old two-up rendering with no background mismatch (transparent chip on the #F7F8FA canvas; parchment plate in dark)
 - MIRDC.png left untouched — site-header, footer, and page-loader still reference it (unchanged scope)
+---
+Task ID: detail-logo-08
+Agent: Z.ai Code (main)
+Task: Position Details page enhancement (too wide/simple) + sidebar logo alignment fix + frontpage logo matched to sidebar emblem
+
+Work Log:
+- Sidebar alignment fix (nav-rail.tsx): brand row is now a fixed h-16 flush to the top (aside py-3 -> pb-3), so the emblem centers exactly against the WorkspaceHeader (h-16) and the sidebar hairline divider lands on the same y as the header's border-b — one continuous line; removed the mt-2 above the divider. Also fixes the collapse button centering.
+- Frontpage logo (site-header.tsx): swapped /MIRDC.png (two-up sheet) -> /MIRDC-mark.png (single square emblem); kept logoH classes (h-10 mobile / h-14 sm+ uncondensed, h-9/h-11 condensed) so the frontpage logo is now the SAME single emblem at the SAME size as the sidebar (56px desktop, 40px mobile). Landing page shares SiteHeader, so one swap covers frontpage + jobs board + signin.
+- Position Details redesign (jobs-view.tsx JobDetailView):
+  - Container narrowed from max-w-[1400px]/2xl:1680px to max-w-6xl (hero + body) — reading width instead of edge-to-edge sprawl
+  - Hero: kicker row now carries a live status chip (Open / Closing soon <=7 days / Closed, computed from deadlineDate, display only)
+  - Body: lg grid [minmax(0,1fr)_340px] — posting sections in a ~780px document column; new sticky Position Summary card on the right (kicker header, 9 RailRow facts: item no, vacancies, salary grade, monthly salary in brand blue, place, division, type, published, deadline with urgent tone) with an always-visible apply footer (Submit Application / Successfully Applied + Cancel / Deadline passed note); sticky top is shell-aware (authed workspace header h-16 -> lg:top-[148px], public SiteHeader -> lg:top-[149px])
+  - Mobile/tablet keeps the previous in-flow behavior: SummaryCell/DateCell stat grids (lg:hidden) and the bottom apply section (lg:hidden) — no capability lost below lg
+  - Fixed pre-existing sticky bug: back bar docked at top-[53px]/sm:top-[65px] (public SiteHeader heights) even for signed-in users whose WorkspaceHeader is h-16 — now top-16 when authed
+  - RailRow helper added locally in jobs-view.tsx; shared primitives (job-detail-bits) untouched — application-detail modal unaffected
+- Verified with agent-browser: detail page desktop light (hero chip, two-column, sticky rail follows scroll, CTA always on screen), dark mode, mobile 390px (vitals grids + bottom apply + correct back-bar dock); sidebar logo alignment vs header line on desktop light/dark; frontpage SiteHeader emblem measured 56x56 via UI sign-out; signed back in via demo chip
+- bun run lint clean; dev.log clean
+
+Stage Summary:
+- Position Details is now a constrained two-column document: reading column + sticky summary/CTA rail with live Open/Closing soon/Closed status — noticeably less wide, more structured, RMIS language preserved (cool sheet, hairline borders, blue reserved for CTA/salary/status)
+- Logo system is now consistent: single official MIRDC emblem everywhere in chrome (sidebar desktop rail 56/40px, mobile drawer 40px, frontpage SiteHeader 56/40px), aligned to the header line; MIRDC.png remains only in footer + page-loader (out of scope)

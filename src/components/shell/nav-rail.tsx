@@ -208,7 +208,7 @@ export function NavRail() {
     <aside
       onClick={onRailClick}
       title={canExpand && !expanded ? "Click to expand" : undefined}
-      className={`hidden md:flex sticky top-0 z-30 h-dvh shrink-0 flex-col border-r border-sidebar-border bg-sidebar py-3 transition-[width] duration-200 ease-out ${
+      className={`hidden md:flex sticky top-0 z-30 h-dvh shrink-0 flex-col border-r border-sidebar-border bg-sidebar pb-3 transition-[width] duration-200 ease-out ${
         isOpen ? "w-64 items-stretch" : "w-16 items-center"
       } ${canExpand && !expanded ? "cursor-pointer" : ""}`}
       aria-label="Primary sidebar"
@@ -221,7 +221,7 @@ export function NavRail() {
           ONLY while expanded (the requirement: no close affordance cluttering
           the collapsed rail). */}
       <div
-        className={`relative z-10 flex w-full items-center ${
+        className={`relative z-10 flex h-16 w-full shrink-0 items-center ${
           isOpen ? "gap-1 px-2" : "flex-col"
         }`}
       >
@@ -239,7 +239,7 @@ export function NavRail() {
       </div>
 
       <div
-        className={`mt-2 h-px shrink-0 bg-sidebar-border ${
+        className={`h-px shrink-0 bg-sidebar-border ${
           isOpen ? "w-full" : "w-8"
         }`}
       />

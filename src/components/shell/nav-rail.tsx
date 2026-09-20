@@ -76,7 +76,9 @@ function initials(first?: string | null, last?: string | null): string {
   return (a + b).toUpperCase() || "?";
 }
 
-// ---- Brand mark — logo chip (+ wordmark when expanded) ---------------------
+// ---- Brand mark — logo only (no wordmark). The MIRDC mark, scaled up, sits
+// directly on the sidebar canvas in light mode; dark mode keeps a parchment
+// plate because the mark's black quadrants would vanish on the obsidian rail.
 function BrandMark({ expanded }: { expanded: boolean }) {
   const { navigate } = useNav();
   const { user } = useSession();
@@ -84,9 +86,7 @@ function BrandMark({ expanded }: { expanded: boolean }) {
     <button
       onClick={() => navigate(homeViewForRole(user?.role))}
       aria-label="RMIS home"
-      className={`relative z-10 shrink-0 transition-opacity hover:opacity-90 ${
-        expanded ? "flex min-w-0 items-center gap-2.5 px-3 py-1" : ""
-      }`}
+      className="relative z-10 shrink-0 transition-opacity hover:opacity-90"
     >
       {/* flex + items-center: the chip must be a flex container. Tailwind's
           preflight makes <img> display:block, and an INLINE wrapper around a
@@ -95,22 +95,16 @@ function BrandMark({ expanded }: { expanded: boolean }) {
           logo, while the image overflows the fragments sideways. That was the
           "horizontal line through the logo" artifact on the collapsed dark
           rail. The site-header chip already uses this exact pattern.
-          Parchment plate (not bg-white): the MIRDC mark is black-on-transparent,
-          so it reads on both the obsidian and paper canvases — and the spec
-          forbids pure white surfaces. */}
-      <span className="flex shrink-0 items-center rounded-none bg-parchment px-2 py-1.5">
-        <img src="/MIRDC.png" alt="MIRDC" className="h-7 w-auto object-contain" />
+          Plate: transparent in light — the logo shares the sidebar's white;
+          dark keeps the parchment plate (the mark is black-on-transparent,
+          and inverting it would distort the brand blue/red). */}
+      <span className="flex shrink-0 items-center rounded-none bg-transparent p-1 dark:bg-parchment">
+        <img
+          src="/MIRDC.png"
+          alt="MIRDC"
+          className={`w-auto object-contain ${expanded ? "h-10" : "h-8"}`}
+        />
       </span>
-      {expanded && (
-        <span className="min-w-0 text-left leading-tight">
-          <span className="block truncate text-sm font-bold tracking-tight text-sidebar-foreground">
-            RMIS
-          </span>
-          <span className="block truncate text-[11px] font-normal text-sidebar-foreground/70">
-            DOST-MIRDC
-          </span>
-        </span>
-      )}
     </button>
   );
 }
@@ -377,13 +371,10 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="flex w-[280px] flex-col border-r border-border p-0">
         <SheetHeader className="flex h-16 flex-row items-center gap-2.5 border-b border-border px-4 space-y-0">
-          <span className="shrink-0 rounded-none bg-parchment px-1.5 py-1">
-            <img src="/MIRDC.png" alt="MIRDC" className="h-6 w-auto object-contain" />
+          <span className="shrink-0 rounded-none bg-transparent p-1 dark:bg-parchment">
+            <img src="/MIRDC.png" alt="MIRDC" className="h-8 w-auto object-contain" />
           </span>
-          <SheetTitle className="text-sm font-bold tracking-tight">
-            RMIS
-            <span className="block text-[11px] font-normal tracking-normal text-muted-foreground">DOST-MIRDC</span>
-          </SheetTitle>
+          <SheetTitle className="sr-only">RMIS</SheetTitle>
         </SheetHeader>
         <nav className="flex-1 overflow-y-auto px-2 py-3" aria-label="Primary mobile">
           {sections.map((section) => (

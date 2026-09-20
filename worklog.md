@@ -6308,3 +6308,22 @@ Stage Summary:
 - Key files: src/app/globals.css, src/app/layout.tsx, src/components/workspaces/applicant/applicant-home.tsx.
 - Screenshots: /tmp/unify-{profile-light-final,home3-light,jobs-light,landing2-light,signin-light,home-dark,profile-dark}.png.
 - Next (queued): Stage 1 — RMIS Design.md full-site audit + fixes; Stage 2 — mobile responsiveness (frontpage/login/job posting/job detail/profile compact 7-section).
+
+---
+Task ID: logo-brandmark-cleanup-07
+Agent: Z.ai Code (main)
+Task: Sidebar logo cleanup — user: "the rmis logo bg color is not the same white as we have also the logo is kinda smaller you can remove the RMIS and the subtitle dost-mirdc just leave the rmis logo and increase it size on the sidebar".
+
+Work Log:
+- Diagnosed the chip: BrandMark (nav-rail.tsx) wrapped /MIRDC.png (h-7) in a bg-parchment plate — a warm leftover that clashed with the new cool sidebar white — plus an "RMIS / DOST-MIRDC" wordmark when expanded.
+- Confirmed MIRDC.png is RGBA with transparent corners and black quadrants (would vanish on the obsidian rail) → plate removal must be light-only; dark keeps a parchment plate (inverting would distort brand blue/red and turn white quadrants black).
+- nav-rail.tsx BrandMark: wordmark removed entirely; plate bg-parchment px-2 py-1.5 → bg-transparent p-1 dark:bg-parchment; logo h-7 → h-8 collapsed / h-10 expanded (collapsed still fits the 64px rail: 54px img + 8px padding = 62px).
+- nav-rail.tsx MobileNav drawer header: same treatment — logo h-6 → h-8, plate transparent-in-light; visible "RMIS / DOST-MIRDC" SheetTitle replaced with sr-only "RMIS" (keeps the dialog's accessible name).
+- site-header.tsx (public topbar, same mismatch on the cool canvas): plate → bg-transparent dark:bg-parchment (sizes already h-10/sm:h-14, unchanged); header comment updated.
+- Verified via agent-browser 1440×900: light collapsed rail (logo bigger, no box, no wordmark), light expanded rail (h-10 logo + collapse button, no wordmark), dark collapsed + expanded (parchment plate intact, mark legible), landing site-header light (logo directly on header white). Signed out/in via UI to check both shells; session restored (testapplicant).
+- bun run lint clean.
+
+Stage Summary:
+- Logo is now plate-free on every light surface (desktop rail, mobile drawer, public topbar) and scaled up (28→32px collapsed, 40px expanded, 32px mobile drawer); dark mode retains the parchment plate for legibility. Zero functional changes — click-through targets (home nav, collapse, a11y labels) preserved.
+- Key files: src/components/shell/nav-rail.tsx, src/components/site-header.tsx.
+- Screenshots: /tmp/logo-rail-{light-collapsed,light-expanded,dark-collapsed,dark-expanded}.png, /tmp/logo-siteheader-light.png.

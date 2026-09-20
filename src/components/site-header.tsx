@@ -3,8 +3,9 @@
 // ============================================================================
 // SiteHeader — the unified topbar shared across the public landing, jobs
 // board, and sign-in / sign-up pages. RMIS material language (RMIS DESIGN.md):
-// mode-aware canvas bar, hairline border, parchment-plate logo, pill CTA —
-// no glass shadow, no drop elevation.
+// mode-aware canvas bar, hairline border, logo plate (transparent on the cool
+// light canvas, parchment on the obsidian dark), pill CTA — no glass shadow,
+// no drop elevation.
 //
 // Premium scroll behavior:
 //   - On scroll > 40px the header CONDENSES: smaller padding, the logos
@@ -64,7 +65,7 @@ export function SiteHeader() {
           className="flex items-center"
           aria-label="RMIS home"
         >
-          <span className="flex shrink-0 items-center rounded-none bg-parchment px-2.5 py-1.5 sm:px-3 sm:py-2">
+          <span className="flex shrink-0 items-center rounded-none bg-transparent px-2.5 py-1.5 sm:px-3 sm:py-2 dark:bg-parchment">
             <img
               src="/MIRDC.png"
               alt="MIRDC"

@@ -37,7 +37,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { Reveal } from "@/components/ui/motion/reveal";
+import { Eyebrow, WorkspaceTitle, Skeleton, ErrorState } from "@/components/primitives/workspace";
 
 import { SECTIONS, type SectionId } from "./profile/types";
 import { useProfileData } from "./profile/use-profile-data";
@@ -50,7 +50,6 @@ import { EligibilitySection } from "./profile/eligibility-section";
 import { AwardsSection } from "./profile/awards-section";
 import { DocumentsSection } from "./profile/documents-section";
 import { UploadPdsCard } from "./upload-pds-card";
-import { Eyebrow, WorkspaceTitle, Skeleton, ErrorState } from "@/components/primitives/workspace";
 
 // Mirrors the extract route's EXTRACTABLE_CATEGORIES — categories whose
 // extraction populates profile forms (everything else is a storage-only
@@ -144,14 +143,14 @@ export function ProfileView() {
               <WorkspaceTitle title="My Profile" />
             </div>
           </div>
-          <Reveal y={12} delay={0.1}>
+          <>
             <Skeleton className="mt-6 h-24 w-full" />
             <Skeleton className="mt-3 h-16 w-full" />
             <div className="mt-6 grid gap-4 lg:grid-cols-[260px_1fr]">
               <Skeleton className="h-72" />
               <Skeleton className="h-96" />
             </div>
-          </Reveal>
+          </>
         </div>
       </div>
     );
@@ -167,11 +166,9 @@ export function ProfileView() {
               <WorkspaceTitle title="My Profile" />
             </div>
           </div>
-          <Reveal y={20}>
-            <div className="mt-8 border border-border bg-card">
-              <ErrorState message={error || "Profile not found"} onRetry={loadAll} />
-            </div>
-          </Reveal>
+          <div className="mt-8 border border-border bg-card">
+            <ErrorState message={error || "Profile not found"} onRetry={loadAll} />
+          </div>
         </div>
       </div>
     );
@@ -219,8 +216,7 @@ export function ProfileView() {
 
         {/* Identity + completion — first surface on phones, single compact
             card (section fill state lives in the sticky step grid below). */}
-        <Reveal y={20}>
-          <div className="overflow-hidden rounded-none border border-border bg-card sm:mt-6">
+        <div className="overflow-hidden rounded-none border border-border bg-card sm:mt-6">
             <div className="px-4 py-3.5 sm:px-6 sm:py-5">
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div className="flex min-w-0 items-center gap-3.5">
@@ -292,7 +288,6 @@ export function ProfileView() {
               </div>
             )}
           </div>
-        </Reveal>
 
         {/* Two-column layout: sections nav + PDS upload rail + right content
             cards.
@@ -301,8 +296,7 @@ export function ProfileView() {
             On mobile: the step grid is its own grid child so it can STICK
             under the workspace header — navigation stays reachable anywhere
             in the wizard — with the upload strip and content flowing below. */}
-        <Reveal y={20}>
-          <div ref={sectionsRef} className="mt-4 grid scroll-mt-20 grid-cols-[minmax(0,1fr)] gap-4 sm:mt-6 sm:gap-6 lg:grid-cols-[352px_minmax(0,1fr)]">
+        <div ref={sectionsRef} className="mt-4 grid scroll-mt-20 grid-cols-[minmax(0,1fr)] gap-4 sm:mt-6 sm:gap-6 lg:grid-cols-[352px_minmax(0,1fr)]">
             {/* MOBILE (< lg) — sticky 7-cell step grid + caption + prev/next.
                 A direct grid child so its sticky containing block is the full
                 grid: the whole card pins below the workspace header while the
@@ -438,11 +432,10 @@ export function ProfileView() {
               </div>
             </div>
 
-            {/* RIGHT CONTENT — flat section cards scroll naturally. Keyed by
-                the active section so each switch replays the reveal — a
-                quiet "new page" cue on phones where the URL never changes. */}
+            {/* RIGHT CONTENT — flat section cards scroll naturally; the
+                active section swaps in instantly (minimal enterprise: no
+                entrance choreography). */}
             <div className="min-w-0">
-              <Reveal key={activeSection} y={12}>
                 {activeSection === "personal" && (
                   <PersonalInfoSection
                     form={personalForm}
@@ -471,10 +464,8 @@ export function ProfileView() {
                 {activeSection === "documents" && (
                   <DocumentsSection documents={documents} {...documentsHandlers} />
                 )}
-              </Reveal>
             </div>
           </div>
-        </Reveal>
 
         {/* Mark Profile Complete Confirmation */}
         <AlertDialog open={completeOpen} onOpenChange={setCompleteOpen}>

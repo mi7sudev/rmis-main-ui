@@ -1,94 +1,66 @@
 "use client";
 
 import React from "react";
-import { motion } from "motion/react";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-import { Card, CardContent } from "./card";
+import { Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ensureDotLottieWasm } from "@/lib/dotlottie-wasm";
 
 export interface EmptyResultProps {
   title?: string;
   description?: string;
   action?: React.ReactNode;
+  /** Optional icon — rendered inside the quiet square block. */
+  icon?: React.ReactNode;
   className?: string;
-  /** Optional custom visual (e.g. an icon block). When provided it replaces
-   *  the default dotLottie animation above the title. */
+  /** Optional custom visual (replaces the default icon block). */
   children?: React.ReactNode;
 }
 
 /**
- * Empty result — animated (dotLottie + motion entrance).
- * Staggered heading/description reveal on mount; system Card styling
- * (sharp corners, flat panel — depth from the block, never shadows).
+ * Empty result — MINIMAL ENTERPRISE.
+ * A quiet, static block: one hairline icon square, one title, one supporting
+ * line, one action. No animation, no illustration, no motion choreography —
+ * the emptiness communicates itself.
  */
 const EmptyResult = ({
   title = "No Data Found",
   description = "It looks like there's nothing here yet!",
   action,
+  icon,
   className,
   children,
 }: EmptyResultProps) => {
-  ensureDotLottieWasm();
-  const textVariants = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-  };
-
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.97 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.45, ease: "easeOut" }}
+    <div
+      className={cn(
+        "mx-auto flex w-full max-w-sm flex-col items-center px-6 py-10 text-center sm:py-12",
+        className
+      )}
     >
-      <Card className={cn("mx-auto max-w-sm", className)}>
-        <CardContent className="flex flex-col items-center px-6 py-2">
-          {children ? (
-            <div className="mt-6" aria-hidden>
-              {children}
-            </div>
-          ) : (
-            <div className="h-32 w-32" aria-hidden>
-              <DotLottieReact src="/dot-lottie/empty.lottie" loop autoplay />
-            </div>
-          )}
+      {children ? (
+        <div className="mb-4" aria-hidden>
+          {children}
+        </div>
+      ) : (
+        <div
+          className="mb-4 grid size-12 shrink-0 place-items-center rounded-none border border-border bg-muted/40 text-muted-foreground"
+          aria-hidden
+        >
+          {icon ?? <Inbox className="size-5" strokeWidth={1.5} />}
+        </div>
+      )}
 
-          {/* Animated heading */}
-          <motion.h2
-            initial="initial"
-            animate="animate"
-            variants={textVariants}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="mt-4 text-center text-xl font-semibold tracking-[-0.01em] text-foreground"
-          >
-            {title}
-          </motion.h2>
+      <h2 className="text-base font-semibold tracking-[-0.01em] text-foreground">
+        {title}
+      </h2>
 
-          {/* Animated description */}
-          <motion.p
-            initial="initial"
-            animate="animate"
-            variants={textVariants}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-            className="mt-2 max-w-xs text-center text-sm text-muted-foreground"
-          >
-            {description}
-          </motion.p>
+      {description && (
+        <p className="mt-1.5 max-w-xs text-sm leading-relaxed text-muted-foreground">
+          {description}
+        </p>
+      )}
 
-          {action && (
-            <motion.div
-              initial="initial"
-              animate="animate"
-              variants={textVariants}
-              transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
-              className="mt-5"
-            >
-              {action}
-            </motion.div>
-          )}
-        </CardContent>
-      </Card>
-    </motion.div>
+      {action && <div className="mt-5">{action}</div>}
+    </div>
   );
 };
 

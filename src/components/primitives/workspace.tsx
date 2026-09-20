@@ -24,10 +24,11 @@ export function StatusIndicator({ status, size = "md" }: { status: string; size?
   );
 }
 
-// ---- Section label (eyebrow) — royal gold kicker (heritage accent) --------
+// ---- Section label (eyebrow) — quiet muted kicker (minimal enterprise;
+//      decorative gold is reserved for public/brand surfaces) -------------
 export function Eyebrow({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <p className={`kicker kicker-gold ${className}`}>
+    <p className={`kicker text-muted-foreground ${className}`}>
       {children}
     </p>
   );
@@ -56,7 +57,7 @@ export function WorkspaceTitle({
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        {kicker && <p className="kicker kicker-gold mb-3">{kicker}</p>}
+        {kicker && <p className="kicker text-muted-foreground mb-3">{kicker}</p>}
         <h1 className="display-lg text-foreground">
           {title}
         </h1>
@@ -79,21 +80,21 @@ export function FilterBar({ children, className = "" }: { children: ReactNode; c
   );
 }
 
-// ---- Empty state — animated result card (dotLottie + motion) ---------------
-// Delegates to the shared EmptyResult component; `icon` is accepted for
-// backward compatibility with existing call sites but the animation is the
-// system-wide empty visual now.
+// ---- Empty state — quiet static block (icon square + title + line) ------
+// Delegates to the shared EmptyResult component; an `icon` (already passed
+// by several callers) renders inside the standard hairline icon square.
 export function EmptyState({
   title,
   description,
   action,
+  icon,
   className,
 }: {
   title: string;
   description?: string;
   action?: ReactNode;
   icon?: ReactNode;
-  /** Forwarded to the underlying Card — e.g. "border-0 bg-transparent" when
+  /** Forwarded to the underlying block — e.g. "border-0 bg-transparent" when
    *  the empty state lives inside another bordered container. */
   className?: string;
 }) {
@@ -102,6 +103,7 @@ export function EmptyState({
       title={title}
       description={description}
       action={action}
+      icon={icon}
       className={className}
     />
   );

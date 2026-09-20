@@ -6031,3 +6031,21 @@ Stage Summary:
 - Files changed: src/components/primitives/workspace.tsx, src/components/views/profile-view.tsx, src/components/views/profile/{education,work-experience,training,eligibility,awards}-section.tsx
 - Design semantics: amber = work-in-progress guidance; red reserved for real failures. One stat per question: % on the bar, per-section fill on the nav cells, submitted date as the only identity meta.
 - Mobile nav is now a single bordered instrument (hairline-divided cells + machined caption bar) instead of floating boxes — the main "curated" tell removed.
+
+---
+Task ID: profile-minimal-01
+Agent: main (Z.ai Code)
+Task: User direction — "what i want is a minimal enterprise, not a fancy." Strip decorative animation/illustration from the product surfaces.
+
+Work Log:
+- Rewrote ui/empty-result.tsx: dotLottie cat animation + staggered motion entrances → quiet static block (hairline icon square size-12 + title + one supporting line + action). New optional `icon` prop; children escape hatch kept. No Card wrapper animation, zero motion.
+- Rewrote ui/error-result.tsx: dotLottie error animation + card shake → static AlertTriangle in muted danger square + title + line + retry. Zero motion.
+- primitives/workspace.tsx: EmptyState now forwards `icon` into the standard icon square (callers like admin command-center already passed icon — previously dropped); Eyebrow + WorkspaceTitle kicker switched from kicker-gold (royal gold, decorative) → text-muted-foreground. Public/brand surfaces (signin, signup, jobs) intentionally keep gold.
+- profile-view.tsx: removed ALL Reveal entrance choreography (page-load identity/grid slide-ups, per-section-switch replay) — content renders instantly; removed the Reveal import. Fixed a duplicate import introduced during the edit.
+- ENVIRONMENT NOTE: between user turns the sandbox restarted — dev server now serves db/production-data.db (real applicant "ANNA LOUISSE BACHOCO", 71% complete) instead of db/custom.db (the empty "Test Applicant" seed seen in earlier turns). Verified via Prisma against BOTH files: zero "Verification Test University" residue from the earlier education create/delete test in either DB (custom.db 0 rows, prod 0 rows) — earlier test was clean.
+- Browser-verified (390px): minimal empty state on Work Experience (static briefcase square, no cat, no motion, single blue CTA); populated Education/identity cards unchanged. Desktop 1440px: muted PROFILE eyebrow, amber advisory, minimal empty state, instant section swap. Lint clean; dev.log shows only 200s + LOGIN_SUCCESS audit (the 400 was the first login attempt with the wrong body key, then 200).
+
+Stage Summary:
+- Files changed: src/components/ui/empty-result.tsx, src/components/ui/error-result.tsx, src/components/primitives/workspace.tsx, src/components/views/profile-view.tsx
+- Design rule going forward: motion is reserved for interaction feedback (dialog open/close, hover, loading spinners) — never for entrance choreography or empty/error theatre. Gold is a brand accent for public pages only; authenticated workspaces run on the muted + electric-blue palette.
+- The EmptyResult/ErrorResult rewrite is global (positions page, evaluator/admin/analytics workspaces inherit the quiet style) — consistent with the user's product-wide direction.

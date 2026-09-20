@@ -268,7 +268,10 @@ export function UploadPdsCard({
       {phase === "idle" && locked ? (
         // ONE-EXTRACTION LOCK — a document was already extracted & applied
         // (state survives navigation). No dropzone until the forms are cleared.
-        <div className="flex w-full flex-col gap-3 border border-border bg-secondary/40 p-4">
+        // Compact single-column layout on phones: icon inline with the copy,
+        // action button tucked under it — the strip is informational, not a
+        // hero, so it must not eat a phone screen.
+        <div className="flex w-full gap-3 border border-border bg-secondary/40 p-4 sm:items-center sm:gap-4">
           <span className="grid size-10 shrink-0 place-items-center rounded-none bg-success/10 text-success">
             <CheckCircle2 className="size-5" strokeWidth={1.5} />
           </span>
@@ -277,15 +280,13 @@ export function UploadPdsCard({
               Profile populated from your document
             </p>
             <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-              Uploading a new PDS is locked. To use a different document, clear
-              all forms first — this erases every section (personal info,
-              education, work, training, eligibility, awards) so the new
-              document can overwrite everything from scratch.
+              To use a different document, clear all forms first — this erases
+              every section so the new document can overwrite everything.
             </p>
+            {clearFormsButton(
+              "mt-2.5 w-full sm:w-auto shrink-0 border-destructive/40 text-danger-ink hover:bg-destructive/10 hover:text-danger-ink"
+            )}
           </div>
-          {clearFormsButton(
-            "shrink-0 border-destructive/40 text-danger-ink hover:bg-destructive/10 hover:text-danger-ink"
-          )}
         </div>
       ) : phase === "idle" ? (
         <button

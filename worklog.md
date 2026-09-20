@@ -5970,3 +5970,30 @@ Verification (agent-browser):
 Stage Summary:
 - Mobile profile is now a compact wizard: one-tap 7-step grid navigation (no swiping), ~25% shorter page, collapsible sub-groups with fill-state summaries, paired short fields, and a thumb-reach sticky save bar. Desktop layout preserved (plus fill-state summaries in group headers).
 - Files changed: src/components/views/profile-view.tsx, src/components/views/profile/personal-info-section.tsx, src/components/views/profile/form-fields.tsx, src/components/views/upload-pds-card.tsx, src/components/primitives/workspace.tsx (descriptionClassName prop).
+
+---
+Task ID: profile-mobile-ux-02
+Agent: main (Z.ai Code)
+Task: Second-pass enhancement of the applicant Profile page on mobile — deeper arranging/layout/positioning polish on top of profile-mobile-ux-01.
+
+Work Log:
+- profile-view.tsx — removed the in-page "PROFILE / My Profile" hero on phones (hidden sm:block): the workspace shell already reads "Profile" at the top of the screen, so the title was ~150px of redundant chrome. The identity card is now the first surface on a phone; the hero returns at ≥ sm.
+- profile-view.tsx — MOVED the mobile step grid out of the left rail into its own direct grid child and made it sticky (top-16 z-30, below the 64px workspace header): the 7-cell wizard navigation now pins to the top while ANY section's form scrolls beneath it. Its sticky containing block is the full grid because it is a direct child (previously its parent rail was too short to stick within).
+- profile-view.tsx — added prev/next chevron buttons flanking the caption ("‹ Section 2 of 7 · Education ›") for one-tap sequential wizard flow, disabled at the ends; computed activeIdx once for caption + arrows.
+- profile-view.tsx — keyed the right-content column by activeSection inside a Reveal (y=12): each section switch replays a quiet rise/fade, giving a "page change" cue in the SPA where the URL never changes.
+- upload-pds-card.tsx — compacted the LOCKED strip (post-extraction state): vertical stack → single-row icon + copy with the "Clear Forms & Re-upload" button tucked under the text (full-width on phone, inline on sm+); cut the paragraph from 4 lines of legalese to one sentence. Height roughly halved.
+- form-fields.tsx — SectionHeader further densified on phones: icon chip size-9, title text-lg, description hidden < sm (the sticky stepper caption already names the section); sm+ unchanged.
+- Reduced sticky nav cell min-height 12→11 (88px total nav card) so the pinned grid consumes less viewport.
+
+Verification (agent-browser):
+- 390×844: first form field now at y≈684 (was 789 after pass 1, ~1050 originally); no horizontal overflow; sticky nav pins at viewport top 64 while scrolled to y=1200 (navSticky true, height 100px).
+- Prev/next: next arrow 01→02 swaps caption to Education, scrolls rail back into view (scrollY 206, nav top 80); prev re-enabled; end arrows disabled.
+- Sticky save bar: appears while dirty, clears after autosave (bar present → gone verified).
+- 320×568: no overflow, 35px cells, caption truncates; 800×1000 tablet: sticky nav + page header both shown, no overflow.
+- 1440×900 desktop: mobile nav hidden, page header flex, all four disclosure groups expanded, rail sticky — zero regression.
+- Session-expiry mid-test handled by re-login; test edit to First Name restored to "Test" via autosave (audit log confirms both writes).
+- bun run lint clean; dev.log shows only 200s + PROFILE_UPDATED audit entries, zero runtime errors.
+
+Stage Summary:
+- The mobile profile is now a true wizard: pinned always-reachable step navigation with sequential arrows, page opens directly with identity + progress, compact section headers, halved locked-upload strip, and animated section transitions. Desktop untouched.
+- Files changed: src/components/views/profile-view.tsx, src/components/views/upload-pds-card.tsx, src/components/views/profile/form-fields.tsx.

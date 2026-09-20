@@ -90,13 +90,13 @@ export function SectionHeader({
   return (
     <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between sm:pb-5">
       <div className="flex items-center gap-3">
-        <div className="grid size-10 shrink-0 place-items-center rounded-none bg-primary/10 text-primary sm:size-11">
+        <div className="grid size-9 shrink-0 place-items-center rounded-none bg-primary/10 text-primary sm:size-11">
           <Icon className="size-5" strokeWidth={1.5} />
         </div>
-        <div>
-          <h2 className="text-xl font-medium tracking-[-0.01em] text-foreground sm:text-2xl">{title}</h2>
+        <div className="min-w-0">
+          <h2 className="text-lg font-medium tracking-[-0.01em] text-foreground sm:text-2xl">{title}</h2>
           {description && (
-            <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">{description}</p>
+            <p className="mt-0.5 hidden text-sm leading-relaxed text-muted-foreground sm:block">{description}</p>
           )}
         </div>
       </div>

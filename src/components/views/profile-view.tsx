@@ -34,6 +34,8 @@ import {
   ShieldCheck,
   Info,
   CircleDot,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Reveal } from "@/components/ui/motion/reveal";
 
@@ -94,6 +96,9 @@ export function ProfileView() {
       });
     }
   }
+
+  // Index of the active section — drives the mobile caption + prev/next.
+  const activeIdx = Math.max(0, SECTIONS.findIndex((s) => s.id === activeSection));
 
   // ── ONE-EXTRACTION LOCK ──
   // A document with a live extraction result (EXTRACTED / PARTIALLY_EXTRACTED
@@ -197,9 +202,11 @@ export function ProfileView() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="relative z-10 mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
-        {/* Header — kicker → display title (description only ≥ sm: on a phone
-            it is decorative marketing copy that pushes the form down) */}
-        <header className="border-b border-border pb-5 sm:pb-8">
+        {/* Header — kicker → display title. Phones skip it entirely: the
+            workspace shell already reads "Profile" at the top of the screen,
+            so the in-page title is 150px of redundant chrome before the
+            identity card. ≥ sm it returns for the editorial hero grammar. */}
+        <header className="hidden border-b border-border pb-5 sm:block sm:pb-8">
           <Eyebrow>Profile</Eyebrow>
           <div className="mt-2 sm:mt-3">
             <WorkspaceTitle
@@ -210,10 +217,10 @@ export function ProfileView() {
           </div>
         </header>
 
-        {/* Identity + completion — single compact surface (section fill state
-            lives in the nav below; no duplicate tile strip) */}
+        {/* Identity + completion — first surface on phones, single compact
+            card (section fill state lives in the sticky step grid below). */}
         <Reveal y={20}>
-          <div className="mt-4 overflow-hidden rounded-none border border-border bg-card sm:mt-6">
+          <div className="overflow-hidden rounded-none border border-border bg-card sm:mt-6">
             <div className="px-4 py-3.5 sm:px-6 sm:py-5">
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div className="flex min-w-0 items-center gap-3.5">
@@ -276,70 +283,91 @@ export function ProfileView() {
           </div>
         </Reveal>
 
-        {/* Two-column layout: left rail (sections nav + PDS upload) + right
-            content cards.
-            On desktop: the nav card is sticky with its own scroll container so
-            it stays in view while the right content scrolls.
-            On mobile: single column, nav sits above the content. */}
+        {/* Two-column layout: sections nav + PDS upload rail + right content
+            cards.
+            On desktop: the rail is sticky with its own scroll container so it
+            stays in view while the right content scrolls.
+            On mobile: the step grid is its own grid child so it can STICK
+            under the workspace header — navigation stays reachable anywhere
+            in the wizard — with the upload strip and content flowing below. */}
         <Reveal y={20}>
           <div ref={sectionsRef} className="mt-4 grid scroll-mt-20 grid-cols-[minmax(0,1fr)] gap-4 sm:mt-6 sm:gap-6 lg:grid-cols-[352px_minmax(0,1fr)]">
-            {/* LEFT RAIL — flat sharp nav card with the PDS upload strip
-                parked right below the section list. The whole rail sticks on
-                desktop as one unit (internal scroll when tall). */}
-            <div className="h-fit min-w-0 lg:sticky lg:top-16 lg:max-h-[calc(100dvh-80px)] lg:overflow-y-auto">
-              {/* MOBILE (< lg) — compact 7-cell step grid. The old horizontal
-                chip strip showed only ~2 of 7 sections at a time and needed
-                constant swiping; a fixed grid puts ALL steps in view at once
-                (one thumb-tap row), with the active section's name spelled
-                out in the caption below. Same visual language: solid primary
-                active block, 01–07 numbering, fill-state icon. */}
-              <nav
-                aria-label="Profile sections"
-                className="rounded-none border border-border bg-card p-2 lg:hidden"
-              >
-                <div className="grid grid-cols-7 gap-1">
-                  {SECTIONS.map((s, i) => {
-                    const isActive = activeSection === s.id;
-                    const filled = completion.checks[s.id];
-                    return (
-                      <button
-                        key={s.id}
-                        onClick={() => handleMobileSectionChange(s.id)}
-                        aria-label={`Section ${i + 1}: ${s.label}`}
-                        aria-current={isActive ? "page" : undefined}
-                        className={`flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-none border px-0.5 transition-colors ${
-                          isActive
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border bg-card text-foreground hover:bg-secondary"
-                        }`}
-                      >
-                        <span className={`text-[11px] font-extrabold leading-none tabular-nums ${isActive ? "text-white/80" : "text-muted-foreground"}`}>
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
-                        {filled ? (
-                          <CheckCircle2
-                            className={`size-3.5 shrink-0 ${isActive ? "text-white" : "text-success"}`}
-                            strokeWidth={2}
-                          />
-                        ) : (
-                          <span
-                            aria-hidden
-                            className={`size-1.5 shrink-0 rounded-full ${isActive ? "bg-white/50" : "bg-muted-foreground/40"}`}
-                          />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-                {/* Active section caption — the grid cells only carry numbers,
-                    so spell out where you are (also aids screen readers). */}
-                <p aria-live="polite" className="kicker truncate px-1 pt-2 text-center text-muted-foreground">
-                  {`Section ${SECTIONS.findIndex((s) => s.id === activeSection) + 1} of ${SECTIONS.length} · ${
-                    SECTIONS.find((s) => s.id === activeSection)?.label ?? ""
-                  }`}
+            {/* MOBILE (< lg) — sticky 7-cell step grid + caption + prev/next.
+                A direct grid child so its sticky containing block is the full
+                grid: the whole card pins below the workspace header while the
+                forms scroll beneath it. Cells carry 01–07 + fill state; the
+                caption row adds one-tap sequential stepping. */}
+            <nav
+              aria-label="Profile sections"
+              className="sticky top-16 z-30 rounded-none border border-border bg-card p-2 lg:hidden"
+            >
+              <div className="grid grid-cols-7 gap-1">
+                {SECTIONS.map((s, i) => {
+                  const isActive = activeSection === s.id;
+                  const filled = completion.checks[s.id];
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => handleMobileSectionChange(s.id)}
+                      aria-label={`Section ${i + 1}: ${s.label}`}
+                      aria-current={isActive ? "page" : undefined}
+                      className={`flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-none border px-0.5 transition-colors ${
+                        isActive
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-card text-foreground hover:bg-secondary"
+                      }`}
+                    >
+                      <span className={`text-[11px] font-extrabold leading-none tabular-nums ${isActive ? "text-white/80" : "text-muted-foreground"}`}>
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      {filled ? (
+                        <CheckCircle2
+                          className={`size-3.5 shrink-0 ${isActive ? "text-white" : "text-success"}`}
+                          strokeWidth={2}
+                        />
+                      ) : (
+                        <span
+                          aria-hidden
+                          className={`size-1.5 shrink-0 rounded-full ${isActive ? "bg-white/50" : "bg-muted-foreground/40"}`}
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              {/* Caption + sequential stepping — the cells only carry numbers,
+                  so spell out where you are (also aids screen readers) and
+                  flank it with prev/next for linear wizard flow. */}
+              <div className="flex items-center gap-1 px-0.5 pt-1.5">
+                <button
+                  type="button"
+                  onClick={() => activeIdx > 0 && handleMobileSectionChange(SECTIONS[activeIdx - 1].id)}
+                  disabled={activeIdx === 0}
+                  aria-label="Previous section"
+                  className="grid size-8 shrink-0 place-items-center rounded-none border border-border text-muted-foreground transition-colors hover:bg-secondary disabled:opacity-40"
+                >
+                  <ChevronLeft className="size-4" strokeWidth={1.5} />
+                </button>
+                <p aria-live="polite" className="kicker min-w-0 flex-1 truncate text-center text-muted-foreground">
+                  {`Section ${activeIdx + 1} of ${SECTIONS.length} · ${SECTIONS[activeIdx]?.label ?? ""}`}
                 </p>
-              </nav>
+                <button
+                  type="button"
+                  onClick={() => activeIdx < SECTIONS.length - 1 && handleMobileSectionChange(SECTIONS[activeIdx + 1].id)}
+                  disabled={activeIdx === SECTIONS.length - 1}
+                  aria-label="Next section"
+                  className="grid size-8 shrink-0 place-items-center rounded-none border border-border text-muted-foreground transition-colors hover:bg-secondary disabled:opacity-40"
+                >
+                  <ChevronRight className="size-4" strokeWidth={1.5} />
+                </button>
+              </div>
+            </nav>
 
+            {/* LEFT RAIL — desktop vertical nav + PDS upload strip. Sticks on
+                desktop as one unit (internal scroll when tall). On phones only
+                the upload strip remains here; the step grid is the sticky nav
+                above. */}
+            <div className="h-fit min-w-0 lg:sticky lg:top-16 lg:max-h-[calc(100dvh-80px)] lg:overflow-y-auto">
               {/* DESKTOP (lg+) — full vertical nav rail (unchanged) */}
               <nav
                 aria-label="Profile sections"
@@ -395,36 +423,40 @@ export function ProfileView() {
               </div>
             </div>
 
-            {/* RIGHT CONTENT — flat section cards scroll naturally */}
+            {/* RIGHT CONTENT — flat section cards scroll naturally. Keyed by
+                the active section so each switch replays the reveal — a
+                quiet "new page" cue on phones where the URL never changes. */}
             <div className="min-w-0">
-              {activeSection === "personal" && (
-                <PersonalInfoSection
-                  form={personalForm}
-                  dirty={personalDirty}
-                  saving={savingPersonal}
-                  autosave={autosaveStatus}
-                  onChange={updatePersonalField}
-                  onSave={savePersonal}
-                />
-              )}
-              {activeSection === "education" && (
-                <EducationSection items={educations} {...educationHandlers} />
-              )}
-              {activeSection === "work" && (
-                <WorkExperienceSection items={workExperiences} {...workHandlers} />
-              )}
-              {activeSection === "training" && (
-                <TrainingSection items={trainings} {...trainingHandlers} />
-              )}
-              {activeSection === "eligibility" && (
-                <EligibilitySection items={eligibilities} reference={reference} {...eligibilityHandlers} />
-              )}
-              {activeSection === "awards" && (
-                <AwardsSection items={awards} {...awardsHandlers} />
-              )}
-              {activeSection === "documents" && (
-                <DocumentsSection documents={documents} {...documentsHandlers} />
-              )}
+              <Reveal key={activeSection} y={12}>
+                {activeSection === "personal" && (
+                  <PersonalInfoSection
+                    form={personalForm}
+                    dirty={personalDirty}
+                    saving={savingPersonal}
+                    autosave={autosaveStatus}
+                    onChange={updatePersonalField}
+                    onSave={savePersonal}
+                  />
+                )}
+                {activeSection === "education" && (
+                  <EducationSection items={educations} {...educationHandlers} />
+                )}
+                {activeSection === "work" && (
+                  <WorkExperienceSection items={workExperiences} {...workHandlers} />
+                )}
+                {activeSection === "training" && (
+                  <TrainingSection items={trainings} {...trainingHandlers} />
+                )}
+                {activeSection === "eligibility" && (
+                  <EligibilitySection items={eligibilities} reference={reference} {...eligibilityHandlers} />
+                )}
+                {activeSection === "awards" && (
+                  <AwardsSection items={awards} {...awardsHandlers} />
+                )}
+                {activeSection === "documents" && (
+                  <DocumentsSection documents={documents} {...documentsHandlers} />
+                )}
+              </Reveal>
             </div>
           </div>
         </Reveal>

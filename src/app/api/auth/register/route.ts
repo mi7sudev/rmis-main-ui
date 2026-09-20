@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { ok, err, handleApi } from "@/lib/api";
 import { registerSchema } from "@/lib/validation";
+import { getClientIp, consumeRateLimit } from "@/lib/rate-limit";
 
 // Production schema notes:
 //   * User has NO `role`, `passwordHash`, `isActive`, or `emailVerified` columns.
@@ -19,6 +20,14 @@ import { registerSchema } from "@/lib/validation";
 const APPLICANT_ROLE_ID = 3;
 
 export const POST = handleApi(async (req: NextRequest) => {
+  // ── PUBLIC WEB HYGIENE: sign-up is exposed to the internet (applicant
+  // tier), so throttle mass account creation per client IP (5 per hour).
+  const rl = consumeRateLimit(`register:${getClientIp(req)}`, 5, 60 * 60 * 1000);
+  if (!rl.allowed) {
+    const mins = Math.ceil((rl.retryAfterMs || 0) / 60000);
+    return err(`Too many accounts created from this network. Please try again in ${mins} minute${mins === 1 ? "" : "s"}.`, 429);
+  }
+
   const body = await req.json();
   const parsed = registerSchema.safeParse(body);
   if (!parsed.success) return err("Invalid input", 400, parsed.error.flatten());

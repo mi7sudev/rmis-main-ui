@@ -30,6 +30,8 @@ All configuration lives in `.env` at the project root. A validated, centralized 
 | `AI_BASE_URL` | ⚠️ | OpenAI-compatible AI API base URL. Defaults to NVIDIA's endpoint. Override only for a different provider. |
 | `AI_TEXT_MODEL` | ⚠️ | Chat/instruct model for structuring extracted text → JSON. Default: `nvidia/llama-3.3-nemotron-super-49b-v1`. |
 | `AI_VISION_MODEL` | ⚠️ | Vision-language model for reading scanned document images. Default: `nvidia/nemotron-nano-12b-v2-vl`. |
+| `INTRANET_ENFORCEMENT` | ⚠️ | Two-tier access guard. `on` (default) — ADMIN/EVALUATOR logins, sessions and APIs work **only from the MIRDC intranet**; applicants work from any network. `off` disables all tier checks (emergency recovery switch). See [§4](#4-two-tier-access-topology--public-web-for-applicants--intranet-for-staff). |
+| `INTRANET_CIDRS` | ⚠️ | Comma-separated extra IPv4 CIDRs always treated as intranet — allowlist for an office egress IP behind NAT or an admin VPN range. Example: `203.0.113.7/32,198.51.100.0/24`. |
 
 Three required vars (`DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`) plus `AI_API_KEY` for the PDS auto-extract feature. The rest have sensible defaults.
 
@@ -263,7 +265,89 @@ Applicants self-register through the normal sign-up page — no script needed.
 
 ---
 
-## 4. Keeping Localhost and Production in Sync
+## 4. Two-Tier Access Topology — public web for applicants, intranet for staff
+
+RMIS serves two audiences with different security postures:
+
+| Tier | Audience | Network | What they can do |
+|---|---|---|---|
+| **Applicant tier** | Job applicants (public) | **The internet** — production website, TLS domain | Landing page, jobs board, sign-up, applicant sign-in, application portal — from any network |
+| **Staff tier** | IT officials / HR (ADMIN, EVALUATOR) | **MIRDC intranet only** | Command Center, recruitment, candidates, review queues, analytics, settings |
+
+```
+  ┌─ PUBLIC WEB (internet) ──────────────┐   ┌─ MIRDC INTRANET ──────────┐
+  │ Applicants: landing, jobs board,     │   │ IT officials: ADMIN +     │
+  │ sign-up, applicant sign-in/portal    │   │ EVALUATOR workspaces      │
+  └──────────────┬───────────────────────┘   └────────────┬──────────────┘
+                 │ https://rmis.<domain>.ph               │ http://10.10.120.X
+          deploy/Caddyfile.public                deploy/Caddyfile.intranet
+                 └───────────────┬────────────────────────┘
+                                 ▼
+                     RMIS Next.js app (port 3000)
+```
+
+### 4a. How the split is enforced (in the app, not just the proxy)
+
+The network tier is classified per-request in [`src/lib/access-tier.ts`](src/lib/access-tier.ts) from the address the reverse proxy vouches for (the **last** `X-Forwarded-For` entry — spoof-resistant; the shipped Caddy configs *overwrite* the header, so a client can never forge it). Three independent gates apply to ADMIN/EVALUATOR — applicants are never restricted:
+
+1. **`POST /api/auth/login`** — staff credentials presented from the public web are refused (403), even with a correct password. Audited as `LOGIN_BLOCKED_EXTERNAL` with the real client IP.
+2. **`GET /api/session`** — a staff session cookie presented from the public web resolves to `user: null` (fail closed), so a cookie carried out of the building is worthless on the internet. Audited as `STAFF_ACCESS_BLOCKED_EXTERNAL`.
+3. **Every staff API** (`requireRoleFromReq` in `src/lib/auth.ts`) — admin/evaluator endpoints return 403 from the public web even with a valid staff JWT. Defense in depth.
+
+Configuration:
+
+- `INTRANET_ENFORCEMENT=on` (default) — guard active. Set `off` **only** to recover from a proxy misclassification emergency; rotate it back on after fixing the proxy.
+- `INTRANET_CIDRS=203.0.113.7/32,...` — allowlist an office egress IP behind NAT or an admin VPN range that would otherwise classify as public.
+- Intranet = private/loopback addresses (RFC 1918, 127/8, ULA, link-local) **or** the allowlist. Everything else is treated as the public web.
+
+### 4b. One instance (recommended) — TLS on both proxies
+
+Run **one** app instance on port 3000 and put both proxies in front of it:
+
+- **Public**: [`deploy/Caddyfile.public`](deploy/Caddyfile.public) — real domain, automatic Let's Encrypt TLS, same `X-Forwarded-For` overwrite. Open 80/443 to the internet; the app refuses staff flows from this path.
+- **Intranet**: [`deploy/Caddyfile.intranet`](deploy/Caddyfile.intranet) — bare LAN IP, as in §3. Because the public tier makes `NEXTAUTH_URL` an `https://` URL (session cookies then carry the `Secure` flag globally), the intranet proxy must also serve TLS so intranet staff can log in: use an internal CA certificate for an internal hostname (e.g. `https://rmis.internal.mirdc.gov.ph`) and keep `x-forwarded-proto` forwarding — the transport-aware cookie logic then marks every tier correctly.
+- Set `NEXTAUTH_URL=https://rmis.<domain>.ph` (the public canonical URL).
+
+### 4c. Two instances (strictest isolation, minimal TLS needs)
+
+If the intranet must stay plain-HTTP on a bare IP, run **two app instances on the same server** sharing the same code, database file and `UPLOAD_DIR`:
+
+| | Public instance | Intranet instance |
+|---|---|---|
+| Port | 3001 | 3000 |
+| `NEXTAUTH_URL` | `https://rmis.<domain>.ph` | `http://10.10.120.X` |
+| `.env` | separate file (e.g. `.env.public`) | §3's `.env` |
+| systemd | second unit (`rmis-public.service`) | §3f's `rmis.service` |
+| Cookie `Secure` | on (https) | off (plain HTTP — per-request logic) |
+
+SQLite on the same host supports both processes safely (file locking; enable WAL for best concurrency: `PRAGMA journal_mode=WAL;`). Each tier gets its own process, env and cookie domain — a compromise of the public instance's runtime cannot touch staff configuration, and the in-app tier guard remains active on both.
+
+### 4d. Verifying the tiers
+
+From any machine (the `X-Forwarded-For` header simulates what each proxy vouches for):
+
+```bash
+# Staff login from the PUBLIC web → 403 + audit entry
+curl -s -X POST http://<server>/api/auth/login \
+  -H 'Content-Type: application/json' -H 'X-Forwarded-For: 203.0.113.50' \
+  -d '{"identifier":"<admin-user>","password":"<pass>"}'
+
+# Staff login from the INTRANET → 200 + session cookie
+curl -s -X POST http://<server>/api/auth/login \
+  -H 'Content-Type: application/json' -H 'X-Forwarded-For: 10.20.30.40' \
+  -d '{"identifier":"<admin-user>","password":"<pass>"}'
+
+# Applicant login from the PUBLIC web → 200 (never restricted)
+curl -s -X POST http://<server>/api/auth/login \
+  -H 'Content-Type: application/json' -H 'X-Forwarded-For: 203.0.113.50' \
+  -d '{"identifier":"<applicant-user>","password":"<pass>"}'
+```
+
+Blocked staff attempts appear in the admin Audit trail (`LOGIN_BLOCKED_EXTERNAL`, `STAFF_ACCESS_BLOCKED_EXTERNAL`) with the source IP.
+
+---
+
+## 5. Keeping Localhost and Production in Sync
 
 The `.env` file is the **only** thing that differs between environments. To stay compatible:
 
@@ -289,7 +373,7 @@ The `.env` file is the **only** thing that differs between environments. To stay
 
 ---
 
-## 5. Security Notes
+## 6. Security Notes
 
 - **Never commit `.env`.** It's gitignored. `.env.example` (no secrets) is the only env file that should be in version control.
 - **Use different `NEXTAUTH_SECRET` values** for localhost vs. production. Dev secrets should never match the production value.
@@ -298,10 +382,12 @@ The `.env` file is the **only** thing that differs between environments. To stay
 - **Back up the `UPLOAD_DIR`** on the intranet server (applicant documents live there).
 - **CSP / security headers** are configured in `next.config.ts` and apply automatically in production.
 - **Cookies** are `httpOnly`, `sameSite=lax`, and **transport-aware**: `secure` turns on only when the deployment is HTTPS-based (`NEXTAUTH_URL` starts with `https://`, or the proxy forwards `x-forwarded-proto: https`). On a plain-HTTP bare-IP intranet the flag is skipped so login works; the moment TLS sits in front, it activates on its own. See `secureCookieFor()` in `src/lib/jwt.ts`.
+- **Two-tier access** — staff (ADMIN/EVALUATOR) sign-in, sessions and APIs are network-gated to the intranet (`src/lib/access-tier.ts`); the applicant tier is designed for the public internet. See [§4](#4-two-tier-access-topology--public-web-for-applicants--intranet-for-staff).
+- **Public proxies must OVERWRITE `X-Forwarded-For`** (`header_up X-Forwarded-For {remote_host}` in Caddy, as in both shipped configs) — appending client-supplied chains would let the tier classifier be spoofed. The classifier reads only the proxy-vouched (last) entry.
 
 ---
 
-## 6. Troubleshooting
+## 7. Troubleshooting
 
 ### "Missing required environment variables: DATABASE_URL, NEXTAUTH_SECRET, ..."
 
@@ -347,9 +433,20 @@ The app is running but can't reach the database. Check:
 2. The file is readable by the user running the app (`rmis` in the systemd example).
 3. The Prisma client is generated: `bun run db:generate`.
 
+### Staff can sign in on the LAN but not from the internet
+
+That is the two-tier access guard working as designed (§4). Staff accounts are intranet-only. To allow a specific remote office/VPN, add its egress IP to `INTRANET_CIDRS` and restart.
+
+### Staff can't sign in ANYWHERE (locked out)
+
+A proxy in front of the app is forwarding a public-looking address, or no `X-Forwarded-For` overwrite is configured so the classifier sees a forged chain. Fixes, fastest first:
+1. Emergency: set `INTRANET_ENFORCEMENT=off` in `.env`, restart — then fix the proxy and turn it back on.
+2. Permanent: make sure the reverse proxy uses `header_up X-Forwarded-For {remote_host}` (Caddy) / `proxy_set_header X-Forwarded-For $remote_addr;` (nginx) — overwrite, not append — and that the address it forwards classifies as private (or add it to `INTRANET_CIDRS`).
+3. Every refusal is audited (`LOGIN_BLOCKED_EXTERNAL` with the classified IP) — check the Audit trail to see exactly which address the app saw.
+
 ---
 
-## 7. Quick Reference — File Map
+## 8. Quick Reference — File Map
 
 | File | Role |
 |---|---|
@@ -360,6 +457,7 @@ The app is running but can't reach the database. Check:
 | [`src/lib/extraction.ts`](src/lib/extraction.ts) | Document Intelligence — PDS/resume extraction (uses ai-client). |
 | [`src/lib/db.ts`](src/lib/db.ts) | Prisma client (uses `env.DATABASE_URL`). |
 | [`src/lib/jwt.ts`](src/lib/jwt.ts) | JWT signing (uses `env.NEXTAUTH_SECRET`). |
+| [`src/lib/access-tier.ts`](src/lib/access-tier.ts) | Two-tier network access — intranet vs public-web classification + staff guards. |
 | [`src/lib/raw-json.ts`](src/lib/raw-json.ts) | SQLite `json` column reader (uses `sqliteFilePath()` from env). |
 | [`next.config.ts`](next.config.ts) | Next.js config (CSP, standalone output, external packages). |
 | [`prisma/schema.prisma`](prisma/schema.prisma) | DB schema — uses `env("DATABASE_URL")`. |

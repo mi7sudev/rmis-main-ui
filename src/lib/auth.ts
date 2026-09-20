@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { ApiError } from "@/lib/api";
 import { verifySession, SESSION_COOKIE } from "@/lib/jwt";
+import { assertStaffIntranetAccess } from "@/lib/access-tier";
 import type { Role } from "@/lib/roles";
 
 export type SessionUser = {
@@ -49,6 +50,13 @@ export async function requireAuthFromReq(req: NextRequest): Promise<SessionUser>
 
 export async function requireRoleFromReq(req: NextRequest, ...roles: Role[]): Promise<SessionUser> {
   const user = await requireAuthFromReq(req);
+
+  // ── TWO-TIER ACCESS: staff (ADMIN/EVALUATOR) API surfaces only respond on
+  // the MIRDC intranet — independent of the login and session guards, so a
+  // valid staff JWT presented from the public web gets 403 on every staff
+  // endpoint (defense in depth). Applicant endpoints are never restricted.
+  assertStaffIntranetAccess(req, user.role);
+
   if (!roles.includes(user.role)) throw new ApiError("Forbidden: insufficient role", 403);
   return user;
 }

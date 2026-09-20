@@ -1249,6 +1249,8 @@ const ACTION_TONE_CLS: Record<ActionTone, { bg: string; text: string }> = {
 const ACTION_META: Record<string, { label: string; tone: ActionTone }> = {
   LOGIN_SUCCESS: { label: "Login", tone: "success" },
   LOGIN_FAILED: { label: "Login Failed", tone: "danger" },
+  LOGIN_BLOCKED_EXTERNAL: { label: "Blocked: Web Staff Login", tone: "danger" },
+  STAFF_ACCESS_BLOCKED_EXTERNAL: { label: "Blocked: Staff API (Web)", tone: "danger" },
   LOGOUT: { label: "Logout", tone: "neutral" },
   APPLICATION_SUBMITTED: { label: "Applied", tone: "info" },
   APPLICATION_STATUS_CHANGED: { label: "Status Changed", tone: "info" },

@@ -5916,3 +5916,27 @@ Stage Summary:
 - Files changed: src/components/site-header.tsx only.
 - Ops: .env restored with ABSOLUTE DATABASE_URL (sandbox resets wipe it — re-check .env at session start); dev.sh guard requires DATABASE_URL exported in the shell at launch.
 - Known cosmetic (not addressed, needs user decision): public/MIRDC.png ships TWO logo variants side-by-side, so the small header logo box shows both marks squeezed; consider a cropped/square single-mark asset.
+
+---
+Task ID: two-tier-access-01
+Agent: Z.ai Code (main)
+Task: Two-tier access — applicant-facing system production-ready on the public web; ADMIN/EVALUATOR restricted to the MIRDC intranet (IT officials)
+
+Work Log:
+- NEW src/lib/access-tier.ts: network-tier classifier. Staff = ADMIN+EVALUATOR. Classifies the TRUSTED client address (LAST X-Forwarded-For entry — spoof-resistant: client-forged first entries are ignored; the shipped Caddy configs OVERWRITE XFF with {remote_host}). Public IP → web tier; private/loopback/ULA/link-local/CGNAT/unknown (direct on-box) → intranet. INTRANET_CIDRS env allowlists office egress/VPN IPs (IPv4 CIDR matcher). INTRANET_ENFORCEMENT=on|off kill switch (default on, validated in env.ts with fail-fast on bad values).
+- Enforcement, 3 independent gates (defense in depth):
+  1. POST /api/auth/login — staff credentials from the public web → 403 STAFF_INTRANET_MESSAGE + audit LOGIN_BLOCKED_EXTERNAL (checked after password verify + clearLoginRateLimit, so rate-limit ladder is unaffected).
+  2. GET /api/session — staff cookie presented from the web resolves to {user:null} (fail closed; SPA boots logged out) + audit STAFF_ACCESS_BLOCKED_EXTERNAL.
+  3. requireRoleFromReq (src/lib/auth.ts) — assertStaffIntranetAccess before the role check → every admin/evaluator endpoint 403s from the web even with a valid staff JWT. Applicant endpoints untouched.
+- Public-web production hygiene: POST /api/auth/register now rate-limited (5 signups/IP/hour via consumeRateLimit) — sign-up is exposed to the internet in this topology.
+- env.ts: +INTRANET_ENFORCEMENT, +INTRANET_CIDRS (documented, validated). .env/.env.example updated.
+- UX: signin-view shows a permanent two-tier notice ("Applicants can sign in from any network. MIRDC staff accounts (administrators & evaluators) work only on the MIRDC intranet."); blocked staff logins toast the server message via existing apiFetch 4xx policy (verified in client.ts).
+- Audit UI (settings.tsx ACTION_META): LOGIN_BLOCKED_EXTERNAL → "Blocked: Web Staff Login" (danger), STAFF_ACCESS_BLOCKED_EXTERNAL → "Blocked: Staff API (Web)" (danger).
+- Deployment artifacts: NEW deploy/Caddyfile.public (public TLS domain proxy, HSTS, XFF overwrite, static caching — mirrors Caddyfile.intranet); DEPLOYMENT.md new §4 "Two-Tier Access Topology" (topology diagram, enforcement table, config, Option A one-instance TLS-both-proxies vs Option B two-instances-same-host-shared-SQLite, curl verification commands, troubleshooting for staff lockout; renumbered §5–§8, env table + security notes + file map updated).
+- E2E verified (curl XFF simulation): staff login from web 403 w/ message; staff from intranet 200+cookie; staff direct on-box 200; spoofed chain "10.0.0.1, 203.0.113.50" → 403 (last-entry wins); applicant from web 200; staff cookie /api/session web→null, intranet→user; /api/admin/stats web→403; applicant /api/applications web→200; login via sandbox Caddy gateway (preview path) → 200 (gateway remote_host classifies intranet). Audit entries written with IPs (seen in dev.log [AUDIT] lines).
+- Browser E2E: sign-in notice renders on desktop + mobile (390px, docSW 390 no overflow); admin UI login → Command Center works on the intranet path; lint clean; dev.log 0 ⨯ errors; health {app:ok,database:ok}.
+
+Stage Summary:
+- ONE app instance now serves both tiers: applicant flows (landing, jobs, sign-up, sign-in, portal) are production-ready for the public web from ANY network; ADMIN/EVALUATOR login, sessions and APIs are refused from the public web and only work on the MIRDC intranet — exactly the requested split, enforced in-app (works regardless of proxy) with audit trail and an emergency kill switch.
+- Files: NEW src/lib/access-tier.ts, deploy/Caddyfile.public; CHANGED src/lib/{env,auth,audit-log,client?no,rates?no}.ts → env.ts, auth.ts, audit-log.ts; src/app/api/auth/{login,register,session under /api/session}/route.ts; src/components/views/signin-view.tsx; src/components/workspaces/settings/settings.tsx; .env, .env.example, DEPLOYMENT.md.
+- Production go-live: follow DEPLOYMENT.md §4 (DNS + deploy/Caddyfile.public, keep XFF overwrite, optionally INTRANET_CIDRS for office egress IP).

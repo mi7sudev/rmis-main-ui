@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { Reveal } from "@/components/ui/motion/reveal";
-import { Loader2, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Loader2, Eye, EyeOff, ArrowRight, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 
@@ -154,6 +154,17 @@ export function SignInView() {
                   Create an account
                 </button>
               </p>
+
+              {/* Two-tier access note — applicants are public-web; staff is
+                  intranet-gated server-side (see src/lib/access-tier.ts). */}
+              <div className="mt-4 flex items-start gap-2.5 border border-border bg-secondary px-3.5 py-3">
+                <Building2 aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  Applicants can sign in from any network. MIRDC staff accounts
+                  (administrators &amp; evaluators) work only on the{" "}
+                  <span className="font-medium text-foreground">MIRDC intranet</span>.
+                </p>
+              </div>
             </div>
 
             {/* Demo accounts — flat bordered note (click to autofill) */}

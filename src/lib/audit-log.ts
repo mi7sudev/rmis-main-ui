@@ -41,6 +41,8 @@ export type AuditAction =
   | "REGRET_LETTERS_BULK_SENT"
   | "LOGIN_SUCCESS"
   | "LOGIN_FAILED"
+  | "LOGIN_BLOCKED_EXTERNAL"
+  | "STAFF_ACCESS_BLOCKED_EXTERNAL"
   | "LOGOUT";
 
 // Kick off the one-time historical migration on module load (idempotent,

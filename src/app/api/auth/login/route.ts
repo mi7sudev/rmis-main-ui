@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { ok, err, handleApi } from "@/lib/api";
 import { signSession, SESSION_COOKIE, SESSION_MAX_AGE, secureCookieFor } from "@/lib/jwt";
 import { deriveUserRole } from "@/lib/role-utils";
+import { isStaffRole, isIntranetRequest, STAFF_INTRANET_MESSAGE } from "@/lib/access-tier";
 import {
   checkLoginRateLimit,
   recordFailedLogin,
@@ -61,6 +62,23 @@ export const POST = handleApi(async (req: NextRequest) => {
   // Clear rate limit on successful login
   clearLoginRateLimit(rateLimitKey);
   const role = await deriveUserRole(user.id);
+
+  // ── TWO-TIER ACCESS: staff (ADMIN/EVALUATOR) may only sign in from the
+  // MIRDC intranet. Applicants (the public-web audience) may sign in from
+  // any network. The password was already verified, so this block is purely
+  // network-tier — and it is AUDITED with the real client IP for compliance.
+  if (isStaffRole(role) && !isIntranetRequest(req)) {
+    await auditLog({
+      userId: user.id,
+      userLabel: `${user.username ?? user.email ?? id}${user.email ? ` (${user.email})` : ""}`,
+      userRole: role,
+      action: "LOGIN_BLOCKED_EXTERNAL",
+      description: `Staff login refused — valid credentials presented from the public web`,
+      ipAddress: clientIp,
+    });
+    return err(STAFF_INTRANET_MESSAGE, 403);
+  }
+
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ") || user.username || "";
   await auditLog({
     userId: user.id,

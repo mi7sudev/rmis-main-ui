@@ -43,6 +43,19 @@ type EnvShape = {
   AI_TEXT_MODEL: string;
   /** Vision/OCR model for extracting text from images. */
   AI_VISION_MODEL: string;
+  // ── Two-tier access control (public web vs intranet staff) ─────────────
+  /**
+   * "on" (default) — ADMIN/EVALUATOR logins, sessions and APIs only work
+   * from intranet IPs; applicants work from any network. "off" disables all
+   * tier checks (emergency recovery switch). See src/lib/access-tier.ts.
+   */
+  INTRANET_ENFORCEMENT: string;
+  /**
+   * Comma-separated extra IPv4 CIDRs always treated as intranet (allowlist
+   * for an office egress IP behind NAT or an admin VPN range).
+   * Example: INTRANET_CIDRS=203.0.113.7/32,198.51.100.0/24
+   */
+  INTRANET_CIDRS: string;
 };
 
 const REQUIRED: ReadonlyArray<keyof EnvShape> = [
@@ -64,6 +77,8 @@ function readEnv(): EnvShape {
     AI_BASE_URL: (process.env.AI_BASE_URL ?? "https://integrate.api.nvidia.com/v1").replace(/\/+$/, ""),
     AI_TEXT_MODEL: process.env.AI_TEXT_MODEL ?? "nvidia/llama-3.3-nemotron-super-49b-v1",
     AI_VISION_MODEL: process.env.AI_VISION_MODEL ?? "nvidia/nemotron-nano-12b-v2-vl",
+    INTRANET_ENFORCEMENT: (process.env.INTRANET_ENFORCEMENT ?? "on").trim().toLowerCase(),
+    INTRANET_CIDRS: process.env.INTRANET_CIDRS ?? "",
   };
 
   // Fail-fast: required vars must be present and non-empty.
@@ -106,6 +121,15 @@ function readEnv(): EnvShape {
     console.warn(
       "[env] AI_API_KEY is not set. Document Intelligence (PDS auto-extract) " +
         "will not work. Set AI_API_KEY in .env to enable AI-powered extraction."
+    );
+  }
+
+  // Two-tier access guard sanity check — an unknown value should fail loudly
+  // rather than silently behaving as "off".
+  if (env.INTRANET_ENFORCEMENT !== "on" && env.INTRANET_ENFORCEMENT !== "off") {
+    throw new Error(
+      "[env] INTRANET_ENFORCEMENT must be 'on' or 'off' (default 'on'). " +
+        "Got: " + env.INTRANET_ENFORCEMENT
     );
   }
 

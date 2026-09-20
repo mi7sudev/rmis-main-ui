@@ -237,6 +237,7 @@ export function EligibilitySection({
           title="No eligibility entries yet"
           description="Add civil service or professional eligibilities you've earned, or upload eligibility certificates to auto-extract."
           icon={<ShieldCheck className="h-7 w-7" />}
+          className="border-0 bg-transparent"
           action={
             <Button onClick={openCreate}>
               <Plus className="h-4 w-4" /> Add Eligibility

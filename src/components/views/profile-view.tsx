@@ -236,13 +236,18 @@ export function ProfileView() {
                       {profile.isProfileComplete ? (
                         <Badge variant="success"><CheckCircle2 className="size-3" /> Complete</Badge>
                       ) : (
-                        <Badge variant="destructive"><AlertCircle className="size-3" /> Incomplete</Badge>
+                        // Amber, not red: "incomplete" is a work-in-progress
+                        // state, not an error — red is reserved for failures.
+                        <Badge variant="warning"><AlertCircle className="size-3" /> Incomplete</Badge>
                       )}
                     </div>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {completion.filled} of {completion.total} sections have data
-                      {profile.submittedDate ? ` · Submitted ${formatDate(profile.submittedDate)}` : ""}
-                    </p>
+                    {/* Submitted date is the only meta that can't be read off
+                        the completion bar — the fill count lives there now. */}
+                    {profile.submittedDate && (
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        Submitted {formatDate(profile.submittedDate)}
+                      </p>
+                    )}
                   </div>
                 </div>
                 {/* Actionable-only button: a permanently-disabled "Mark
@@ -265,18 +270,24 @@ export function ProfileView() {
                   value={completion.percent}
                   className="h-1.5 flex-1"
                 />
-                <span className="text-sm font-extrabold tabular-nums text-foreground">
+                <span className="shrink-0 text-sm font-extrabold tabular-nums text-foreground">
                   {completion.percent}%
+                </span>
+                {/* Fill count only where there's room — phones read the same
+                    signal from the checkmarks in the step grid below. */}
+                <span className="kicker hidden shrink-0 text-muted-foreground sm:inline">
+                  {completion.filled}/{completion.total} sections
                 </span>
               </div>
             </div>
 
-            {/* Requirements hint */}
+            {/* Requirements hint — calm amber advisory (guidance, not an
+                error: red is reserved for real failures). */}
             {!canMarkComplete && !profile.isProfileComplete && (
-              <div className="flex items-start gap-2.5 border-t border-border bg-destructive/10 px-4 py-2.5 sm:px-6">
-                <Info className="mt-0.5 size-3.5 shrink-0 text-danger-ink" strokeWidth={1.5} />
-                <span className="text-xs leading-relaxed text-danger-ink">
-                  To unlock Mark Complete: fill in Personal Information (first name, last name, email) and add at least one Education and one Work Experience entry.
+              <div className="flex items-start gap-2.5 border-t border-border bg-warning/10 px-4 py-2.5 sm:px-6">
+                <Info className="mt-0.5 size-3.5 shrink-0 text-warning" strokeWidth={1.5} />
+                <span className="text-xs leading-relaxed text-warning-ink">
+                  To mark your profile complete: fill in Personal Information (first name, last name, email) and add at least one Education and one Work Experience entry.
                 </span>
               </div>
             )}
@@ -299,9 +310,12 @@ export function ProfileView() {
                 caption row adds one-tap sequential stepping. */}
             <nav
               aria-label="Profile sections"
-              className="sticky top-16 z-30 rounded-none border border-border bg-card p-2 lg:hidden"
+              className="sticky top-16 z-30 overflow-hidden rounded-none border border-border bg-card lg:hidden"
             >
-              <div className="grid grid-cols-7 gap-1">
+              {/* Unified instrument strip — contiguous cells with hairline
+                  dividers (no floating boxes inside boxes); the solid primary
+                  cell is the only saturated element. */}
+              <div className="grid grid-cols-7">
                 {SECTIONS.map((s, i) => {
                   const isActive = activeSection === s.id;
                   const filled = completion.checks[s.id];
@@ -311,10 +325,12 @@ export function ProfileView() {
                       onClick={() => handleMobileSectionChange(s.id)}
                       aria-label={`Section ${i + 1}: ${s.label}`}
                       aria-current={isActive ? "page" : undefined}
-                      className={`flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-none border px-0.5 transition-colors ${
+                      className={`flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 px-0.5 transition-colors ${
+                        i < SECTIONS.length - 1 ? "border-r border-border" : ""
+                      } ${
                         isActive
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-card text-foreground hover:bg-secondary"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-card text-foreground hover:bg-secondary"
                       }`}
                     >
                       <span className={`text-[11px] font-extrabold leading-none tabular-nums ${isActive ? "text-white/80" : "text-muted-foreground"}`}>
@@ -335,20 +351,19 @@ export function ProfileView() {
                   );
                 })}
               </div>
-              {/* Caption + sequential stepping — the cells only carry numbers,
-                  so spell out where you are (also aids screen readers) and
-                  flank it with prev/next for linear wizard flow. */}
-              <div className="flex items-center gap-1 px-0.5 pt-1.5">
+              {/* Caption + sequential stepping — a machined footer bar: hairline
+                  top rule, ghost chevrons, aria-live position readout. */}
+              <div className="flex items-stretch border-t border-border">
                 <button
                   type="button"
                   onClick={() => activeIdx > 0 && handleMobileSectionChange(SECTIONS[activeIdx - 1].id)}
                   disabled={activeIdx === 0}
                   aria-label="Previous section"
-                  className="grid size-8 shrink-0 place-items-center rounded-none border border-border text-muted-foreground transition-colors hover:bg-secondary disabled:opacity-40"
+                  className="grid w-12 shrink-0 place-items-center border-r border-border text-muted-foreground transition-colors hover:bg-secondary disabled:opacity-40"
                 >
                   <ChevronLeft className="size-4" strokeWidth={1.5} />
                 </button>
-                <p aria-live="polite" className="kicker min-w-0 flex-1 truncate text-center text-muted-foreground">
+                <p aria-live="polite" className="kicker min-w-0 flex-1 truncate px-2 py-2.5 text-center text-muted-foreground">
                   {`Section ${activeIdx + 1} of ${SECTIONS.length} · ${SECTIONS[activeIdx]?.label ?? ""}`}
                 </p>
                 <button
@@ -356,7 +371,7 @@ export function ProfileView() {
                   onClick={() => activeIdx < SECTIONS.length - 1 && handleMobileSectionChange(SECTIONS[activeIdx + 1].id)}
                   disabled={activeIdx === SECTIONS.length - 1}
                   aria-label="Next section"
-                  className="grid size-8 shrink-0 place-items-center rounded-none border border-border text-muted-foreground transition-colors hover:bg-secondary disabled:opacity-40"
+                  className="grid w-12 shrink-0 place-items-center border-l border-border text-muted-foreground transition-colors hover:bg-secondary disabled:opacity-40"
                 >
                   <ChevronRight className="size-4" strokeWidth={1.5} />
                 </button>

@@ -132,6 +132,7 @@ export function EducationSection({
           title="No education entries yet"
           description="Add your educational background, or upload a transcript/PDS in the Supporting Documents section to auto-extract."
           icon={<GraduationCap className="h-7 w-7" />}
+          className="border-0 bg-transparent"
           action={
             <Button onClick={openCreate}>
               <Plus className="h-4 w-4" /> Add Education

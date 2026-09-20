@@ -141,6 +141,7 @@ export function WorkExperienceSection({
           title="No work experience yet"
           description="Add your employment history, or upload a Certificate of Employment / PDS to auto-extract."
           icon={<Briefcase className="h-7 w-7" />}
+          className="border-0 bg-transparent"
           action={
             <Button onClick={openCreate}>
               <Plus className="h-4 w-4" /> Add Experience

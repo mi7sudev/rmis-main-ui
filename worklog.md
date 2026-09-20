@@ -6014,3 +6014,20 @@ Stage Summary:
 - Files changed: src/components/views/profile/{education,training,eligibility,work-experience,awards}-section.tsx
 - UX contract: empty section = exactly ONE "Add" CTA (the empty-state card, primary variant); populated section = header "Add" button only. Transitions verified both directions.
 - No persistent data changes (test entry created + deleted; residue 0).
+
+---
+Task ID: profile-mobile-ux-03
+Agent: main (Z.ai Code)
+Task: User asked whether the mobile Profile page reads as "premium / enterprise-made" — honest audit of their screenshot found 5 tells; fixed all of them.
+
+Work Log:
+- Audit of user's 390px screenshot identified: (1) pink destructive alarm banner for what is merely guidance, (2) red "Incomplete" badge (wrong semantic — incomplete ≠ error), (3) redundant stats ("2 of 7 sections have data" + "29%" saying the same thing), (4) fragmented mobile nav (10 separately-bordered boxes: 7 cells + caption box + 2 arrow buttons), (5) double-framed empty state (inner EmptyState Card border nested inside the section card border).
+- workspace.tsx: EmptyState now forwards className to EmptyResult (backward compatible).
+- profile-view.tsx: Incomplete badge destructive→warning (amber); subtitle now shows only Submitted date (fill count moved to completion row, sm+ only — phones read fill state from the nav checkmarks); completion row = bar + % + "N/7 sections" (sm+); requirements hint restyled from bg-destructive/10 red text → bg-warning/10 amber advisory with warning-ink copy ("To mark your profile complete: …"); mobile nav rebuilt as one unified instrument strip — contiguous cells with hairline border-r dividers (gap-0, overflow-hidden), integrated caption footer bar (border-t, ghost w-12 chevrons with side rules, aria-live readout).
+- All 5 entity sections: EmptyState gets className="border-0 bg-transparent" → single-frame empty card (lottie + title + description + one primary CTA inside the section card).
+- Verified in browser: 390px top view (amber badge/advisory, one-line completion, unified nav), 390px empty state single frame + sticky nav pinned, desktop 1440px (completion row "COMPLETION ▮ 29% 2/7 SECTIONS", amber advisory, empty state centered), 320px nav tap → section 5 renders, caption truncates, zero horizontal overflow. Lint clean; dev.log only 200s, no errors.
+
+Stage Summary:
+- Files changed: src/components/primitives/workspace.tsx, src/components/views/profile-view.tsx, src/components/views/profile/{education,work-experience,training,eligibility,awards}-section.tsx
+- Design semantics: amber = work-in-progress guidance; red reserved for real failures. One stat per question: % on the bar, per-section fill on the nav cells, submitted date as the only identity meta.
+- Mobile nav is now a single bordered instrument (hairline-divided cells + machined caption bar) instead of floating boxes — the main "curated" tell removed.

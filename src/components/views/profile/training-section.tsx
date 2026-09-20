@@ -123,6 +123,7 @@ export function TrainingSection({
           title="No training entries yet"
           description="Add trainings you've attended, or upload training certificates to auto-extract."
           icon={<BookOpen className="h-7 w-7" />}
+          className="border-0 bg-transparent"
           action={
             <Button onClick={openCreate}>
               <Plus className="h-4 w-4" /> Add Training

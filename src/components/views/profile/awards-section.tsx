@@ -138,6 +138,7 @@ export function AwardsSection({
           title="No awards yet"
           description="Add awards and recognitions you've received, or upload award certificates to auto-extract."
           icon={<AwardIcon className="h-7 w-7" />}
+          className="border-0 bg-transparent"
           action={
             <Button onClick={openCreate}>
               <Plus className="h-4 w-4" /> Add Award

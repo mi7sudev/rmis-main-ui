@@ -87,13 +87,24 @@ export function EmptyState({
   title,
   description,
   action,
+  className,
 }: {
   title: string;
   description?: string;
   action?: ReactNode;
   icon?: ReactNode;
+  /** Forwarded to the underlying Card — e.g. "border-0 bg-transparent" when
+   *  the empty state lives inside another bordered container. */
+  className?: string;
 }) {
-  return <EmptyResult title={title} description={description} action={action} />;
+  return (
+    <EmptyResult
+      title={title}
+      description={description}
+      action={action}
+      className={className}
+    />
+  );
 }
 
 // ---- Loading state ----------------------------------------------------------

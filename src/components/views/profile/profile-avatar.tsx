@@ -72,14 +72,14 @@ export function ProfileAvatar({
       disabled={uploading}
       title="Click to upload your profile photo"
       aria-label={`Upload profile photo for ${name}`}
-      className={`group relative grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl text-sm font-extrabold text-primary transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-wait disabled:opacity-70 sm:size-14 ${
+      className={`group relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-[1rem] text-base font-extrabold text-primary transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-wait disabled:opacity-70 sm:size-20 sm:rounded-[1.25rem] sm:text-lg lg:size-24 lg:text-xl ${
         photoUrl
           ? "bg-secondary shadow-sm ring-2 ring-primary/25"
           : "border border-dashed border-primary/40 bg-gradient-to-br from-primary/15 to-primary/5 hover:border-primary hover:shadow-sm"
       }`}
     >
       {uploading ? (
-        <Loader2 className="size-5 animate-spin text-primary" />
+        <Loader2 className="size-6 animate-spin text-primary" />
       ) : photoUrl ? (
         <img
           src={photoUrl}
@@ -87,7 +87,7 @@ export function ProfileAvatar({
           className="absolute inset-0 h-full w-full object-cover"
         />
       ) : (
-        initials || <User className="size-5" strokeWidth={1.5} />
+        initials || <User className="size-6 sm:size-7 lg:size-8" strokeWidth={1.5} />
       )}
       {/* Hover affordance — camera overlay hinting the photo is replaceable */}
       {!uploading && (
@@ -95,7 +95,7 @@ export function ProfileAvatar({
           aria-hidden
           className="absolute inset-0 hidden place-items-center bg-primary/60 text-white group-hover:grid"
         >
-          <Camera className="size-4" strokeWidth={2} />
+          <Camera className="size-4 sm:size-5" strokeWidth={2} />
         </span>
       )}
       <input

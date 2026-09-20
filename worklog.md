@@ -6159,3 +6159,20 @@ Stage Summary:
 - Empty entity sections now display the actual entry form inline (reference-style icon-free compact card with accent head) instead of an empty-state page; the header "Add <Section>" button handles additional entries via the premium dialog. Stepper connector lines now touch the circles exactly. PDS AI Auto-Fill docked in the identity card.
 - New app-wide safeguard in ui/select.tsx against Radix's spurious "" onValueChange.
 - Files: profile-view.tsx, ui/select.tsx, upload-pds-card.tsx, education/work-experience/training/eligibility/awards-section.tsx.
+
+---
+Task ID: profile-premium-04
+Agent: Z.ai Code (main)
+Task: (1) Enlarge the profile photo display (user: "the profile image when it is display is kinda small"); (2) rewrite the completion requirements hint ("To mark your profile complete: fill in...") in a professional tone (user: "make it professional not a fancy like that").
+
+Work Log:
+- Confirmed via worklog + code that profile-premium-03 (stepper connector fix, inline create forms in all 5 entity sections, PDS strip docked in hero) was fully completed and verified in the prior session before these new refinements.
+- ProfileAvatar (profile-avatar.tsx): sizing upgraded from a fixed size-14 (56px, the sm:size-14 duplicate made it identical at every breakpoint) to a responsive scale — size-16 (64px) mobile → sm:size-20 (80px) → lg:size-24 (96px) desktop. Initials scale text-base → sm:text-lg → lg:text-xl; fallback User icon size-6/7/8; camera hover overlay size-4/5; loader bumped to size-6.
+- Radius bug found during browser verification: computed border-radius was 0px despite rounded-xl classes. Root cause — Tailwind v4 inlines @theme values into utilities at build time; the Accenture token sheet sets --radius-*: 0rem, so `.rounded-xl`/`.rounded-2xl` compile to literal `border-radius: 0`. The premium scope's runtime re-declaration (--radius-xl: 1rem) only reaches rules that reference var(), e.g. the shadcn data-slot hooks — raw elements using named rounded-* utilities get 0. Fix: arbitrary-value radii (rounded-[1rem] sm:rounded-[1.25rem] — matches the premium token sheet's --radius-xl/--radius-2xl) which compile to distinct literal classes the theme zeroing never touches. Measured post-fix: 20px at 1440px, 16px at 390px.
+- Completion hint (profile-view.tsx hero advisory): "To mark your profile complete: fill in Personal Information (first name, last name, email) and add at least one Education and one Work Experience entry." → "Profile completion requires your Personal Information (first name, last name, and email) and at least one entry each in Education and Work Experience." — same requirements, formal register, no chatty colon construction. Verified it appears in exactly one place (rg).
+- Verified with agent-browser: 1440px — avatar 96×96, radius 20px, photo loads (naturalWidth > 0), hint text renders verbatim; 390px — avatar 64×64, radius 16px, amber advisory wraps cleanly, no horizontal overflow (scrollWidth 390 = clientWidth). Browser console: no errors (only pre-existing LCP warning for the footer seal image). bun run lint clean; tsc clean (only pre-existing access-tier error); dev.log 200s only.
+
+Stage Summary:
+- The profile photo is now a first-class hero element (96px desktop / 64px mobile, soft premium radii) instead of a 56px square, and the completion advisory reads as formal enterprise guidance.
+- New systemic knowledge recorded: named rounded-* utilities are build-time-zeroed by the Accenture theme — premium-scope raw (non-primitive) elements must use arbitrary-value radii or data-slot hooks to get soft geometry.
+- Files changed: src/components/views/profile/profile-avatar.tsx, src/components/views/profile-view.tsx.

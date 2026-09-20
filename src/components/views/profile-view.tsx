@@ -463,9 +463,9 @@ export function ProfileView() {
             <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-warning/25 bg-warning/10 px-3.5 py-2.5">
               <Info className="mt-0.5 size-3.5 shrink-0 text-warning" strokeWidth={1.5} />
               <span className="text-xs leading-relaxed text-warning-ink">
-                To mark your profile complete: fill in Personal Information (first
-                name, last name, email) and add at least one Education and one Work
-                Experience entry.
+                Profile completion requires your Personal Information (first name,
+                last name, and email) and at least one entry each in Education and
+                Work Experience.
               </span>
             </div>
           )}

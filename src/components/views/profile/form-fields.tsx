@@ -289,6 +289,7 @@ export function FieldWithExtraction({
   placeholder,
   required,
   helper,
+  hint,
   error,
 }: {
   label: string;
@@ -299,6 +300,7 @@ export function FieldWithExtraction({
   placeholder?: string;
   required?: boolean;
   helper?: string;
+  hint?: string;
   error?: string;
 }) {
   const id = useId();
@@ -308,6 +310,7 @@ export function FieldWithExtraction({
       required={required}
       fromExtraction={fromExtraction}
       helper={helper}
+      hint={hint}
       error={error}
       htmlFor={id}
     >

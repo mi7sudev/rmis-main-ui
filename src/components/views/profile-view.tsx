@@ -36,7 +36,7 @@ import {
   Loader2,
   ShieldCheck,
   Info,
-  CircleDot,
+  Check,
   ChevronLeft,
   ChevronRight,
   Sparkles,
@@ -55,7 +55,6 @@ import { EligibilitySection } from "./profile/eligibility-section";
 import { AwardsSection } from "./profile/awards-section";
 import { DocumentsSection } from "./profile/documents-section";
 import { UploadPdsCard } from "./upload-pds-card";
-import { AiCoachCard } from "./profile/ai-coach-card";
 
 // Mirrors the extract route's EXTRACTABLE_CATEGORIES — categories whose
 // extraction populates profile forms (everything else is a storage-only
@@ -121,6 +120,107 @@ function CompletionRing({ percent, size = 76 }: { percent: number; size?: number
       </div>
       <span className="sr-only" role="status">{`Profile ${percent} percent complete`}</span>
     </div>
+  );
+}
+
+// -----------------------------------------------------------------------------
+// DesktopStepper — the reference layout base (Jur-style horizontal step bar):
+// bold step numbers with short labels on one line, circle indicators below
+// (filled check = completed, primary ring = current, soft dot = upcoming),
+// progress connectors (solid through completed steps, dashed into the current
+// one, muted hairline ahead), and "(Approx X Min)" estimates under every step
+// that isn't finished yet. Replaces the old vertical left rail: the section
+// card below takes the full content width, like the reference form.
+// -----------------------------------------------------------------------------
+
+// Compact step labels — the reference keeps step names short ("Preliminary",
+// "Your Details"); full names live in aria-labels.
+const STEP_LABELS: Record<SectionId, string> = {
+  personal: "Personal",
+  education: "Education",
+  work: "Work",
+  training: "Training",
+  eligibility: "Eligibility",
+  awards: "Awards",
+  documents: "Documents",
+};
+
+function DesktopStepper({
+  active,
+  checks,
+  onSelect,
+}: {
+  active: SectionId;
+  checks: Record<SectionId, boolean>;
+  onSelect: (id: SectionId) => void;
+}) {
+  return (
+    <nav aria-label="Profile sections" className="mt-6 hidden lg:block">
+      <ol className="flex items-start">
+        {SECTIONS.map((s, i) => {
+          const isActive = active === s.id;
+          const done = checks[s.id];
+          const next = SECTIONS[i + 1];
+          // Connector reflects the progress up to its RIGHT endpoint: solid
+          // primary once that step is completed, dashed while it is the
+          // current one, muted hairline for everything still ahead.
+          const lineTone = next
+            ? checks[next.id]
+              ? "border-primary"
+              : next.id === active
+                ? "border-dashed border-primary/70"
+                : "border-border"
+            : "";
+          return (
+            <li key={s.id} className="flex min-w-0 flex-1 items-start last:flex-none">
+              <button
+                type="button"
+                onClick={() => onSelect(s.id)}
+                aria-current={isActive ? "step" : undefined}
+                aria-label={`Section ${i + 1}: ${s.label}`}
+                className="group flex min-w-0 flex-col items-start rounded-lg text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              >
+                <span className="flex items-baseline gap-1.5 whitespace-nowrap">
+                  <span className="text-[15px] font-extrabold tabular-nums tracking-tight text-foreground">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span
+                    className={`max-w-40 truncate text-[13px] font-semibold leading-snug transition-colors ${
+                      isActive || done ? "text-foreground" : "text-muted-foreground"
+                    } group-hover:text-primary`}
+                  >
+                    {STEP_LABELS[s.id]}
+                  </span>
+                </span>
+                <span
+                  aria-hidden
+                  className={`mt-2 grid size-[22px] shrink-0 place-items-center rounded-full transition-colors ${
+                    done
+                      ? "bg-primary"
+                      : isActive
+                        ? "border-2 border-primary bg-background"
+                        : "border border-border bg-muted/60"
+                  }`}
+                >
+                  {done && <Check className="size-3 text-primary-foreground" strokeWidth={3.5} />}
+                </span>
+                {!done && (
+                  <span className="mt-1.5 text-[11px] font-medium text-muted-foreground/85">
+                    (Approx {s.minutes} Min)
+                  </span>
+                )}
+              </button>
+              {next && (
+                <span
+                  aria-hidden
+                  className={`mx-2.5 mt-[38px] h-0 min-w-4 flex-1 border-t-2 ${lineTone}`}
+                />
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
   );
 }
 
@@ -255,17 +355,6 @@ export function ProfileView() {
   const photoDoc = documents.find((d) => d.category === "PROFILE_PICTURE");
   const photoUrl = photoDoc ? `/api/files/${photoDoc.filePath}` : null;
 
-  // AI Profile Coach digest input — core personal field fill count. Labels
-  // only; values never leave the client (the API route re-validates).
-  const PERSONAL_CORE_KEYS = [
-    "firstName", "lastName", "emailAddress", "mobileNumber", "birthDate",
-    "gender", "civilStatus", "presentAddress", "city", "province",
-  ] as const;
-  const personalFilled = PERSONAL_CORE_KEYS.filter(
-    (k) => String(profile[k] ?? "").trim().length > 0
-  ).length;
-  const personalTotal = PERSONAL_CORE_KEYS.length;
-
   return (
     <div className="premium relative min-h-screen bg-background text-foreground">
       {/* Ambient brand wash — a faint primary gradient bleeds from the top of
@@ -374,14 +463,21 @@ export function ProfileView() {
           )}
         </div>
 
-        {/* Two-column layout: sections nav + PDS upload rail + right content
-            cards.
-            On desktop: the rail is sticky with its own scroll container so it
-            stays in view while the right content scrolls.
-            On mobile: the step strip is its own grid child so it can STICK
-            under the workspace header — navigation stays reachable anywhere
-            in the wizard — with the upload strip and content flowing below. */}
-        <div ref={sectionsRef} className="mt-4 grid scroll-mt-24 grid-cols-[minmax(0,1fr)] gap-4 sm:mt-6 sm:gap-6 lg:grid-cols-[352px_minmax(0,1fr)]">
+        {/* DESKTOP STEPPER (lg+) — the reference layout base: a horizontal
+            numbered step bar spanning the canvas above the form card; the
+            section card below takes the full content width. */}
+        <DesktopStepper
+          active={activeSection}
+          checks={completion.checks}
+          onSelect={setActiveSection}
+        />
+
+        {/* Desktop owns navigation via the horizontal stepper above; this
+            grid is a single full-width column. On phones the step strip is
+            its own grid child so it can STICK under the workspace header —
+            navigation stays reachable anywhere in the wizard — with the
+            upload strip and content flowing below. */}
+        <div ref={sectionsRef} className="mt-4 grid scroll-mt-24 grid-cols-[minmax(0,1fr)] gap-4 sm:mt-6 sm:gap-6">
           {/* MOBILE (< lg) — sticky segmented strip + caption + prev/next.
               A direct grid child so its sticky containing block is the full
               grid: the whole card pins below the workspace header while the
@@ -470,109 +566,20 @@ export function ProfileView() {
             </div>
           </nav>
 
-          {/* LEFT RAIL — desktop vertical nav + AI upload strip. Sticks on
-              desktop as one unit (internal scroll when tall). On phones only
-              the upload strip remains here; the step strip is the sticky nav
-              above. */}
-          <div className="h-fit min-w-0 lg:sticky lg:top-16 lg:max-h-[calc(100dvh-80px)] lg:overflow-y-auto lg:pr-1">
-            {/* DESKTOP (lg+) — tinted rail list with sliding indicator */}
-            <nav
-              aria-label="Profile sections"
-              className="pui-card hidden p-2 lg:block"
-            >
-              <p className="px-3 pb-1.5 pt-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                Sections · {completion.filled}/{completion.total}
-              </p>
-              <div className="flex flex-col gap-0.5">
-                {SECTIONS.map((s, i) => {
-                  const isActive = activeSection === s.id;
-                  const filled = completion.checks[s.id];
-                  const Icon = s.icon;
-                  return (
-                    <button
-                      key={s.id}
-                      onClick={() => setActiveSection(s.id)}
-                      aria-current={isActive ? "page" : undefined}
-                      className={`relative flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm font-semibold transition-colors ${
-                        isActive
-                          ? "bg-primary/10 text-primary"
-                          : "text-foreground hover:bg-secondary/70"
-                      }`}
-                    >
-                      {isActive && (
-                        <motion.span
-                          aria-hidden
-                          layoutId="pui-rail-indicator"
-                          className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary"
-                          transition={{ type: "spring", stiffness: 500, damping: 42 }}
-                        />
-                      )}
-                      <span
-                        className={`w-5 shrink-0 self-start text-[11px] font-bold tabular-nums leading-6 ${
-                          isActive ? "text-primary/70" : "text-muted-foreground/60"
-                        }`}
-                      >
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <Icon
-                        className={`size-4.5 mt-1 shrink-0 ${isActive ? "" : "text-muted-foreground"}`}
-                        strokeWidth={1.5}
-                      />
-                      {/* Two-line label — the reference stepper shows each
-                          step's time estimate right under its name. */}
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate leading-tight">{s.label}</span>
-                        <span
-                          className={`block text-[10.5px] font-normal leading-tight ${
-                            isActive ? "text-primary/60" : "text-muted-foreground/60"
-                          }`}
-                        >
-                          Approx {s.minutes} min
-                        </span>
-                      </span>
-                      {filled ? (
-                        <CheckCircle2
-                          className={`size-4.5 shrink-0 ${isActive ? "text-primary" : "text-success"}`}
-                          strokeWidth={2}
-                        />
-                      ) : (
-                        <CircleDot
-                          className="size-4.5 shrink-0 text-muted-foreground/35"
-                          strokeWidth={1.5}
-                        />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </nav>
-
-            {/* PDS auto-extraction — upload strip under the Sections list,
-                beside the form so it's always in reach while filling out. */}
-            <div className="mt-3">
-              <UploadPdsCard
-                locked={pdsLocked}
-                onClearForms={handleClearForms}
-                onApplied={() => loadAll(true)}
-                onReview={() => {
-                  setActiveSection("personal");
-                  requestAnimationFrame(() => {
-                    sectionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  });
-                }}
-              />
-            </div>
-
-            {/* AI Profile Coach — on-demand readiness analysis with one-tap
-                actions into the sections it recommends. */}
-            <div className="mt-3">
-              <AiCoachCard
-                profile={profile}
-                personalFilled={personalFilled}
-                personalTotal={personalTotal}
-                onNavigate={(section) => handleMobileSectionChange(section)}
-              />
-            </div>
+          {/* PDS auto-extraction — full-width upload strip between the step
+              bar and the section card so it stays in reach while filling out. */}
+          <div className="min-w-0">
+            <UploadPdsCard
+              locked={pdsLocked}
+              onClearForms={handleClearForms}
+              onApplied={() => loadAll(true)}
+              onReview={() => {
+                setActiveSection("personal");
+                requestAnimationFrame(() => {
+                  sectionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                });
+              }}
+            />
           </div>
 
           {/* RIGHT CONTENT — section cards swap with a quiet fade/rise

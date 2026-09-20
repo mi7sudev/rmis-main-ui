@@ -173,7 +173,7 @@ export function WorkExperienceSection({
           />
         </div>
       ) : (
-        <div className="pui-scroll space-y-3 sm:max-h-[560px] sm:overflow-y-auto sm:pr-1">
+        <div className="pui-scroll grid grid-cols-1 gap-3 sm:max-h-[560px] sm:overflow-y-auto sm:pr-1 md:grid-cols-2">
           {items.map((item) => {
             const period = `${item.inclusiveDateFrom ? formatDate(item.inclusiveDateFrom) : "—"} → ${
               item.isPresentWork

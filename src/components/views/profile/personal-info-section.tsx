@@ -271,7 +271,7 @@ export function PersonalInfoSection({
         open={openGroups.identity ?? true}
         onToggle={() => toggle("identity")}
       >
-        <div className="grid grid-cols-1 gap-3.5 p-4 sm:gap-4 sm:p-5 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3.5 p-4 sm:gap-4 sm:p-5 md:grid-cols-2 xl:grid-cols-3">
           <FieldWithExtraction
             label="First Name"
             value={form.firstName as string}
@@ -400,8 +400,8 @@ export function PersonalInfoSection({
         open={openGroups.address ?? true}
         onToggle={() => toggle("address")}
       >
-        <div className="grid grid-cols-1 gap-3.5 p-4 sm:gap-4 sm:p-5 md:grid-cols-2">
-          <div className="md:col-span-2">
+        <div className="grid grid-cols-1 gap-3.5 p-4 sm:gap-4 sm:p-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="md:col-span-2 xl:col-span-3">
             <FieldWithExtraction
               label="Present Address"
               value={form.presentAddress as string}

@@ -195,7 +195,6 @@ export function TrainingSection({
           once entries exist, the header button takes over. */}
       <SectionHeader
         title="Training & Development"
-        meta="Approx 2 min"
         description="Seminars, workshops, and short courses attended"
         icon={BookOpen}
         action={

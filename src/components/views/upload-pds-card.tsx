@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   UploadCloud,
+  Upload,
   Loader2,
   CheckCircle2,
   AlertCircle,
@@ -291,9 +292,9 @@ export function UploadPdsCard({
         </div>
       ) : phase === "idle" ? (
         // Enterprise document ingestion workspace — one wide horizontal strip:
-        // icon left, title + description + format meta center, Select File
-        // right. Refined hairline border (no dashed box); hover deepens the
-        // border and adds a whisper of blue; drag-over tints + rings.
+        // icon left, title + one-line description center, Select File right.
+        // Compact dashed border (the classic dropzone cue, kept quiet); hover
+        // deepens the border and adds a whisper of blue; drag-over tints + rings.
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
@@ -301,40 +302,41 @@ export function UploadPdsCard({
           onDragLeave={() => setDragging(false)}
           onDrop={onDrop}
           aria-label="Upload PDS, resume, or certificate for auto-extraction"
-          className={`group flex w-full items-center gap-3.5 rounded-xl border bg-card p-4 text-left transition-all duration-200 sm:gap-4 sm:p-5 ${
+          className={`group flex w-full items-center gap-3.5 rounded-[10px] border border-dashed p-4 text-left transition-all duration-200 sm:gap-4 sm:p-5 ${
             dragging
-              ? "border-primary bg-primary/[0.04] ring-2 ring-primary/15"
-              : "border-border hover:border-primary/40 hover:bg-primary/[0.015]"
+              ? "border-primary bg-primary/[0.05] ring-2 ring-primary/15"
+              : "border-border hover:border-primary/45 hover:bg-primary/[0.02]"
           }`}
         >
           <span
-            className={`grid size-11 shrink-0 place-items-center rounded-[10px] border transition-colors duration-200 ${
+            className={`grid size-12 shrink-0 place-items-center rounded-[10px] transition-colors duration-200 ${
               dragging
-                ? "border-primary/40 bg-primary/10 text-primary"
-                : "border-border bg-secondary/60 text-muted-foreground group-hover:border-primary/30 group-hover:text-primary"
+                ? "bg-primary/10 text-primary"
+                : "bg-primary/[0.08] text-primary group-hover:bg-primary/[0.14]"
             }`}
           >
             <UploadCloud className="size-5" strokeWidth={1.5} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-semibold tracking-[-0.01em] text-foreground">
+            <span className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[15px] font-semibold tracking-[-0.01em] text-foreground">
                 PDS Upload
               </span>
-              <span className="inline-flex items-center gap-1 rounded-md border border-primary/20 bg-primary/[0.07] px-1.5 py-[3px] text-[10.5px] font-semibold uppercase leading-none tracking-[0.04em] text-primary">
-                <Sparkles className="size-2.5" /> AI Auto-Fill
+              <span aria-hidden className="text-muted-foreground/50">·</span>
+              <span className="text-[15px] font-semibold tracking-[-0.01em] text-primary">
+                AI Auto-Fill
               </span>
+              <Sparkles className="size-3.5 text-primary" strokeWidth={1.75} />
             </span>
             <span className="mt-1 block text-[13px] leading-relaxed text-muted-foreground">
-              Drop your PDS, resume, or certificates and automatically populate
-              your profile.
-            </span>
-            <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground/70">
-              PDF, DOC, XLS, images · max 10MB
+              Drop your PDS, resume, or certificates — AI fills your profile
+              fields · PDF, DOC, XLS, images · max 10MB
             </span>
           </span>
-          <span className="hidden h-9 shrink-0 items-center rounded-lg border border-border bg-card px-3.5 text-[13px] font-semibold text-foreground transition-colors duration-200 group-hover:border-primary/40 group-hover:text-primary sm:inline-flex">
+          <span className="hidden h-9 shrink-0 items-center gap-1.5 rounded-lg border border-border bg-card px-3.5 text-[13px] font-semibold text-foreground transition-colors duration-200 group-hover:border-primary/40 group-hover:text-primary sm:inline-flex">
+            <Upload className="size-3.5" strokeWidth={1.75} />
             Select File
+            <ChevronRight className="size-3.5 text-muted-foreground" />
           </span>
         </button>
       ) : (

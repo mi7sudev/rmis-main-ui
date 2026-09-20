@@ -26,6 +26,7 @@ import {
   Sparkles,
   AlertCircle,
   ChevronDown,
+  Save,
   Users,
   MapPin,
   Scale,
@@ -106,8 +107,9 @@ function useDisclosureGroups() {
 // -----------------------------------------------------------------------------
 // SubSection — collapsible group INSIDE the section's single white surface.
 // A hairline divides groups; the head row is compact enterprise metadata
-// (icon + title, muted fill-state summary, subtle chevron). Controlled by the
-// parent's openGroups map (breakpoint-aware defaults — see groupDefaults).
+// (primary icon + title, muted fill-state summary after a dot separator,
+// subtle chevron). Controlled by the parent's openGroups map (breakpoint-aware
+// defaults — see groupDefaults).
 // -----------------------------------------------------------------------------
 function SubSection({
   title,
@@ -130,20 +132,21 @@ function SubSection({
         type="button"
         onClick={onToggle}
         aria-expanded={open}
-        className="flex w-full items-center gap-2.5 px-4 py-3.5 text-left transition-colors hover:bg-secondary/40 sm:px-6"
+        className="flex w-full items-center gap-2.5 px-4 py-4 text-left transition-colors hover:bg-secondary/40 sm:px-6"
       >
-        <Icon className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
-        <h3 className="text-[14px] font-semibold tracking-[-0.01em] text-foreground">
+        <Icon className="size-[18px] shrink-0 text-primary" strokeWidth={1.5} />
+        <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-foreground">
           {title}
         </h3>
         {summary && (
-          <span className="ml-auto hidden shrink-0 text-xs tabular-nums text-muted-foreground sm:inline">
-            {summary}
+          <span className="ml-2 hidden min-w-0 items-center gap-2 text-[13px] text-muted-foreground sm:flex">
+            <span aria-hidden className="text-border">·</span>
+            <span className="tabular-nums">{summary}</span>
           </span>
         )}
         <ChevronDown
           aria-hidden
-          className={`ml-auto size-4 shrink-0 text-muted-foreground/70 transition-transform duration-200 sm:ml-3 ${open ? "" : "-rotate-90"}`}
+          className={`ml-auto size-4 shrink-0 text-muted-foreground/70 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
           strokeWidth={1.5}
         />
       </button>
@@ -242,12 +245,12 @@ export function PersonalInfoSection({
               onClick={onSave}
               disabled={!dirty || saving}
               size="sm"
-              className="hidden h-9 px-4 text-[13px] md:inline-flex"
+              className="hidden h-9 gap-1.5 px-4 text-[13px] font-semibold md:inline-flex"
             >
               {saving ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (
-                <CheckCircle2 className="size-4" strokeWidth={1.5} />
+                <Save className="size-4" strokeWidth={1.75} />
               )}
               {saving ? "Saving…" : "Save Changes"}
             </Button>
@@ -272,7 +275,7 @@ export function PersonalInfoSection({
       <SubSection
         title="Identity"
         icon={User}
-        summary={`${countFilled(form, IDENTITY_KEYS)} of ${IDENTITY_KEYS.length} completed`}
+        summary={`${countFilled(form, IDENTITY_KEYS)} of ${IDENTITY_KEYS.length} Completed`}
         open={openGroups.identity ?? true}
         onToggle={() => toggle("identity")}
       >
@@ -282,7 +285,7 @@ export function PersonalInfoSection({
             value={form.firstName as string}
             fromExtraction={fromExtraction.has("firstName")}
             onChange={(v) => onChange("firstName", v)}
-            placeholder="Juan"
+            placeholder="e.g. Juan"
             required
           />
           <FieldWithExtraction
@@ -290,14 +293,14 @@ export function PersonalInfoSection({
             value={form.middleName as string}
             fromExtraction={fromExtraction.has("middleName")}
             onChange={(v) => onChange("middleName", v)}
-            placeholder="Santos"
+            placeholder="e.g. Santos"
           />
           <FieldWithExtraction
             label="Last Name"
             value={form.lastName as string}
             fromExtraction={fromExtraction.has("lastName")}
             onChange={(v) => onChange("lastName", v)}
-            placeholder="Dela Cruz"
+            placeholder="e.g. Dela Cruz"
             required
           />
           <FieldWithExtraction
@@ -408,7 +411,7 @@ export function PersonalInfoSection({
       <SubSection
         title="Address"
         icon={MapPin}
-        summary={`${countFilled(form, ADDRESS_KEYS)} of ${ADDRESS_KEYS.length} completed`}
+        summary={`${countFilled(form, ADDRESS_KEYS)} of ${ADDRESS_KEYS.length} Completed`}
         open={openGroups.address ?? true}
         onToggle={() => toggle("address")}
       >
@@ -619,7 +622,7 @@ export function PersonalInfoSection({
               {saving ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
               ) : (
-                <CheckCircle2 className="h-4 w-4 mr-1.5" />
+                <Save className="h-4 w-4 mr-1.5" />
               )}
               {saving ? "Saving..." : "Save Changes"}
             </Button>

@@ -249,7 +249,6 @@ export function WorkExperienceSection({
           once entries exist, the header button takes over. */}
       <SectionHeader
         title="Work Experience"
-        meta="Approx 5 min"
         description="Your employment history — most recent first"
         icon={Briefcase}
         action={

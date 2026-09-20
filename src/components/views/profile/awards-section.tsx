@@ -210,7 +210,6 @@ export function AwardsSection({
           once entries exist, the header button takes over. */}
       <SectionHeader
         title="Awards & Recognition"
-        meta="Approx 2 min"
         description="Awards, accomplishments, and recognitions received"
         icon={AwardIcon}
         action={

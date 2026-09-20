@@ -206,7 +206,6 @@ export function EducationSection({
           once entries exist, the header button takes over. */}
       <SectionHeader
         title="Education"
-        meta="Approx 3 min"
         description="Your educational background — elementary to post-graduate"
         icon={GraduationCap}
         action={

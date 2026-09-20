@@ -372,7 +372,6 @@ export function EligibilitySection({
           once entries exist, the header button takes over. */}
       <SectionHeader
         title="Eligibility"
-        meta="Approx 3 min"
         description="Civil service eligibilities earned by examination or conferment"
         icon={ShieldCheck}
         action={

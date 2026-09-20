@@ -72,7 +72,7 @@ export function ProfileAvatar({
       disabled={uploading}
       title="Click to upload your profile photo"
       aria-label={`Upload profile photo for ${name}`}
-      className={`group relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-[10px] text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-wait disabled:opacity-70 ${
+      className={`group relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-[12px] text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-wait disabled:opacity-70 sm:size-[72px] ${
         photoUrl
           ? "bg-secondary ring-1 ring-border"
           : "border border-input bg-secondary/60 text-muted-foreground hover:border-primary/50 hover:text-primary"

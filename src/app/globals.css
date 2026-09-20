@@ -898,6 +898,8 @@ html:not(.dark) .premium {
 .premium [data-slot="select-trigger"] {
   border-radius: 8px;
   border-color: var(--input);
+  /* 44–48px comfortable touch height for the enterprise form register */
+  min-height: 2.75rem;
   transition: border-color 0.18s ease, box-shadow 0.18s ease,
     background-color 0.18s ease;
 }

@@ -20,7 +20,7 @@
 // lives in use-profile-data; this file is chrome.
 // =============================================================================
 
-import { useRef } from "react";
+import { Fragment, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useSession } from "@/components/session-provider";
 import { apiFetch } from "@/lib/client";
@@ -36,9 +36,10 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
-import { formatDate, fullName } from "@/lib/client";
+import { fullName } from "@/lib/client";
 import {
   CheckCircle2,
+  Clock,
   Loader2,
   ShieldCheck,
   Info,
@@ -80,8 +81,8 @@ const EXTRACTABLE_DOC_CATEGORIES: ReadonlySet<string> = new Set([
 // CompletionRing — compact radial indicator (the record header's only graph).
 // Flat primary stroke on a hairline track; the percentage sits centered.
 // -----------------------------------------------------------------------------
-function CompletionRing({ percent, size = 64 }: { percent: number; size?: number }) {
-  const stroke = 5;
+function CompletionRing({ percent, size = 72 }: { percent: number; size?: number }) {
+  const stroke = 6;
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const offset = c - (Math.min(100, Math.max(0, percent)) / 100) * c;
@@ -111,9 +112,9 @@ function CompletionRing({ percent, size = 64 }: { percent: number; size?: number
         />
       </svg>
       <div className="absolute inset-0 grid place-items-center" aria-hidden>
-        <span className="text-[15px] font-semibold tabular-nums tracking-[-0.01em] text-foreground">
+        <span className="text-[17px] font-semibold tabular-nums tracking-[-0.01em] text-foreground">
           {percent}
-          <span className="text-[10px] font-medium text-muted-foreground">%</span>
+          <span className="text-[11px] font-medium text-muted-foreground">%</span>
         </span>
       </div>
       <span className="sr-only" role="status">{`Profile ${percent} percent complete`}</span>
@@ -122,12 +123,12 @@ function CompletionRing({ percent, size = 64 }: { percent: number; size?: number
 }
 
 // -----------------------------------------------------------------------------
-// SectionNav (lg+) — premium horizontal workflow. Compact numbered squares
-// (check once completed, primary square = current, hairline square = ahead)
-// joined by hairline connectors; the active label darkens, upcoming labels
-// stay muted. Time estimates were removed — they were per-step noise. The
-// band is sticky under the workspace header so navigation is reachable
-// anywhere in a long form.
+// SectionNav (lg+) — premium horizontal workflow. Compact numbered circles
+// (check once completed, primary circle = current, hairline circle = ahead)
+// joined by hairline connectors that stretch to fill the row; each step
+// carries a two-line label (name + "Approx N Min" estimate — Documents is
+// open-ended, so it carries none). The band is sticky under the workspace
+// header so navigation is reachable anywhere in a long form.
 // -----------------------------------------------------------------------------
 
 // Compact step labels; full names live in aria-labels.
@@ -153,58 +154,60 @@ function SectionNav({
   return (
     <nav
       aria-label="Profile sections"
-      className="sticky top-16 z-20 -mx-4 mt-5 hidden border-b border-border/70 bg-background/90 px-4 py-2.5 backdrop-blur-sm sm:-mx-6 sm:px-6 lg:block lg:-mx-8 lg:px-8"
+      className="sticky top-16 z-20 -mx-4 mt-6 hidden border-b border-border/70 bg-background/90 px-4 py-3 backdrop-blur-sm sm:-mx-6 sm:px-6 lg:block lg:-mx-8 lg:px-8"
     >
       <ol className="flex items-center">
         {SECTIONS.map((s, i) => {
           const isActive = active === s.id;
           const done = checks[s.id];
+          const reached = done || isActive;
+          const approx = s.id === "documents" ? null : `Approx ${s.minutes} Min`;
           return (
-            <li key={s.id} className="flex min-w-0 items-center">
+            <Fragment key={s.id}>
               {i > 0 && (
-                <span
-                  aria-hidden
-                  className={`mx-2 h-px w-6 shrink-0 xl:mx-2.5 xl:w-8 ${
-                    done ? "bg-primary/50" : isActive ? "bg-primary/30" : "bg-border"
-                  }`}
-                />
+                <li aria-hidden className="h-px min-w-3 flex-1 bg-border xl:min-w-4" />
               )}
-              <button
-                type="button"
-                onClick={() => onSelect(s.id)}
-                aria-current={isActive ? "step" : undefined}
-                aria-label={`Section ${i + 1}: ${s.label}`}
-                className={`group flex shrink-0 items-center gap-2 rounded-lg py-1 pl-0.5 pr-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
-                  isActive ? "" : "hover:bg-secondary/70"
-                }`}
-              >
-                <span
-                  aria-hidden
-                  className={`grid size-[22px] shrink-0 place-items-center rounded-md text-[10.5px] font-semibold tabular-nums transition-colors ${
-                    done
-                      ? "bg-primary text-primary-foreground"
-                      : isActive
-                        ? "border border-primary bg-primary/[0.06] text-primary"
-                        : "border border-border text-muted-foreground group-hover:border-input-hover"
-                  }`}
+              <li className="shrink-0">
+                <button
+                  type="button"
+                  onClick={() => onSelect(s.id)}
+                  aria-current={isActive ? "step" : undefined}
+                  aria-label={`Section ${i + 1}: ${s.label}`}
+                  className="group flex items-center gap-2.5 rounded-[10px] py-1 pl-0.5 pr-1 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
-                  {done ? (
-                    <Check className="size-3" strokeWidth={3} />
-                  ) : (
-                    String(i + 1).padStart(2, "0")
-                  )}
-                </span>
-                <span
-                  className={`whitespace-nowrap text-[13px] font-medium transition-colors ${
-                    isActive
-                      ? "text-foreground"
-                      : "text-muted-foreground group-hover:text-foreground"
-                  }`}
-                >
-                  {STEP_LABELS[s.id]}
-                </span>
-              </button>
-            </li>
+                  <span
+                    aria-hidden
+                    className={`grid size-8 shrink-0 place-items-center rounded-full border text-[12px] font-semibold tabular-nums transition-colors duration-200 ${
+                      reached
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-card text-muted-foreground group-hover:border-primary/40 group-hover:text-foreground"
+                    }`}
+                  >
+                    {done ? (
+                      <Check className="size-3.5" strokeWidth={3} />
+                    ) : (
+                      String(i + 1).padStart(2, "0")
+                    )}
+                  </span>
+                  <span className="flex min-w-0 flex-col leading-tight">
+                    <span
+                      className={`whitespace-nowrap text-[13.5px] font-semibold transition-colors ${
+                        reached
+                          ? "text-foreground"
+                          : "text-muted-foreground group-hover:text-foreground"
+                      }`}
+                    >
+                      {STEP_LABELS[s.id]}
+                    </span>
+                    {approx && (
+                      <span className="mt-0.5 whitespace-nowrap text-[11px] leading-none text-muted-foreground">
+                        {approx}
+                      </span>
+                    )}
+                  </span>
+                </button>
+              </li>
+            </Fragment>
           );
         })}
       </ol>
@@ -338,42 +341,29 @@ export function ProfileView() {
   const photoDoc = documents.find((d) => d.category === "PROFILE_PICTURE");
   const photoUrl = photoDoc ? `/api/files/${photoDoc.filePath}` : null;
 
-  // Compact enterprise status badge — a small dot + word, square corners,
-  // quiet tint. "Incomplete" is a work-in-progress state (amber), not an
-  // error; red is reserved for real failures.
+  // Compact enterprise status pill — quiet neutral for "Incomplete" (a
+  // work-in-progress state, not an error); success tint only when complete.
   const statusBadge = profile.isProfileComplete ? (
-    <span className="inline-flex items-center gap-1.5 rounded-md border border-success/25 bg-success/10 px-1.5 py-[3px] text-[11px] font-medium leading-none text-success-ink">
-      <span aria-hidden className="size-1.5 rounded-full bg-success" />
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-success/25 bg-success/10 px-2.5 py-1 text-xs font-medium leading-none text-success-ink">
+      <CheckCircle2 className="size-3" strokeWidth={2} />
       Complete
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1.5 rounded-md border border-warning/25 bg-warning/10 px-1.5 py-[3px] text-[11px] font-medium leading-none text-warning-ink">
-      <span aria-hidden className="size-1.5 rounded-full bg-warning" />
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-2.5 py-1 text-xs font-medium leading-none text-muted-foreground">
+      <Clock className="size-3" strokeWidth={2} />
       Incomplete
     </span>
   );
 
   return (
-    <div className="premium relative min-h-screen bg-background text-foreground">
-      {/* Ambient brand wash — a faint primary glow behind the record header */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-[360px]"
-        style={{ backgroundImage: "var(--pui-canvas)" }}
-      />
-
-      <div className="relative z-10 mx-auto max-w-[1240px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-        {/* ── A. Page header — compact orientation row (no marketing copy) ── */}
-        <header className="pb-5">
-          <Eyebrow>Profile</Eyebrow>
-          <h1 className="mt-1 text-[26px] font-semibold leading-[1.15] tracking-[-0.02em] text-foreground sm:text-[28px]">
-            My Profile
-          </h1>
-        </header>
-
-        {/* ── Employee record — identity left, completion right ── */}
-        <section aria-label="Profile record" className="pui-card p-4 sm:p-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+    <div className="premium min-h-screen bg-background text-foreground">
+      <div className="mx-auto max-w-[1240px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        {/* ── A–C. Employee record — ONE cohesive card: identity + completion
+                indicator, the quiet completion note, and the PDS import
+                workspace. Flat enterprise surfaces, no floating card stack. ── */}
+        <section aria-label="Profile record" className="pui-card p-4 sm:p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+            {/* Identity — avatar, name, status pill, document count */}
             <div className="flex min-w-0 items-center gap-4">
               <ProfileAvatar
                 photoUrl={photoUrl}
@@ -382,42 +372,35 @@ export function ProfileView() {
                 onPhotoChanged={() => void loadAll(true)}
               />
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="truncate text-[17px] font-semibold tracking-[-0.01em] text-foreground">
+                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+                  <h2 className="text-[20px] font-semibold tracking-[-0.02em] text-foreground sm:text-[22px]">
                     {applicantName}
                   </h2>
                   {statusBadge}
                   {pdsLocked && (
-                    <span className="inline-flex items-center gap-1 rounded-md border border-primary/20 bg-primary/[0.07] px-1.5 py-[3px] text-[11px] font-medium leading-none text-primary">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/[0.07] px-2 py-1 text-[11px] font-medium leading-none text-primary">
                       <Sparkles className="size-2.5" /> AI-assisted
                     </span>
                   )}
                 </div>
-                <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[13px] text-muted-foreground">
-                  {profile.submittedDate && (
-                    <span>Submitted {formatDate(profile.submittedDate)}</span>
-                  )}
-                  <span className="inline-flex items-center gap-1.5">
-                    <FileStack className="size-3.5" strokeWidth={1.5} />
-                    {documents.length} document{documents.length === 1 ? "" : "s"}
-                  </span>
+                <p className="mt-1.5 flex items-center gap-1.5 text-[13px] text-muted-foreground">
+                  <FileStack className="size-3.5" strokeWidth={1.5} />
+                  {documents.length} document{documents.length === 1 ? "" : "s"}
                 </p>
               </div>
             </div>
 
-            {/* Completion indicator — enterprise analytics lockup: ring,
-                label, position readout (and the finalize CTA when eligible). */}
-            <div className="flex items-center gap-4 lg:shrink-0 lg:border-l lg:border-border lg:pl-6">
-              <div className="flex items-center gap-3.5">
+            {/* Completion indicator — enterprise analytics lockup: ring +
+                position readout (and the finalize CTA when eligible). */}
+            <div className="flex items-center gap-4 lg:shrink-0 lg:border-l lg:border-border lg:pl-8">
+              <div className="flex items-center gap-4">
                 <CompletionRing percent={completion.percent} />
                 <div>
-                  <p className="text-[13px] font-semibold leading-tight text-foreground">
-                    Profile completion
+                  <p className="text-[14px] font-semibold leading-tight text-foreground">
+                    {completion.filled} of {completion.total} sections
                   </p>
-                  <p className="mt-0.5 text-xs leading-tight text-muted-foreground">
-                    {profile.isProfileComplete
-                      ? "All sections complete"
-                      : `${completion.filled} of ${completion.total} sections`}
+                  <p className="mt-0.5 text-[13px] leading-tight text-muted-foreground">
+                    {profile.isProfileComplete ? "All sections complete" : "to go"}
                   </p>
                 </div>
               </div>
@@ -429,36 +412,39 @@ export function ProfileView() {
               )}
             </div>
           </div>
-        </section>
 
-        {/* ── B. Completion note — quiet informational banner (never an alert).
-               Blue-gray wash + thin border + small icon; concise copy. ── */}
-        {!canMarkComplete && !profile.isProfileComplete && (
-          <div className="mt-3 flex items-start gap-2.5 rounded-[10px] border border-primary/15 bg-primary/[0.04] px-3.5 py-2.5">
-            <Info className="mt-0.5 size-3.5 shrink-0 text-primary/70" strokeWidth={1.5} />
-            <p className="text-[13px] leading-relaxed text-muted-foreground">
-              Profile completion requires your{" "}
-              <span className="font-medium text-foreground">Personal Information</span>{" "}
-              (first name, last name, and email) and at least one entry in{" "}
-              <span className="font-medium text-foreground">Education</span> and{" "}
-              <span className="font-medium text-foreground">Work Experience</span>.
-            </p>
+          {/* ── B. Completion note — quiet informational banner (never an alert).
+                  Blue wash + hairline + small filled icon; concise copy. ── */}
+          {!canMarkComplete && !profile.isProfileComplete && (
+            <div className="mt-5 flex items-start gap-3 rounded-[10px] border border-primary/15 bg-primary/[0.06] px-4 py-3">
+              <span
+                aria-hidden
+                className="mt-0.5 grid size-4 shrink-0 place-items-center rounded-full bg-primary"
+              >
+                <Info className="size-2.5 text-primary-foreground" strokeWidth={3} />
+              </span>
+              <p className="text-[13.5px] leading-relaxed text-foreground/85">
+                Profile completion requires your Personal Information (first
+                name, last name, and email) and at least one entry each in
+                Education and Work Experiences.
+              </p>
+            </div>
+          )}
+
+          {/* ── C. Import workspace — PDS Upload · AI Auto-Fill ── */}
+          <div className="mt-4 sm:mt-5">
+            <UploadPdsCard
+              locked={pdsLocked}
+              onClearForms={handleClearForms}
+              onApplied={() => loadAll(true)}
+              onReview={() => {
+                setActiveSection("personal");
+                requestAnimationFrame(() => {
+                  sectionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                });
+              }}
+            />
           </div>
-        )}
-
-        {/* ── C. Import workspace — PDS Upload · AI Auto-Fill ── */}
-        <section aria-label="Document import" className="mt-3">
-          <UploadPdsCard
-            locked={pdsLocked}
-            onClearForms={handleClearForms}
-            onApplied={() => loadAll(true)}
-            onReview={() => {
-              setActiveSection("personal");
-              requestAnimationFrame(() => {
-                sectionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-              });
-            }}
-          />
         </section>
 
         {/* ── D. Section navigation (lg+) — sticky premium workflow band ── */}

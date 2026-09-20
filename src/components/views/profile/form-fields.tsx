@@ -70,10 +70,10 @@ export function FieldStack({
       <div className="flex min-h-5 items-center justify-between gap-2">
         <Label
           htmlFor={htmlFor}
-          className="text-[13px] font-medium leading-tight text-foreground"
+          className="text-sm font-medium leading-tight text-foreground"
         >
           {label}
-          {required && <span className="ml-0.5 text-danger-ink/80" aria-hidden>*</span>}
+          {required && <span className="ml-0.5 text-danger-ink" aria-hidden>*</span>}
           {required && <span className="sr-only"> (required)</span>}
         </Label>
         {fromExtraction && <DocChip />}
@@ -94,44 +94,40 @@ export function FieldStack({
 }
 
 // -----------------------------------------------------------------------------
-// SectionHeader — enterprise section head: restrained square icon container,
-// 24px semibold title, muted supporting line, action slot on the right.
-// No gradient, no accent bar — hierarchy from typography and alignment alone.
+// SectionHeader — enterprise section head: light-blue icon tile, 28px
+// semibold title, muted supporting line, action slot on the right.
+// No gradient, no accent bar, no divider — the form surface below provides
+// the separation; hierarchy comes from typography and alignment alone.
+// (Time estimates live in the stepper, not here — one source, no repetition.)
 // -----------------------------------------------------------------------------
 export function SectionHeader({
   title,
   description,
-  meta,
   icon: Icon,
   action,
 }: {
   title: string;
   description?: string;
-  /** Inline time estimate, e.g. "Approx 5 min" — rendered after the title. */
-  meta?: string;
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3 border-b border-border pb-5 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-      <div className="flex items-start gap-3.5">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+      <div className="flex items-center gap-4">
         <div
           aria-hidden
-          className="grid size-10 shrink-0 place-items-center rounded-[10px] border border-border bg-card text-primary"
+          className="grid size-11 shrink-0 place-items-center rounded-[10px] bg-primary/[0.08] text-primary sm:size-12"
         >
-          <Icon className="size-[18px]" strokeWidth={1.5} />
+          <Icon className="size-5" strokeWidth={1.5} />
         </div>
-        <div className="min-w-0 pt-0.5">
-          <h2 className="text-[22px] font-semibold leading-tight tracking-[-0.02em] text-foreground sm:text-[24px]">
+        <div className="min-w-0">
+          <h2 className="text-[24px] font-semibold leading-tight tracking-[-0.02em] text-foreground sm:text-[27px]">
             {title}
           </h2>
           {description && (
-            <p className="mt-1 text-[13.5px] leading-relaxed text-muted-foreground">
+            <p className="mt-1 text-[14px] leading-relaxed text-muted-foreground sm:text-[15px]">
               {description}
             </p>
-          )}
-          {meta && (
-            <p className="mt-0.5 text-xs font-medium text-muted-foreground/80">{meta}</p>
           )}
         </div>
       </div>

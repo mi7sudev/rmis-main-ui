@@ -214,14 +214,19 @@ export function EligibilitySection({
 
   return (
     <div className="space-y-4">
+      {/* Single-CTA rule: when empty, the EmptyState card below is the one
+          obvious "Add" action (header button hidden to avoid duplication);
+          once entries exist, the header button takes over. */}
       <SectionHeader
         title="Eligibility"
         description="Civil service eligibilities earned by examination or conferment"
         icon={ShieldCheck}
         action={
-          <Button onClick={openCreate} variant="outline">
-            <Plus className="h-4 w-4" /> Add Eligibility
-          </Button>
+          items.length === 0 ? undefined : (
+            <Button onClick={openCreate} variant="outline">
+              <Plus className="h-4 w-4" /> Add Eligibility
+            </Button>
+          )
         }
       />
 
@@ -233,7 +238,7 @@ export function EligibilitySection({
           description="Add civil service or professional eligibilities you've earned, or upload eligibility certificates to auto-extract."
           icon={<ShieldCheck className="h-7 w-7" />}
           action={
-            <Button onClick={openCreate} variant="outline">
+            <Button onClick={openCreate}>
               <Plus className="h-4 w-4" /> Add Eligibility
             </Button>
           }

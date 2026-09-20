@@ -115,14 +115,19 @@ export function AwardsSection({
 
   return (
     <div className="space-y-4">
+      {/* Single-CTA rule: when empty, the EmptyState card below is the one
+          obvious "Add" action (header button hidden to avoid duplication);
+          once entries exist, the header button takes over. */}
       <SectionHeader
         title="Awards & Recognition"
         description="Awards, accomplishments, and recognitions received"
         icon={AwardIcon}
         action={
-          <Button onClick={openCreate} variant="outline">
-            <Plus className="h-4 w-4" /> Add Award
-          </Button>
+          items.length === 0 ? undefined : (
+            <Button onClick={openCreate} variant="outline">
+              <Plus className="h-4 w-4" /> Add Award
+            </Button>
+          )
         }
       />
 
@@ -134,7 +139,7 @@ export function AwardsSection({
           description="Add awards and recognitions you've received, or upload award certificates to auto-extract."
           icon={<AwardIcon className="h-7 w-7" />}
           action={
-            <Button onClick={openCreate} variant="outline">
+            <Button onClick={openCreate}>
               <Plus className="h-4 w-4" /> Add Award
             </Button>
           }

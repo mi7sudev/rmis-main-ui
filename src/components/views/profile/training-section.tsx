@@ -100,14 +100,19 @@ export function TrainingSection({
 
   return (
     <div className="space-y-4">
+      {/* Single-CTA rule: when empty, the EmptyState card below is the one
+          obvious "Add" action (header button hidden to avoid duplication);
+          once entries exist, the header button takes over. */}
       <SectionHeader
         title="Training & Development"
         description="Seminars, workshops, and short courses attended"
         icon={BookOpen}
         action={
-          <Button onClick={openCreate} variant="outline">
-            <Plus className="h-4 w-4" /> Add Training
-          </Button>
+          items.length === 0 ? undefined : (
+            <Button onClick={openCreate} variant="outline">
+              <Plus className="h-4 w-4" /> Add Training
+            </Button>
+          )
         }
       />
 
@@ -119,7 +124,7 @@ export function TrainingSection({
           description="Add trainings you've attended, or upload training certificates to auto-extract."
           icon={<BookOpen className="h-7 w-7" />}
           action={
-            <Button onClick={openCreate} variant="outline">
+            <Button onClick={openCreate}>
               <Plus className="h-4 w-4" /> Add Training
             </Button>
           }

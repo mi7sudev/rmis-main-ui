@@ -109,14 +109,19 @@ export function EducationSection({
 
   return (
     <div className="space-y-4">
+      {/* Single-CTA rule: when empty, the EmptyState card below is the one
+          obvious "Add" action (header button hidden to avoid duplication);
+          once entries exist, the header button takes over. */}
       <SectionHeader
         title="Education"
         description="Your educational background — elementary to post-graduate"
         icon={GraduationCap}
         action={
-          <Button onClick={openCreate} variant="outline">
-            <Plus className="h-4 w-4" /> Add Education
-          </Button>
+          items.length === 0 ? undefined : (
+            <Button onClick={openCreate} variant="outline">
+              <Plus className="h-4 w-4" /> Add Education
+            </Button>
+          )
         }
       />
 
@@ -128,7 +133,7 @@ export function EducationSection({
           description="Add your educational background, or upload a transcript/PDS in the Supporting Documents section to auto-extract."
           icon={<GraduationCap className="h-7 w-7" />}
           action={
-            <Button onClick={openCreate} variant="outline">
+            <Button onClick={openCreate}>
               <Plus className="h-4 w-4" /> Add Education
             </Button>
           }

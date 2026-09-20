@@ -5997,3 +5997,20 @@ Verification (agent-browser):
 Stage Summary:
 - The mobile profile is now a true wizard: pinned always-reachable step navigation with sequential arrows, page opens directly with identity + progress, compact section headers, halved locked-upload strip, and animated section transitions. Desktop untouched.
 - Files changed: src/components/views/profile-view.tsx, src/components/views/upload-pds-card.tsx, src/components/views/profile/form-fields.tsx.
+
+---
+Task ID: profile-mobile-ux-02
+Agent: main (Z.ai Code)
+Task: Fix duplicate "Add" buttons on Profile page entity sections — when a section was empty, both the section header AND the empty-state card showed an "Add" button; the empty-state one disappeared once content existed.
+
+Work Log:
+- Audited all 5 entity sections (education, work-experience, training, eligibility, awards): each rendered a SectionHeader `action` button unconditionally + an EmptyState CTA when `items.length === 0` → two identical CTAs when empty (especially awkward on mobile where the header stacks vertically), confirming the user's report. Documents section has no header action (clean); Character References in section 01 uses a single button (clean).
+- Implemented a "single-CTA rule" in all 5 section files: header `action` now renders only when `items.length > 0`; when empty the EmptyState card is the one obvious action, and its button was promoted from outline → primary (blue) so the lone CTA reads as the primary action.
+- Verified in browser (agent-browser, 390×844, testapplicant): walked sections 02–06 via the 7-cell nav — every empty section now shows NO header button + ONE primary empty-state CTA.
+- Full lifecycle test on Education: opened dialog from the empty-state CTA → created "Verification Test University" → header "Add Education" button appeared, empty state gone → deleted the entry → empty state + primary CTA restored. Audit trail: POST /api/applicant/educations 201, DELETE 200; DB residue check = 0 rows.
+- Desktop 1440×900: same single-CTA behavior, centered empty card, no horizontal overflow — consistent, no regression. Lint clean; dev.log shows only 200/201 responses.
+
+Stage Summary:
+- Files changed: src/components/views/profile/{education,training,eligibility,work-experience,awards}-section.tsx
+- UX contract: empty section = exactly ONE "Add" CTA (the empty-state card, primary variant); populated section = header "Add" button only. Transitions verified both directions.
+- No persistent data changes (test entry created + deleted; residue 0).

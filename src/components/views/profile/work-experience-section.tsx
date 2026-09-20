@@ -118,14 +118,19 @@ export function WorkExperienceSection({
 
   return (
     <div className="space-y-4">
+      {/* Single-CTA rule: when empty, the EmptyState card below is the one
+          obvious "Add" action (header button hidden to avoid duplication);
+          once entries exist, the header button takes over. */}
       <SectionHeader
         title="Work Experience"
         description="Your employment history — most recent first"
         icon={Briefcase}
         action={
-          <Button onClick={openCreate} variant="outline">
-            <Plus className="h-4 w-4" /> Add Experience
-          </Button>
+          items.length === 0 ? undefined : (
+            <Button onClick={openCreate} variant="outline">
+              <Plus className="h-4 w-4" /> Add Experience
+            </Button>
+          )
         }
       />
 
@@ -137,7 +142,7 @@ export function WorkExperienceSection({
           description="Add your employment history, or upload a Certificate of Employment / PDS to auto-extract."
           icon={<Briefcase className="h-7 w-7" />}
           action={
-            <Button onClick={openCreate} variant="outline">
+            <Button onClick={openCreate}>
               <Plus className="h-4 w-4" /> Add Experience
             </Button>
           }

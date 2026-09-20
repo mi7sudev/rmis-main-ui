@@ -5940,3 +5940,33 @@ Stage Summary:
 - ONE app instance now serves both tiers: applicant flows (landing, jobs, sign-up, sign-in, portal) are production-ready for the public web from ANY network; ADMIN/EVALUATOR login, sessions and APIs are refused from the public web and only work on the MIRDC intranet — exactly the requested split, enforced in-app (works regardless of proxy) with audit trail and an emergency kill switch.
 - Files: NEW src/lib/access-tier.ts, deploy/Caddyfile.public; CHANGED src/lib/{env,auth,audit-log,client?no,rates?no}.ts → env.ts, auth.ts, audit-log.ts; src/app/api/auth/{login,register,session under /api/session}/route.ts; src/components/views/signin-view.tsx; src/components/workspaces/settings/settings.tsx; .env, .env.example, DEPLOYMENT.md.
 - Production go-live: follow DEPLOYMENT.md §4 (DNS + deploy/Caddyfile.public, keep XFF overwrite, optionally INTRANET_CIDRS for office egress IP).
+
+---
+Task ID: profile-mobile-ux-01
+Agent: main (Z.ai Code)
+Task: Make the applicant Profile page professional, compact, and user-friendly on mobile — fix cramped 01–07 navigation, overly long forms, and poor density.
+
+Work Log:
+- Diagnosed at 390×844 via agent-browser: document height 3531px (>4 screens before first form field); horizontal chip scroller showed only ~2 of 7 sections; Personal Info rendered all 4 sub-groups (~25 fields) expanded; identity card wasted a full-width row on a permanently-disabled "Mark Complete" button.
+- profile-view.tsx — replaced the mobile chip scroller with a compact 7-cell step grid (grid-cols-7, all steps visible without swiping, number + fill icon per cell, solid primary active block) plus a live caption line "Section N of 7 · <Label>"; removed chipRefs/scrollIntoView effect.
+- profile-view.tsx — added handleMobileSectionChange: switching sections on <lg scrolls the rail back into view (scroll-mt-20 clears the sticky workspace header) so the viewport is never stranded deep in the old section.
+- profile-view.tsx — compacted mobile preamble: page paddings py-5/pb-5 on phones, decorative WorkspaceTitle description hidden <sm (new optional descriptionClassName prop on the primitive, backward compatible), identity card tightened, "Mark Complete" now renders only when canMarkComplete (dead disabled chrome removed), requirements hint copy shortened.
+- personal-info-section.tsx — new SubSection disclosure component (sharp bordered card, icon + uppercase title + fill-state summary + chevron): Identity "X of 14 completed", Address "X of 5 completed", Legal "2 yes/no declarations", References "N of 5 added".
+- personal-info-section.tsx — breakpoint-aware defaults via useDisclosureGroups (matchMedia ≤767px): phones start with Identity+Address open and Legal+References collapsed; desktop all-open; defaults re-applied on breakpoint cross so resizes don't inherit phone state (caught this edge case during verification).
+- personal-info-section.tsx — paired short sibling fields two-per-row even on phones (Gender+Civil Status, Country+Zip Code); tightened grid gaps (gap-3.5) and card padding (p-4 mobile); reference cards show filled name in the group summary.
+- personal-info-section.tsx — fixed bottom Save bar (md:hidden, safe-area inset, backdrop blur) appears only while the form is dirty with the autosave indicator; the in-header Save button hides <md to avoid duplication.
+- form-fields.tsx — SectionHeader mobile density (pb-4, size-10 icon chip).
+- upload-pds-card.tsx — idle dropzone hides the format tail ("· PDF, DOC, XLS, images · max 10MB") on phones.
+
+Verification (agent-browser):
+- 390px: docH 3531→2637; 7 cells at 45px all visible; caption correct; no horizontal overflow (scrollWidth 390); Legal expands/collapses; sticky save bar appears when dirty and clears on autosave; stepper jump 01→04 scrolls rail to top (navViewportTop 80); sections 02/07 render.
+- 320px: cells 35px, no overflow, caption truncates with ellipsis.
+- 800px: stepper shown, header Save shown, no fixed bar.
+- 1440px: desktop rail unchanged; all disclosure groups expanded; summaries visible; no overflow.
+- 390→1440 resize: collapsed groups auto-expand (breakpoint reactivity fix verified).
+- Data hygiene: test edit to First Name ("TestXY") was autosaved then restored to "Test" via the UI; audit log confirms both writes.
+- bun run lint clean; dev.log shows only 200s and PROFILE_UPDATED audit entries, zero errors.
+
+Stage Summary:
+- Mobile profile is now a compact wizard: one-tap 7-step grid navigation (no swiping), ~25% shorter page, collapsible sub-groups with fill-state summaries, paired short fields, and a thumb-reach sticky save bar. Desktop layout preserved (plus fill-state summaries in group headers).
+- Files changed: src/components/views/profile-view.tsx, src/components/views/profile/personal-info-section.tsx, src/components/views/profile/form-fields.tsx, src/components/views/upload-pds-card.tsx, src/components/primitives/workspace.tsx (descriptionClassName prop).

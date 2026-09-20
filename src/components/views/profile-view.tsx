@@ -9,7 +9,7 @@
 // document intelligence.
 // =============================================================================
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useSession } from "@/components/session-provider";
 import { apiFetch } from "@/lib/client";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ import {
 } from "lucide-react";
 import { Reveal } from "@/components/ui/motion/reveal";
 
-import { SECTIONS } from "./profile/types";
+import { SECTIONS, type SectionId } from "./profile/types";
 import { useProfileData } from "./profile/use-profile-data";
 import { ProfileAvatar } from "./profile/profile-avatar";
 import { PersonalInfoSection } from "./profile/personal-info-section";
@@ -68,9 +68,6 @@ export function ProfileView() {
   const { user, refresh: refreshSession } = useSession();
   const data = useProfileData();
   const sectionsRef = useRef<HTMLDivElement>(null);
-  // Mobile chip scroller — refs per section id so the active chip can be
-  // auto-centered inside the horizontal strip when the section changes.
-  const chipRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const {
     loading, error, profile, loadAll, activeSection, setActiveSection,
     reference, personalForm, personalDirty,
@@ -84,18 +81,19 @@ export function ProfileView() {
 
   void user;
 
-  // Keep the active chip visible in the mobile horizontal strip. The chips
-  // only exist below the lg breakpoint (desktop renders the vertical rail),
-  // so on desktop both refs are null and this is a no-op. `block:"nearest"`
-  // prevents any vertical page jump while `inline:"center"` does the
-  // horizontal centering.
-  useEffect(() => {
-    chipRefs.current[activeSection]?.scrollIntoView({
-      behavior: "smooth",
-      inline: "center",
-      block: "nearest",
-    });
-  }, [activeSection]);
+  // Mobile stepper: switch section AND bring the rail back into view —
+  // tapping "04" while stranded deep inside section 01's long form must not
+  // leave the viewport mid-scroll in the old section. Desktop (lg+) skips
+  // this: the rail is sticky beside the content, no jump needed.
+  function handleMobileSectionChange(id: SectionId) {
+    if (id === activeSection) return;
+    setActiveSection(id);
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      requestAnimationFrame(() => {
+        sectionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+  }
 
   // ── ONE-EXTRACTION LOCK ──
   // A document with a live extraction result (EXTRACTED / PARTIALLY_EXTRACTED
@@ -134,10 +132,10 @@ export function ProfileView() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <div className="relative z-10 mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-8 sm:px-6 lg:px-8">
-          <div className="border-b border-border pb-8">
+        <div className="relative z-10 mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
+          <div className="border-b border-border pb-5 sm:pb-8">
             <Eyebrow>Profile</Eyebrow>
-            <div className="mt-3">
+            <div className="mt-2 sm:mt-3">
               <WorkspaceTitle title="My Profile" />
             </div>
           </div>
@@ -157,10 +155,10 @@ export function ProfileView() {
   if (error || !profile) {
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <div className="relative z-10 mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-8 sm:px-6 lg:px-8">
-          <div className="border-b border-border pb-8">
+        <div className="relative z-10 mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
+          <div className="border-b border-border pb-5 sm:pb-8">
             <Eyebrow>Profile</Eyebrow>
-            <div className="mt-3">
+            <div className="mt-2 sm:mt-3">
               <WorkspaceTitle title="My Profile" />
             </div>
           </div>
@@ -198,24 +196,26 @@ export function ProfileView() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="relative z-10 mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header — kicker → display title */}
-        <header className="border-b border-border pb-8">
+      <div className="relative z-10 mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
+        {/* Header — kicker → display title (description only ≥ sm: on a phone
+            it is decorative marketing copy that pushes the form down) */}
+        <header className="border-b border-border pb-5 sm:pb-8">
           <Eyebrow>Profile</Eyebrow>
-          <div className="mt-3">
+          <div className="mt-2 sm:mt-3">
             <WorkspaceTitle
               title="My Profile"
               description="Document-assisted application system — upload, extract, review, save."
+              descriptionClassName="hidden sm:block"
             />
           </div>
         </header>
 
         {/* Identity + completion — single compact surface (section fill state
-            lives in the nav rail below; no duplicate tile strip) */}
+            lives in the nav below; no duplicate tile strip) */}
         <Reveal y={20}>
-          <div className="mt-6 overflow-hidden rounded-none border border-border bg-card">
-            <div className="px-5 py-4 sm:px-6 sm:py-5">
-              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="mt-4 overflow-hidden rounded-none border border-border bg-card sm:mt-6">
+            <div className="px-4 py-3.5 sm:px-6 sm:py-5">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div className="flex min-w-0 items-center gap-3.5">
                   <ProfileAvatar
                     photoUrl={photoUrl}
@@ -238,17 +238,21 @@ export function ProfileView() {
                     </p>
                   </div>
                 </div>
-                {!profile.isProfileComplete && (
+                {/* Actionable-only button: a permanently-disabled "Mark
+                    Complete" is dead chrome that eats a full-width row on
+                    phones. It appears once requirements are met; until then
+                    the requirement strip below explains what is missing. */}
+                {!profile.isProfileComplete && canMarkComplete && (
                   <Button
                     onClick={() => setCompleteOpen(true)}
-                    disabled={!canMarkComplete}
+                    disabled={markingComplete}
                     className="shrink-0"
                   >
                     <ShieldCheck className="size-4" strokeWidth={1.5} /> Mark Complete
                   </Button>
                 )}
               </div>
-              <div className="mt-4 flex items-center gap-3">
+              <div className="mt-3 flex items-center gap-3 sm:mt-4">
                 <span className="kicker hidden shrink-0 text-muted-foreground sm:inline">Completion</span>
                 <Progress
                   value={completion.percent}
@@ -262,10 +266,10 @@ export function ProfileView() {
 
             {/* Requirements hint */}
             {!canMarkComplete && !profile.isProfileComplete && (
-              <div className="flex items-start gap-2.5 border-t border-border bg-destructive/10 px-5 py-2.5 sm:px-6">
+              <div className="flex items-start gap-2.5 border-t border-border bg-destructive/10 px-4 py-2.5 sm:px-6">
                 <Info className="mt-0.5 size-3.5 shrink-0 text-danger-ink" strokeWidth={1.5} />
                 <span className="text-xs leading-relaxed text-danger-ink">
-                  To mark your profile complete, you need at least: Personal Information (first name, last name, email), one Education entry, and one Work Experience entry.
+                  To unlock Mark Complete: fill in Personal Information (first name, last name, email) and add at least one Education and one Work Experience entry.
                 </span>
               </div>
             )}
@@ -278,52 +282,62 @@ export function ProfileView() {
             it stays in view while the right content scrolls.
             On mobile: single column, nav sits above the content. */}
         <Reveal y={20}>
-          <div ref={sectionsRef} className="mt-6 grid scroll-mt-4 grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[352px_minmax(0,1fr)]">
+          <div ref={sectionsRef} className="mt-4 grid scroll-mt-20 grid-cols-[minmax(0,1fr)] gap-4 sm:mt-6 sm:gap-6 lg:grid-cols-[352px_minmax(0,1fr)]">
             {/* LEFT RAIL — flat sharp nav card with the PDS upload strip
                 parked right below the section list. The whole rail sticks on
                 desktop as one unit (internal scroll when tall). */}
             <div className="h-fit min-w-0 lg:sticky lg:top-16 lg:max-h-[calc(100dvh-80px)] lg:overflow-y-auto">
-              {/* MOBILE (< lg) — single-row horizontal chip scroller. Seven
-                  stacked rows used to eat most of a phone viewport before the
-                  content even started; one swipeable strip fixes that. Same
-                  visual language: 01–07 numbering, fill-state icon, solid
-                  primary active block. Scrollbar hidden, active chip
-                  auto-centered (see effect above). */}
+              {/* MOBILE (< lg) — compact 7-cell step grid. The old horizontal
+                chip strip showed only ~2 of 7 sections at a time and needed
+                constant swiping; a fixed grid puts ALL steps in view at once
+                (one thumb-tap row), with the active section's name spelled
+                out in the caption below. Same visual language: solid primary
+                active block, 01–07 numbering, fill-state icon. */}
               <nav
                 aria-label="Profile sections"
                 className="rounded-none border border-border bg-card p-2 lg:hidden"
               >
-                <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="grid grid-cols-7 gap-1">
                   {SECTIONS.map((s, i) => {
                     const isActive = activeSection === s.id;
                     const filled = completion.checks[s.id];
                     return (
                       <button
                         key={s.id}
-                        ref={(el) => {
-                          chipRefs.current[s.id] = el;
-                        }}
-                        onClick={() => setActiveSection(s.id)}
+                        onClick={() => handleMobileSectionChange(s.id)}
+                        aria-label={`Section ${i + 1}: ${s.label}`}
                         aria-current={isActive ? "page" : undefined}
-                        className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-none px-3 py-2.5 text-sm font-semibold transition-colors ${
+                        className={`flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-none border px-0.5 transition-colors ${
                           isActive
-                            ? "bg-primary text-primary-foreground"
-                            : "border border-border bg-card text-foreground hover:bg-secondary"
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-card text-foreground hover:bg-secondary"
                         }`}
                       >
-                        <span className={`text-xs font-extrabold tabular-nums ${isActive ? "text-white/70" : "text-muted-foreground"}`}>
+                        <span className={`text-[11px] font-extrabold leading-none tabular-nums ${isActive ? "text-white/80" : "text-muted-foreground"}`}>
                           {String(i + 1).padStart(2, "0")}
                         </span>
-                        <span>{s.label}</span>
                         {filled ? (
-                          <CheckCircle2 className="size-4 shrink-0 text-success" strokeWidth={2} />
+                          <CheckCircle2
+                            className={`size-3.5 shrink-0 ${isActive ? "text-white" : "text-success"}`}
+                            strokeWidth={2}
+                          />
                         ) : (
-                          <CircleDot className={`size-4 shrink-0 ${isActive ? "text-white/40" : "text-muted-foreground/40"}`} strokeWidth={1.5} />
+                          <span
+                            aria-hidden
+                            className={`size-1.5 shrink-0 rounded-full ${isActive ? "bg-white/50" : "bg-muted-foreground/40"}`}
+                          />
                         )}
                       </button>
                     );
                   })}
                 </div>
+                {/* Active section caption — the grid cells only carry numbers,
+                    so spell out where you are (also aids screen readers). */}
+                <p aria-live="polite" className="kicker truncate px-1 pt-2 text-center text-muted-foreground">
+                  {`Section ${SECTIONS.findIndex((s) => s.id === activeSection) + 1} of ${SECTIONS.length} · ${
+                    SECTIONS.find((s) => s.id === activeSection)?.label ?? ""
+                  }`}
+                </p>
               </nav>
 
               {/* DESKTOP (lg+) — full vertical nav rail (unchanged) */}

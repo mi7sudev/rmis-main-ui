@@ -1,24 +1,34 @@
 // =============================================================================
 // RMIS — Profile View: Personal Information Section (Accenture language)
 // Flat sharp cards on the mode-aware canvas — no rounded corners, no shadows.
-// ==============================================================================
+//
+// Mobile ergonomics: the section used to render all four sub-groups (Identity,
+// Address, Legal, Character References ≈ 25 fields) expanded — a wall of
+// inputs several screens tall. Sub-groups are now disclosures with fill-state
+// summaries (core groups open, supplementary ones collapsed on phones) and
+// short sibling fields are paired two-per-row, so the section fits in roughly
+// one screen. While the form is dirty a fixed bottom bar keeps "Save" in
+// thumb reach (the in-header button hides on mobile to avoid duplication).
+// =============================================================================
 
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 
 import { toast } from "sonner";
 import {
   User,
-  ShieldAlert,
   Plus,
   Trash2,
   CheckCircle2,
   Loader2,
   Sparkles,
   AlertCircle,
+  ChevronDown,
+  Users,
+  MapPin,
+  Scale,
 } from "lucide-react";
 import {
   CharacterReference,
@@ -40,6 +50,105 @@ import {
 const EMPTY_EXTRACTION_FIELDS = new Set<string>();
 
 export type AutosaveStatus = "idle" | "saving" | "saved" | "error";
+
+// Field keys behind each disclosure's "X of N completed" summary. isPwd is
+// excluded from Identity's count — it is a Yes/No toggle with a default, so
+// counting it would flatter empty forms.
+const IDENTITY_KEYS = [
+  "firstName", "middleName", "lastName", "extensionName",
+  "emailAddress", "mobileNumber", "contactNumber",
+  "birthDate", "birthPlace", "gender", "civilStatus",
+  "citizenship", "religion", "ethnicity",
+] as const;
+const ADDRESS_KEYS = ["presentAddress", "city", "province", "country", "zipCode"] as const;
+
+function countFilled(form: Record<string, string | boolean | null>, keys: readonly string[]) {
+  return keys.filter((k) => String(form[k] ?? "").trim().length > 0).length;
+}
+
+// Client-side media query — this view only mounts after login (pure client
+// SPA), so a lazy matchMedia initializer is hydration-safe.
+function matchPhone() {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(max-width: 767px)").matches
+  );
+}
+
+// Breakpoint defaults for the four disclosure groups: on phones only the core
+// groups (Identity/Address) start open — Legal and Character References
+// collapse to one-line headers. Desktop starts all-open. Re-applied when the
+// breakpoint is crossed so narrow→wide resizes don't inherit phone defaults.
+function groupDefaults(phone: boolean): Record<string, boolean> {
+  return { identity: true, address: true, legal: !phone, refs: !phone };
+}
+
+function useDisclosureGroups() {
+  const [isPhone, setIsPhone] = useState(matchPhone);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
+    () => groupDefaults(matchPhone())
+  );
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 767px)");
+    const onChange = () => {
+      setIsPhone(mql.matches);
+      setOpenGroups(groupDefaults(mql.matches));
+    };
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+  const toggle = (id: string) =>
+    setOpenGroups((g) => ({ ...g, [id]: !(g[id] ?? true) }));
+  return { isPhone, openGroups, toggle };
+}
+
+// -----------------------------------------------------------------------------
+// SubSection — collapsible group card. A disclosure header (title + fill-state
+// summary + chevron) over the canonical bordered body. Controlled by the
+// parent's openGroups map (breakpoint-aware defaults — see groupDefaults).
+// -----------------------------------------------------------------------------
+function SubSection({
+  title,
+  icon: Icon,
+  summary,
+  open,
+  onToggle,
+  children,
+}: {
+  title: string;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  summary?: string;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="overflow-hidden rounded-none border border-border bg-card">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-secondary/50 sm:px-5 sm:py-3.5"
+      >
+        <Icon className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
+        <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          {title}
+        </h3>
+        {summary && (
+          <span className="hidden min-w-0 truncate text-[11px] font-medium text-muted-foreground/70 sm:inline">
+            · {summary}
+          </span>
+        )}
+        <ChevronDown
+          aria-hidden
+          className={`ml-auto size-4 shrink-0 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          strokeWidth={1.5}
+        />
+      </button>
+      {open && <div className="border-t border-border">{children}</div>}
+    </section>
+  );
+}
 
 export function PersonalInfoSection({
   form,
@@ -63,6 +172,8 @@ export function PersonalInfoSection({
     () => parseCharRefs((form.characterReferences as string) || null),
     [form.characterReferences]
   );
+
+  const { openGroups, toggle } = useDisclosureGroups();
 
   function updateCharRef(idx: number, field: keyof CharacterReference, value: string) {
     const next = [...charRefs];
@@ -88,6 +199,31 @@ export function PersonalInfoSection({
     onChange("characterReferences", serializeCharRefs(next));
   }
 
+  // Autosave indicator — shared by the header action slot (desktop) and the
+  // fixed mobile save bar.
+  const autosaveIndicator = (
+    <span aria-live="polite" className="inline-flex items-center gap-1.5 text-xs font-semibold">
+      {autosave === "saving" && (
+        <>
+          <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
+          <span className="text-muted-foreground">Autosaving…</span>
+        </>
+      )}
+      {autosave === "saved" && (
+        <>
+          <CheckCircle2 className="size-3.5 text-success" />
+          <span className="text-success-ink">Autosaved</span>
+        </>
+      )}
+      {autosave === "error" && (
+        <>
+          <AlertCircle className="size-3.5 text-danger-ink" />
+          <span className="text-danger-ink">Autosave failed — click Save</span>
+        </>
+      )}
+    </span>
+  );
+
   return (
     <div className="space-y-4">
       <SectionHeader
@@ -96,32 +232,14 @@ export function PersonalInfoSection({
         icon={User}
         action={
           <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1.5">
-            {/* Autosave indicator — everything typed here persists on its own
-                (debounced ~1s after the last keystroke); Save stays as the
-                explicit flush / retry path. */}
-            <span aria-live="polite" className="inline-flex items-center gap-1.5 text-xs font-semibold">
-              {autosave === "saving" && (
-                <>
-                  <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
-                  <span className="text-muted-foreground">Autosaving…</span>
-                </>
-              )}
-              {autosave === "saved" && (
-                <>
-                  <CheckCircle2 className="size-3.5 text-success" />
-                  <span className="text-success-ink">Autosaved</span>
-                </>
-              )}
-              {autosave === "error" && (
-                <>
-                  <AlertCircle className="size-3.5 text-danger-ink" />
-                  <span className="text-danger-ink">Autosave failed — click Save</span>
-                </>
-              )}
-            </span>
+            {autosaveIndicator}
+            {/* Explicit Save lives in the header on ≥ md; on phones it moves
+                to the fixed bottom bar below so it stays in thumb reach while
+                scrolled deep into the form. */}
             <Button
               onClick={onSave}
               disabled={!dirty || saving}
+              className="hidden md:inline-flex"
             >
               {saving ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
@@ -145,11 +263,14 @@ export function PersonalInfoSection({
       )}
 
       {/* IDENTITY */}
-      <section className="overflow-hidden rounded-none border border-border bg-card">
-        <div className="border-b border-border px-5 py-3.5">
-          <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Identity</h3>
-        </div>
-        <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-2">
+      <SubSection
+        title="Identity"
+        icon={User}
+        summary={`${countFilled(form, IDENTITY_KEYS)} of ${IDENTITY_KEYS.length} completed`}
+        open={openGroups.identity ?? true}
+        onToggle={() => toggle("identity")}
+      >
+        <div className="grid grid-cols-1 gap-3.5 p-4 sm:gap-4 sm:p-5 md:grid-cols-2">
           <FieldWithExtraction
             label="First Name"
             value={form.firstName as string}
@@ -211,31 +332,36 @@ export function PersonalInfoSection({
             fromExtraction={fromExtraction.has("birthPlace")}
             onChange={(v) => onChange("birthPlace", v)}
           />
-          <SelectField
-            label="Gender"
-            value={form.gender as string}
-            fromExtraction={fromExtraction.has("gender")}
-            onChange={(v) => onChange("gender", v)}
-            options={[
-              { value: "Male", label: "Male" },
-              { value: "Female", label: "Female" },
-            ]}
-            placeholder="Select gender"
-          />
-          <SelectField
-            label="Civil Status"
-            value={form.civilStatus as string}
-            fromExtraction={fromExtraction.has("civilStatus")}
-            onChange={(v) => onChange("civilStatus", v)}
-            options={[
-              { value: "Single", label: "Single" },
-              { value: "Married", label: "Married" },
-              { value: "Widowed", label: "Widowed" },
-              { value: "Separated", label: "Separated" },
-              { value: "Divorced", label: "Divorced" },
-            ]}
-            placeholder="Select civil status"
-          />
+          {/* Short siblings pair two-per-row even on phones — halves the wall
+              without cramping longer fields. The pair wrapper occupies one
+              cell of the parent grid at md+. */}
+          <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
+            <SelectField
+              label="Gender"
+              value={form.gender as string}
+              fromExtraction={fromExtraction.has("gender")}
+              onChange={(v) => onChange("gender", v)}
+              options={[
+                { value: "Male", label: "Male" },
+                { value: "Female", label: "Female" },
+              ]}
+              placeholder="Select"
+            />
+            <SelectField
+              label="Civil Status"
+              value={form.civilStatus as string}
+              fromExtraction={fromExtraction.has("civilStatus")}
+              onChange={(v) => onChange("civilStatus", v)}
+              options={[
+                { value: "Single", label: "Single" },
+                { value: "Married", label: "Married" },
+                { value: "Widowed", label: "Widowed" },
+                { value: "Separated", label: "Separated" },
+                { value: "Divorced", label: "Divorced" },
+              ]}
+              placeholder="Select"
+            />
+          </div>
           <FieldWithExtraction
             label="Citizenship"
             value={form.citizenship as string}
@@ -265,14 +391,17 @@ export function PersonalInfoSection({
             onChange={(v) => onChange("ethnicity", v)}
           />
         </div>
-      </section>
+      </SubSection>
 
       {/* ADDRESS */}
-      <section className="overflow-hidden rounded-none border border-border bg-card">
-        <div className="border-b border-border px-5 py-3.5">
-          <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Address</h3>
-        </div>
-        <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-2">
+      <SubSection
+        title="Address"
+        icon={MapPin}
+        summary={`${countFilled(form, ADDRESS_KEYS)} of ${ADDRESS_KEYS.length} completed`}
+        open={openGroups.address ?? true}
+        onToggle={() => toggle("address")}
+      >
+        <div className="grid grid-cols-1 gap-3.5 p-4 sm:gap-4 sm:p-5 md:grid-cols-2">
           <div className="md:col-span-2">
             <FieldWithExtraction
               label="Present Address"
@@ -293,31 +422,34 @@ export function PersonalInfoSection({
             fromExtraction={fromExtraction.has("province")}
             onChange={(v) => onChange("province", v)}
           />
-          <FieldWithExtraction
-            label="Country"
-            value={form.country as string}
-            fromExtraction={fromExtraction.has("country")}
-            onChange={(v) => onChange("country", v)}
-          />
-          <FieldWithExtraction
-            label="Zip Code"
-            value={form.zipCode as string}
-            fromExtraction={fromExtraction.has("zipCode")}
-            onChange={(v) => onChange("zipCode", v)}
-          />
+          <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
+            <FieldWithExtraction
+              label="Country"
+              value={form.country as string}
+              fromExtraction={fromExtraction.has("country")}
+              onChange={(v) => onChange("country", v)}
+            />
+            <FieldWithExtraction
+              label="Zip Code"
+              value={form.zipCode as string}
+              fromExtraction={fromExtraction.has("zipCode")}
+              onChange={(v) => onChange("zipCode", v)}
+            />
+          </div>
         </div>
-      </section>
+      </SubSection>
 
-      {/* LEGAL */}
-      <section className="overflow-hidden rounded-none border border-border bg-card">
-        <div className="flex items-center gap-2 border-b border-border px-5 py-3.5">
-          <ShieldAlert className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Legal Information
-          </h3>
-        </div>
-        <div className="space-y-4 p-5">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {/* LEGAL — collapsed by default on phones (most applicants answer No/No;
+          the summary communicates scope without the two selects in view). */}
+      <SubSection
+        title="Legal Information"
+        icon={Scale}
+        summary="2 yes/no declarations"
+        open={openGroups.legal ?? true}
+        onToggle={() => toggle("legal")}
+      >
+        <div className="space-y-4 p-4 sm:p-5">
+          <div className="grid grid-cols-1 gap-3.5 sm:gap-4 md:grid-cols-2">
             <SelectField
               label="Have you ever been found guilty of any administrative offense?"
               value={form.adminCase ? "Yes" : "No"}
@@ -364,28 +496,29 @@ export function PersonalInfoSection({
             )}
           </div>
         </div>
-      </section>
+      </SubSection>
 
-      {/* CHARACTER REFERENCES */}
-      <section className="overflow-hidden rounded-none border border-border bg-card">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-5 py-3.5">
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Character References
-            </h3>
-            <p className="mt-0.5 text-xs text-muted-foreground">
+      {/* CHARACTER REFERENCES — collapsed by default on phones */}
+      <SubSection
+        title="Character References"
+        icon={Users}
+        summary={`${Math.min(charRefs.length, 5)} of 5 added`}
+        open={openGroups.refs ?? true}
+        onToggle={() => toggle("refs")}
+      >
+        <div className="space-y-3 p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground">
               At least 1 reference recommended (max 5)
             </p>
+            <Button
+              onClick={addCharRef}
+              variant="outline"
+              size="sm"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add Reference
+            </Button>
           </div>
-          <Button
-            onClick={addCharRef}
-            variant="outline"
-            size="sm"
-          >
-            <Plus className="h-3.5 w-3.5" /> Add Reference
-          </Button>
-        </div>
-        <div className="space-y-3 p-5">
           {charRefs.length === 0 ? (
             <div className="py-6 text-center text-sm text-muted-foreground">
               No character references yet. Click &quot;Add Reference&quot; to add one.
@@ -401,6 +534,7 @@ export function PersonalInfoSection({
                     <div className="mb-3 flex items-center justify-between">
                       <span className="kicker text-muted-foreground">
                         Reference {idx + 1}
+                        {ref.name?.trim() ? ` · ${ref.name.trim()}` : ""}
                       </span>
                       {charRefs.length > 1 && (
                         <Button
@@ -455,7 +589,34 @@ export function PersonalInfoSection({
             </div>
           )}
         </div>
-      </section>
+      </SubSection>
+
+      {/* FIXED MOBILE SAVE BAR — appears only while the form is dirty; keeps
+          the explicit flush in thumb reach no matter how far the applicant has
+          scrolled. Desktop keeps the in-header button (no duplication). */}
+      {dirty && (
+        <div
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:hidden"
+          role="toolbar"
+          aria-label="Save changes"
+        >
+          <div className="mx-auto flex max-w-xl items-center gap-3">
+            {autosaveIndicator}
+            <Button
+              onClick={onSave}
+              disabled={saving}
+              className="ml-auto"
+            >
+              {saving ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4 mr-1.5" />
+              )}
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

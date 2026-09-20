@@ -309,7 +309,8 @@ export function UploadPdsCard({
               PDS Upload · Auto-Extraction
             </span>
             <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
-              Drop your PDS, resume, or certificates — AI fills your profile fields · PDF, DOC, XLS, images · max 10MB
+              Drop your PDS, resume, or certificates — AI fills your profile fields
+              <span className="hidden sm:inline"> · PDF, DOC, XLS, images · max 10MB</span>
             </span>
           </span>
           <span className="hidden shrink-0 items-center gap-1.5 border border-border bg-card px-3 py-2 text-xs font-bold text-foreground sm:inline-flex">

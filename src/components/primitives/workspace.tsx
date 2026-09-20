@@ -42,12 +42,16 @@ export function WorkspaceTitle({
   actions,
   kicker,
   standfirst,
+  descriptionClassName,
 }: {
   title: string;
   description?: string;
   actions?: ReactNode;
   kicker?: ReactNode;
   standfirst?: ReactNode;
+  /** Extra classes for the description line (e.g. "hidden sm:block" to drop
+      decorative copy on phones where vertical space is scarce). */
+  descriptionClassName?: string;
 }) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -59,7 +63,7 @@ export function WorkspaceTitle({
         {standfirst && (
           <p className="standfirst mt-3 max-w-2xl text-lg text-muted-foreground">{standfirst}</p>
         )}
-        {description && <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>}
+        {description && <p className={`mt-1.5 text-sm text-muted-foreground ${descriptionClassName ?? ""}`}>{description}</p>}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </div>

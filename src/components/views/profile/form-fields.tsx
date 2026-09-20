@@ -88,9 +88,9 @@ export function SectionHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-3.5">
-        <div className="grid size-11 shrink-0 place-items-center rounded-none bg-primary/10 text-primary">
+    <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between sm:pb-5">
+      <div className="flex items-center gap-3">
+        <div className="grid size-10 shrink-0 place-items-center rounded-none bg-primary/10 text-primary sm:size-11">
           <Icon className="size-5" strokeWidth={1.5} />
         </div>
         <div>

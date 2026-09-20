@@ -6327,3 +6327,19 @@ Stage Summary:
 - Logo is now plate-free on every light surface (desktop rail, mobile drawer, public topbar) and scaled up (28→32px collapsed, 40px expanded, 32px mobile drawer); dark mode retains the parchment plate for legibility. Zero functional changes — click-through targets (home nav, collapse, a11y labels) preserved.
 - Key files: src/components/shell/nav-rail.tsx, src/components/site-header.tsx.
 - Screenshots: /tmp/logo-rail-{light-collapsed,light-expanded,dark-collapsed,dark-expanded}.png, /tmp/logo-siteheader-light.png.
+---
+Task ID: sidebar-logo-07
+Agent: Z.ai Code (main)
+Task: Sidebar logo still too small on desktop view — enlarge it (follow-up to the logo-only sidebar fix)
+
+Work Log:
+- Diagnosed root cause: public/MIRDC.png is a TWO-UP sheet (plain emblem + gear-seal emblem side by side, 898x529); at any rail-friendly height each emblem rendered ~half the height, so h-10/h-8 still looked tiny
+- Inspected source: MIRDC.png is RGBA with the background already transparent (48.5% alpha=0); extracted the right (official gear-seal) emblem via alpha bounding box -> new public/MIRDC-mark.png, perfectly square 383x383, 16.2% transparent (petal notches), interior white square intact
+- First knockout attempt failed silently (flood-fill on an RGB crop dropped the alpha channel -> 0% transparent); caught it by compositing the mark over light/parchment canvases and counting alpha=0 pixels, then re-extracted directly from the RGBA source
+- src/components/shell/nav-rail.tsx: BrandMark now uses /MIRDC-mark.png at h-14 (56px) expanded / h-10 (40px) collapsed; MobileNav drawer logo h-8 -> h-10 with the same mark; parchment plate kept for dark mode, transparent chip in light
+- Verified in browser (agent-browser, 1440x900): expanded light 56x56, collapsed light 40x40, expanded dark + collapsed dark on parchment plate, mobile drawer 390x844 40x40; measured via getBoundingClientRect after cache-busting reload (server initially served the stale first-cut file)
+- bun run lint clean; dev.log clean
+
+Stage Summary:
+- Sidebar brand mark is now the single official MIRDC emblem (public/MIRDC-mark.png, square, transparent), sized 56px expanded / 40px collapsed / 40px mobile drawer — roughly 2x the visual presence of the old two-up rendering with no background mismatch (transparent chip on the #F7F8FA canvas; parchment plate in dark)
+- MIRDC.png left untouched — site-header, footer, and page-loader still reference it (unchanged scope)

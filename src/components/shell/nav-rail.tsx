@@ -76,9 +76,12 @@ function initials(first?: string | null, last?: string | null): string {
   return (a + b).toUpperCase() || "?";
 }
 
-// ---- Brand mark — logo only (no wordmark). The MIRDC mark, scaled up, sits
-// directly on the sidebar canvas in light mode; dark mode keeps a parchment
-// plate because the mark's black quadrants would vanish on the obsidian rail.
+// ---- Brand mark — logo only (no wordmark). MIRDC-mark.png is the single
+// official emblem (cropped from the two-up MIRDC.png source, outer white
+// knocked out to alpha), so it can be sized far larger than the two-up file
+// ever allowed. It sits directly on the sidebar canvas in light mode; dark
+// mode keeps a parchment plate because the mark's black quadrants would
+// vanish on the obsidian rail.
 function BrandMark({ expanded }: { expanded: boolean }) {
   const { navigate } = useNav();
   const { user } = useSession();
@@ -100,9 +103,9 @@ function BrandMark({ expanded }: { expanded: boolean }) {
           and inverting it would distort the brand blue/red). */}
       <span className="flex shrink-0 items-center rounded-none bg-transparent p-1 dark:bg-parchment">
         <img
-          src="/MIRDC.png"
+          src="/MIRDC-mark.png"
           alt="MIRDC"
-          className={`w-auto object-contain ${expanded ? "h-10" : "h-8"}`}
+          className={`w-auto object-contain ${expanded ? "h-14" : "h-10"}`}
         />
       </span>
     </button>
@@ -372,7 +375,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
       <SheetContent side="left" className="flex w-[280px] flex-col border-r border-border p-0">
         <SheetHeader className="flex h-16 flex-row items-center gap-2.5 border-b border-border px-4 space-y-0">
           <span className="shrink-0 rounded-none bg-transparent p-1 dark:bg-parchment">
-            <img src="/MIRDC.png" alt="MIRDC" className="h-8 w-auto object-contain" />
+            <img src="/MIRDC-mark.png" alt="MIRDC" className="h-10 w-auto object-contain" />
           </span>
           <SheetTitle className="sr-only">RMIS</SheetTitle>
         </SheetHeader>

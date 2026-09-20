@@ -33,9 +33,11 @@ html.lenis body {
    · ZERO box-shadows anywhere. Depth is communicated entirely through
      surface colour: void #0E0E0E recedes, canvas #151515 grounds,
      ember #242424 floats. Flat-material elevation, no light source.
-   · Parchment #E9EBDF is the system's single "bright" — primary text,
-     primary borders, filled CTA fill. Never pure white (#FFFFFF), never
-     pure black (#000000).
+   · Parchment #E9EBDF is the system's single "bright" — primary text and
+     primary borders. Never pure white (#FFFFFF), never pure black (#000000).
+   · RMIS electric blue #1591DC is THE primary — filled CTA fill, focus
+     rings, selection, progress fill — the brand interactive colour in
+     BOTH modes (hover darkens to #0E7ABF).
    · Muted teal washes (#185849 Forest Deep / #0E352C Midnight Moss) are the
      ONLY chromatic punctuation — the page registers near-achromatic.
    · Binary radius grammar: 4px tags · 8px default cards · 12px large cards ·
@@ -213,9 +215,9 @@ html.lenis body {
   /* Brand — muted teal (the only chromatic voice; links/accents) */
   --brand: #175247;
   --brand-light: #1d6b5d;
-  --primary: #151515;             /* obsidian CTA — the luminance inversion */
-  --primary-hover: #2e2e2a;
-  --primary-foreground: #e9ebdf;
+  --primary: #1591DC;             /* RMIS electric blue CTA — brand primary */
+  --primary-hover: #0E7ABF;       /* darkened primary — button hover */
+  --primary-foreground: #ffffff;
   --royal-gold: #7a5518;
 
   /* Core surfaces — warm paper ladder */
@@ -250,7 +252,7 @@ html.lenis body {
   --border: #d5d5c7;              /* warm hairline rim */
   --input: #a9a99b;
   --input-hover: #5d5e54;
-  --ring: #151515;
+  --ring: #1591DC;                /* focus-visible = 2px blue outline */
 
   --success: #3d6b4f;
   --success-foreground: #e9ebdf;
@@ -283,12 +285,12 @@ html.lenis body {
 
   --sidebar: #edede4;
   --sidebar-foreground: #151515;
-  --sidebar-primary: #151515;
-  --sidebar-primary-foreground: #e9ebdf;
+  --sidebar-primary: #1591DC;
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #e3e3d8;
   --sidebar-accent-foreground: #151515;
   --sidebar-border: #d5d5c7;
-  --sidebar-ring: #151515;
+  --sidebar-ring: #1591DC;
 
   /* Ambient canvas wash — a whisper of teal under page headers */
   --pui-canvas: radial-gradient(
@@ -296,7 +298,7 @@ html.lenis body {
     color-mix(in oklab, var(--teal) 7%, transparent),
     transparent 70%
   );
-  --pui-ring: 0 0 0 3px color-mix(in oklab, #151515 16%, transparent);
+  --pui-ring: 0 0 0 3px color-mix(in oklab, #1591DC 22%, transparent);
 }
 
 /* ----------------------------------------------------------------------------
@@ -307,9 +309,9 @@ html.lenis body {
 .dark {
   --brand: #8fbfb3;
   --brand-light: #a9cfc5;
-  --primary: #e9ebdf;             /* parchment CTA — the luminance CTA */
-  --primary-hover: #f5f6ec;
-  --primary-foreground: #151515;
+  --primary: #1591DC;             /* RMIS electric blue CTA — brand primary */
+  --primary-hover: #0E7ABF;       /* darkened primary — button hover */
+  --primary-foreground: #ffffff;
   --royal-gold: #c9903d;
 
   --canvas: #151515;
@@ -342,7 +344,7 @@ html.lenis body {
   --border: #3f403d;              /* Charcoal Rim */
   --input: #52534e;
   --input-hover: #8b867f;         /* Copper Wire */
-  --ring: #e9ebdf;
+  --ring: #1591DC;                /* focus-visible = 2px blue outline */
 
   --success: #3d6b4f;
   --success-foreground: #e9ebdf;
@@ -374,19 +376,19 @@ html.lenis body {
 
   --sidebar: #151515;
   --sidebar-foreground: #e9ebdf;
-  --sidebar-primary: #e9ebdf;
-  --sidebar-primary-foreground: #151515;
+  --sidebar-primary: #1591DC;
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #242424;
   --sidebar-accent-foreground: #e9ebdf;
   --sidebar-border: #3f403d;
-  --sidebar-ring: #e9ebdf;
+  --sidebar-ring: #1591DC;
 
   --pui-canvas: radial-gradient(
     1200px 480px at 50% -160px,
     color-mix(in oklab, var(--teal) 14%, transparent),
     transparent 70%
   );
-  --pui-ring: 0 0 0 3px color-mix(in oklab, #e9ebdf 20%, transparent);
+  --pui-ring: 0 0 0 3px color-mix(in oklab, #1591DC 25%, transparent);
 }
 
 @layer base {
@@ -687,8 +689,8 @@ html.lenis body {
 }
 
 /* ---- Buttons → pill grammar -------------------------------------------------
-   The spec's binary radius: CTAs are 9999px pills, always. Primary is a
-   LUMINANCE CTA — parchment fill on obsidian (obsidian fill on paper). */
+   The spec's binary radius: CTAs are 9999px pills, always. Primary is the
+   RMIS electric blue #1591DC fill with white ink, in both modes. */
 [data-slot="button"] {
   border-radius: 9999px;
   font-weight: 380;

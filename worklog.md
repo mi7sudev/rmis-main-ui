@@ -6222,3 +6222,23 @@ Stage Summary:
 - The whole RMIS now audited-clean against RMIS DESIGN.md: no pure white/black anywhere in live surfaces, logos on parchment plates in every mode, zero legacy Accenture hexes in live code, binary radius grammar enforced (pill controls, 4px tags, 8/12px cards), flat-material elevation preserved.
 - Applicant-facing mobile is now spec-complete: every surface the user listed (frontpage, login, job posting, job details, profile with the 01–07 stepper) renders as a compact premium version of the desktop layout with zero horizontal overflow in both modes.
 - Files changed: src/components/site-header.tsx, src/components/shell/nav-rail.tsx, src/components/shell/notifications.tsx, src/components/views/fast-track-apply-dialog.tsx, src/components/views/jobs-view.tsx, src/components/workspaces/applicant/applicant-home.tsx.
+
+---
+Task ID: theme-blue-restore-05
+Agent: main (Z.ai Code)
+Task: User request — "WE NEED TO SWAP THE BLACK WITH OUR PREVIOUS BLUE COLOR" — restore RMIS electric blue as the primary interactive color, replacing the obsidian-black primary from the warm-obsidian redesign.
+
+Work Log:
+- Diagnosed: current globals.css (commit 4410ddf, "warm obsidian" redesign) set `--primary: #151515` (light) / `#e9ebdf` (dark). Previous blue theme (commit febc62b) used RMIS electric blue `--primary: #1591DC`, hover `#0E7ABF`, foreground `#FFFFFF` in both modes.
+- Swapped in `src/app/globals.css` — LIGHT (:root): `--primary #151515→#1591DC`, `--primary-hover #2e2e2a→#0E7ABF`, `--primary-foreground #e9ebdf→#ffffff`, `--ring→#1591DC`, `--sidebar-primary→#1591DC`, `--sidebar-primary-foreground→#ffffff`, `--sidebar-ring→#1591DC`, `--pui-ring` mix base `#151515 16%`→`#1591DC 22%`.
+- Swapped in DARK (.dark): `--primary #e9ebdf→#1591DC`, `--primary-hover #f5f6ec→#0E7ABF`, `--primary-foreground #151515→#ffffff`, `--ring→#1591DC`, `--sidebar-primary→#1591DC`, `--sidebar-primary-foreground→#ffffff`, `--sidebar-ring→#1591DC`, `--pui-ring` base `#e9ebdf 20%`→`#1591DC 25%`.
+- Updated the design-system header comment + button pill-grammar comment to document blue as the brand primary.
+- Kept unchanged (deliberate): `--brand` teal links (user asked to swap the BLACK primary only; links were teal, not black), warm-paper/obsidian surfaces, `--ink`, `.block-ink`, hero parchment CTA, gold, charts.
+- Verified via agent-browser: computed `--primary` = #1591dc; screenshots at 1440×900 — public jobs page (dark + light), frontpage, login modal, applicant workspace home, profile page (light + dark). All CTAs (Sign in, +, Complete Profile, Browse Positions, Save Changes, stepper check, sidebar active) now render RMIS blue with white ink.
+- Checked `bg-obsidian/10 text-primary-foreground` (fast-track dialog icon tile): sits inside `bg-primary` header → becomes darker-blue tile with white icon, contrast OK.
+- `bun run lint` clean; dev.log all 200s, no runtime errors.
+
+Stage Summary:
+- RMIS electric blue #1591DC restored as the brand primary (CTAs, focus rings, selection, progress fill, sidebar primary) in BOTH light and dark modes; hover #0E7ABF, foreground white.
+- Token-only change — every page/component using `bg-primary`/`text-primary`/`--ring` inherits automatically; no JSX edits needed.
+- Surfaces/typography/teal link accents of the warm-obsidian system retained per user scope ("swap the black", not a full theme revert).

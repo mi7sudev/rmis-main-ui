@@ -431,7 +431,12 @@ export function JobsView() {
   // ---- Loading ----
   if (loading) {
     return (
-      <div className="min-h-dvh bg-background text-foreground">
+      <div className="premium relative min-h-dvh bg-background text-foreground">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[420px]"
+          style={{ backgroundImage: "var(--pui-canvas)" }}
+        />
         {/* Subtle fade-in while data loads (opacity only — house easing). */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -477,12 +482,12 @@ export function JobsView() {
               </div>
               <div className="space-y-4 sm:space-y-5">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="flex items-center gap-5 border border-border bg-card px-6 py-7 sm:px-10">
+                  <div key={i} className="flex items-center gap-5 rounded-2xl border border-border bg-card px-6 py-7 sm:px-10">
                     <div className="min-w-0 flex-1 space-y-3.5">
-                      <div className="h-7 w-3/4 animate-pulse bg-muted" />
-                      <div className="h-5 w-1/2 animate-pulse bg-muted" />
+                      <div className="h-7 w-3/4 animate-pulse rounded-md bg-muted" />
+                      <div className="h-5 w-1/2 animate-pulse rounded-md bg-muted" />
                     </div>
-                    <div className="size-12 shrink-0 animate-pulse bg-primary/20" />
+                    <div className="size-11 shrink-0 animate-pulse rounded-xl bg-primary/20" />
                   </div>
                 ))}
               </div>
@@ -496,14 +501,19 @@ export function JobsView() {
   // ---- Error ----
   if (error) {
     return (
-      <div className="min-h-dvh bg-background text-foreground">
+      <div className="premium relative min-h-dvh bg-background text-foreground">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[420px]"
+          style={{ backgroundImage: "var(--pui-canvas)" }}
+        />
         <div className="relative z-10 mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-8 sm:px-6 lg:px-8">
           <div className="border-b border-border pb-8">
-            <p className="kicker kicker-gold">Open Positions</p>
+            <p className="kicker text-muted-foreground">Open Positions</p>
             <h1 className="display-xl mt-3 text-foreground">Job Opportunities</h1>
           </div>
-          <div className="mt-8 border border-border bg-card p-12 text-center">
-            <div className="mx-auto grid size-14 place-items-center border border-destructive/40 bg-destructive/10 text-danger-ink">
+          <div className="pui-card mt-8 p-12 text-center">
+            <div className="mx-auto grid size-14 place-items-center rounded-[1rem] border border-destructive/40 bg-destructive/10 text-danger-ink">
               <AlertCircle className="size-6" strokeWidth={1.5} />
             </div>
             <h3 className="mt-4 text-xl font-medium tracking-[-0.01em]">Unable to load</h3>
@@ -517,7 +527,14 @@ export function JobsView() {
 
   // ---- Main ----
   return (
-    <div className="min-h-dvh bg-background text-foreground">
+    <div className="premium relative min-h-dvh bg-background text-foreground">
+      {/* Ambient brand wash — the same primary glow the profile and dashboard
+          carry, so every applicant surface shares one canvas language. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-[420px]"
+        style={{ backgroundImage: "var(--pui-canvas)" }}
+      />
       {activeJob ? (
         /* ===== Job Detail — rendered IN-FLOW inside the shell (formerly a
            fixed inset-0 overlay with its own scrollbar — that duplicate
@@ -539,7 +556,7 @@ export function JobsView() {
         <header className="border-b border-border pb-8">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="kicker kicker-gold">Open Positions</p>
+              <p className="kicker text-muted-foreground">Open Positions</p>
               <h1 className="display-xl mt-3 text-foreground">Job Opportunities</h1>
               <p className="mt-3 text-sm text-muted-foreground sm:text-base">
                 {jobs.length} open {jobs.length === 1 ? "position" : "positions"} at DOST-MIRDC
@@ -556,8 +573,11 @@ export function JobsView() {
                expansion opens the complete posting page. ===== */}
         <div ref={resultsTopRef} aria-hidden className="scroll-mt-24" />
         {jobs.length === 0 ? (
-          <div className="mt-8 border border-border bg-card p-12 text-center">
-            <div className="mx-auto grid size-14 place-items-center border border-border bg-secondary text-primary">
+          <div className="pui-card mt-8 p-12 text-center">
+            <div
+              data-slot="empty-result-icon"
+              className="mx-auto grid size-14 place-items-center"
+            >
               <Briefcase className="size-6" strokeWidth={1.5} />
             </div>
             <h3 className="mt-4 text-xl font-medium tracking-[-0.01em]">No open positions</h3>
@@ -571,13 +591,13 @@ export function JobsView() {
               <button
                 onClick={() => setMobileFiltersOpen((v) => !v)}
                 aria-expanded={mobileFiltersOpen}
-                className="flex h-14 w-full items-center justify-between border border-border bg-card px-5 lg:hidden"
+                className="pui-card flex h-14 w-full items-center justify-between px-5 lg:hidden"
               >
                 <span className="flex items-center gap-3 text-base font-semibold text-foreground">
                   <SlidersHorizontal className="size-5" strokeWidth={1.5} />
                   Filters
                   {hasActiveFilters && (
-                    <span className="grid size-6 place-items-center bg-primary text-xs font-medium tabular-nums tracking-[-0.02em] text-white">
+                    <span className="grid size-6 place-items-center rounded-md bg-primary text-xs font-medium tabular-nums tracking-[-0.02em] text-white">
                       {activeFilterCount}
                     </span>
                   )}
@@ -590,7 +610,7 @@ export function JobsView() {
               </button>
 
               <aside
-                className={`mt-4 border border-border bg-card p-5 lg:sticky lg:top-[85px] lg:mt-0 lg:self-start lg:border-0 lg:bg-transparent lg:p-0 ${
+                className={`mt-4 rounded-[1.25rem] border border-border bg-card p-5 shadow-sm lg:sticky lg:top-[85px] lg:mt-0 lg:self-start lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none ${
                   mobileFiltersOpen ? "block" : "hidden lg:block"
                 }`}
               >
@@ -637,7 +657,7 @@ export function JobsView() {
                           />
                           <span
                             aria-hidden
-                            className={`flex size-5 shrink-0 items-center justify-center border transition-colors ${
+                            className={`flex size-5 shrink-0 items-center justify-center rounded-[0.375rem] border transition-colors ${
                               checked
                                 ? "border-primary bg-primary text-white"
                                 : "border-muted-foreground/50 bg-transparent group-hover:border-foreground/60"
@@ -683,8 +703,11 @@ export function JobsView() {
               </div>
 
               {filteredJobs.length === 0 ? (
-                <div className="mt-6 border border-border bg-card p-12 text-center">
-                  <div className="mx-auto grid size-14 place-items-center border border-border bg-secondary text-primary">
+                <div className="pui-card mt-6 p-12 text-center">
+                  <div
+                    data-slot="empty-result-icon"
+                    className="mx-auto grid size-14 place-items-center"
+                  >
                     <Search className="size-6" strokeWidth={1.5} />
                   </div>
                   <h3 className="mt-4 text-2xl font-medium tracking-[-0.01em]">No positions match your filters</h3>
@@ -725,7 +748,7 @@ export function JobsView() {
 
                       return (
                         <Reveal key={job.id} delay={Math.min(i, 6) * 0.04} y={14}>
-                          <div className="group relative border border-border bg-card transition-colors duration-200 hover:border-foreground/25">
+                          <div className="pui-card pui-card-interactive group relative overflow-hidden">
                             {/* Momentum rule — brand bar wipes in across the card on hover */}
                             <span
                               aria-hidden
@@ -739,10 +762,10 @@ export function JobsView() {
                                 className="min-w-0 flex-1 px-6 py-7 text-left sm:px-10 sm:py-8"
                               >
                                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                                  <h3 className="min-w-0 text-xl font-semibold leading-snug tracking-[-0.01em] text-foreground underline decoration-primary decoration-2 underline-offset-4 sm:text-2xl">
+                                  <h3 className="min-w-0 text-xl font-semibold leading-snug tracking-[-0.01em] text-foreground sm:text-2xl">
                                     {humanizeTitle(title)}
                                   </h3>
-                                  {applied && <Badge variant="gold" className="shrink-0">Applied</Badge>}
+                                  {applied && <Badge variant="success" className="shrink-0">Applied</Badge>}
                                 </div>
                                 <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-base text-muted-foreground">
                                   {meta.map((m, idx) => (
@@ -753,15 +776,16 @@ export function JobsView() {
                                   ))}
                                 </div>
                               </button>
-                              <div className="flex shrink-0 items-center pr-6 sm:pr-10">
+                              <div className="flex shrink-0 items-center pr-4 sm:pr-6">
                                 <button
                                   onClick={() => setExpandedId(expanded ? null : job.id)}
                                   aria-expanded={expanded}
                                   aria-label={expanded ? `Hide quick view — ${title}` : `Quick view — ${title}`}
-                                  className="grid size-12 shrink-0 place-items-center bg-primary text-white transition-colors duration-200 hover:bg-primary/85"
+                                  className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-white shadow-sm transition-all duration-200 hover:bg-primary/85 hover:shadow-md active:scale-[0.97]"
                                 >
-                                  {/* Square "+ / −" toggle — the Accenture careers
-                                      affordance (their purple squares, our blue). */}
+                                  {/* Rounded "+ / −" toggle — the quick-view
+                                      affordance, softened to the premium
+                                      control register. */}
                                   {expanded ? (
                                     <Minus className="size-5" strokeWidth={2.5} />
                                   ) : (
@@ -819,7 +843,7 @@ export function JobsView() {
                                     </dl>
                                     <div className="mt-7 flex flex-wrap items-center gap-3">
                                       {applied ? (
-                                        <Badge variant="gold">Applied — track it on your Home</Badge>
+                                        <Badge variant="success">Applied — track it on your Home</Badge>
                                       ) : (
                                         <Button onClick={() => requestApply(job)} disabled={overdue}>
                                           Apply now
@@ -834,7 +858,7 @@ export function JobsView() {
                                         className="group/link inline-flex min-h-11 items-center gap-3 text-sm font-medium text-foreground transition-colors hover:text-primary"
                                       >
                                         Read full description
-                                        <span className="grid size-8 place-items-center bg-primary text-white transition-colors duration-200 group-hover/link:bg-[#0E7ABF]">
+                                        <span className="grid size-8 place-items-center rounded-lg bg-primary text-white transition-colors duration-200 group-hover/link:bg-[#0E7ABF]">
                                           <ArrowRight
                                             className="size-4 transition-transform duration-200 group-hover/link:translate-x-0.5"
                                             strokeWidth={2.5}
@@ -864,7 +888,7 @@ export function JobsView() {
                         onClick={() => goToPage(safePage - 1)}
                         disabled={safePage === 1}
                         aria-label="Previous page"
-                        className="grid size-12 place-items-center text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+                        className="grid size-12 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
                       >
                         <ArrowLeft className="size-5" strokeWidth={2} />
                       </button>
@@ -878,10 +902,10 @@ export function JobsView() {
                             key={p}
                             onClick={() => goToPage(p)}
                             aria-current={p === safePage ? "page" : undefined}
-                            className={`grid h-12 min-w-12 items-center justify-center border px-2.5 text-base tabular-nums transition-colors ${
+                            className={`grid h-12 min-w-12 items-center justify-center rounded-lg border px-2.5 text-base tabular-nums transition-colors ${
                               p === safePage
-                                ? "border-primary border-b-2 font-semibold text-primary"
-                                : "border-transparent text-muted-foreground hover:text-foreground"
+                                ? "border-primary/40 bg-primary/10 font-semibold text-primary"
+                                : "border-transparent text-muted-foreground hover:bg-secondary hover:text-foreground"
                             }`}
                           >
                             {p}
@@ -892,7 +916,7 @@ export function JobsView() {
                         onClick={() => goToPage(safePage + 1)}
                         disabled={safePage === totalPages}
                         aria-label="Next page"
-                        className="grid size-12 place-items-center text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+                        className="grid size-12 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
                       >
                         <ArrowRight className="size-5" strokeWidth={2} />
                       </button>
@@ -911,7 +935,7 @@ export function JobsView() {
         <AlertDialogContent>
           <AlertDialogHeader className="shrink-0">
             <div className="flex items-start gap-3">
-              <div className="grid size-10 shrink-0 place-items-center border border-border bg-secondary text-primary">
+              <div className="grid size-10 shrink-0 place-items-center rounded-xl border border-border bg-secondary text-primary">
                 <ClipboardCheck className="size-5" strokeWidth={1.5} />
               </div>
               <div className="min-w-0 flex-1">
@@ -921,7 +945,7 @@ export function JobsView() {
             </div>
           </AlertDialogHeader>
           {confirmApplyJob && (
-            <div className="space-y-1.5 border border-border bg-secondary px-4 py-3">
+            <div className="space-y-1.5 rounded-xl border border-border bg-secondary px-4 py-3">
               <div className="flex items-center gap-2">
                 <Briefcase className="size-4 shrink-0 text-foreground" strokeWidth={1.5} />
                 <p className="truncate text-sm font-medium text-foreground">{confirmApplyJob.position?.positionTitle || confirmApplyJob.title || "Position Title Unavailable"}</p>
@@ -945,7 +969,7 @@ export function JobsView() {
         <AlertDialogContent>
           <AlertDialogHeader className="shrink-0">
             <div className="flex items-start gap-3">
-              <div className="grid size-10 shrink-0 place-items-center border border-destructive/40 bg-destructive/10 text-danger-ink">
+              <div className="grid size-10 shrink-0 place-items-center rounded-xl border border-destructive/40 bg-destructive/10 text-danger-ink">
                 <AlertCircle className="size-5" strokeWidth={1.5} />
               </div>
               <div className="min-w-0 flex-1">
@@ -955,7 +979,7 @@ export function JobsView() {
             </div>
           </AlertDialogHeader>
           {cancelJob && (
-            <div className="space-y-1.5 border border-border bg-secondary px-4 py-3">
+            <div className="space-y-1.5 rounded-xl border border-border bg-secondary px-4 py-3">
               <div className="flex items-center gap-2"><Briefcase className="size-4 shrink-0 text-foreground" strokeWidth={1.5} /><p className="truncate text-sm font-medium text-foreground">{cancelJob.position?.positionTitle || cancelJob.title || "Position Title Unavailable"}</p></div>
               {cancelJob.position?.itemNumber && <div className="flex items-center gap-2 text-xs text-muted-foreground"><span className="kicker">Item</span><span>{cancelJob.position.itemNumber}</span></div>}
             </div>
@@ -975,7 +999,7 @@ export function JobsView() {
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader className="shrink-0">
             <div className="flex items-start gap-3">
-              <div className="grid size-10 shrink-0 place-items-center border border-destructive/40 bg-destructive/10 text-destructive"><AlertCircle className="size-5" strokeWidth={1.5} /></div>
+              <div className="grid size-10 shrink-0 place-items-center rounded-xl border border-destructive/40 bg-destructive/10 text-destructive"><AlertCircle className="size-5" strokeWidth={1.5} /></div>
               <div className="min-w-0 flex-1">
                 <AlertDialogTitle className="text-lg font-medium tracking-[-0.01em] text-foreground">Requirements Not Met</AlertDialogTitle>
                 <AlertDialogDescription className="mt-1 leading-relaxed">You don&apos;t yet meet the Minimum Qualification Requirements for <strong className="text-foreground">{mqrFailure?.jobTitle}</strong>. Please update your profile.</AlertDialogDescription>
@@ -989,7 +1013,7 @@ export function JobsView() {
                 const label = MQR_LABELS[key] || key;
                 const detail = isMet ? null : value.split(" — ")[1] || null;
                 return (
-                  <div key={key} className={`flex items-start gap-2.5 border px-3.5 py-2.5 ${isMet ? "border-border bg-secondary" : "border-destructive/40 bg-destructive/10"}`}>
+                  <div key={key} className={`flex items-start gap-2.5 rounded-lg border px-3.5 py-2.5 ${isMet ? "border-border bg-secondary" : "border-destructive/40 bg-destructive/10"}`}>
                     {isMet ? <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" strokeWidth={1.5} /> : <XCircle className="mt-0.5 size-4 shrink-0 text-destructive" strokeWidth={1.5} />}
                     <div className="min-w-0 flex-1">
                       <p className={`text-xs font-semibold ${isMet ? "text-foreground" : "text-destructive"}`}>{label}</p>

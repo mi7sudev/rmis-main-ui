@@ -1,15 +1,14 @@
 "use client";
 
 // ============================================================================
-// RMIS — Applicant Home (Accenture language)
-// Black #000000 canvas · electric blue #1591DC · royal-gold kickers only.
-// WorkspaceTitle header → profile banner → TWO-PANE workspace: Open Positions
-// (left, the scrollable browsing pane rendered in the EXACT 02-board job-list
-// card register) beside Your Applications (right, a sticky rail with its own
-// overflow scroll) so applicants can browse postings while their application
-// statuses stay in view. Clicking a rail card opens the Application Detail
-// Modal — the complete posting in the board detail register, with the Cancel
-// Application action. Sharp 0px corners, hairline borders, zero shadows.
+// RMIS — Applicant Home (premium scope)
+// The dashboard speaks the SAME premium language as the profile: soft rounded
+// cards (pui-card), layered elevation, ambient canvas wash, pill badges and
+// rounded controls via the .premium data-slot hooks. Two-pane workspace: Open
+// Positions (left, the scrollable browsing pane in the board job-card register)
+// beside Your Applications (right, a sticky rail with its own overflow scroll).
+// Clicking a rail card opens the Application Detail Modal — the complete
+// posting with the Cancel Application action.
 // ============================================================================
 
 import { Fragment, useCallback, useEffect, useState, type ReactNode } from "react";
@@ -238,7 +237,7 @@ export function ApplicantHome() {
         <div className="mt-3">
           <WorkspaceTitle title="Applicant Portal" />
         </div>
-        <div className="mt-8 border border-border bg-card">
+        <div className="pui-card mt-8">
           <ErrorState message={error} onRetry={() => window.location.reload()} />
         </div>
       </FadeIn>
@@ -246,7 +245,14 @@ export function ApplicantHome() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="premium relative min-h-screen bg-background text-foreground">
+      {/* Ambient brand wash — the same primary glow the profile page carries,
+          so every applicant surface shares one canvas language. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-[420px]"
+        style={{ backgroundImage: "var(--pui-canvas)" }}
+      />
       <div className="relative z-10 mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
         {/* ===== Header — greeting ===== */}
         <header className="border-b border-border pb-8">
@@ -266,14 +272,14 @@ export function ApplicantHome() {
         {/* ===== Profile completion banner ===== */}
         {showProfileBanner && (
           <Reveal className="mt-8">
-            <div className="flex flex-col items-start gap-4 rounded-none border border-destructive/40 bg-destructive/10 p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col items-start gap-4 rounded-[1.25rem] border border-warning/25 bg-warning/10 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
               <div className="flex items-start gap-4">
-                <div className="grid size-12 shrink-0 place-items-center rounded-none bg-destructive/15 text-danger-ink">
-                  <AlertTriangle className="size-6" strokeWidth={1.5} />
+                <div className="grid size-11 shrink-0 place-items-center rounded-[0.875rem] bg-warning/15 text-warning">
+                  <AlertTriangle className="size-5" strokeWidth={1.5} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium tracking-[-0.01em] text-foreground">Complete Your Profile</p>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  <p className="text-sm font-semibold tracking-[-0.01em] text-foreground">Complete Your Profile</p>
+                  <p className="mt-1 text-sm leading-relaxed text-warning-ink">
                     Finish your applicant profile to apply for positions and speed up processing.
                   </p>
                 </div>
@@ -314,8 +320,11 @@ export function ApplicantHome() {
               {/* Independently scrollable application cards */}
               <div className="mt-6 min-h-0 flex-1 lg:overflow-y-auto lg:pr-1 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border">
                 {myApplications.length === 0 ? (
-                  <FadeIn className="rounded-none border border-border bg-card p-10 text-center">
-                    <div className="mx-auto grid size-14 place-items-center rounded-none border border-border bg-secondary text-primary">
+                  <FadeIn className="pui-card p-10 text-center">
+                    <div
+                      data-slot="empty-result-icon"
+                      className="mx-auto grid size-14 place-items-center"
+                    >
                       <FileText className="size-7" strokeWidth={1.5} />
                     </div>
                     <h3 className="mt-5 text-xl font-medium tracking-[-0.01em] text-foreground">No applications yet</h3>
@@ -364,8 +373,11 @@ export function ApplicantHome() {
 
             <div className="mt-6">
               {openJobs.length === 0 ? (
-                <FadeIn className="rounded-none border border-border bg-card p-12 text-center">
-                  <div className="mx-auto grid size-14 place-items-center rounded-none border border-border bg-secondary text-primary">
+                <FadeIn className="pui-card p-12 text-center">
+                  <div
+                    data-slot="empty-result-icon"
+                    className="mx-auto grid size-14 place-items-center"
+                  >
                     <Briefcase className="size-6" strokeWidth={1.5} />
                   </div>
                   <h3 className="mt-4 text-xl font-medium tracking-[-0.01em] text-foreground">No open positions</h3>
@@ -440,12 +452,12 @@ function ApplicationJourneyCard({
       onClick={onOpen}
       aria-haspopup="dialog"
       aria-label={`View complete posting and application details — ${humanizeTitle(positionTitle)}`}
-      className="group flex h-full w-full cursor-pointer flex-col rounded-none border border-border bg-card p-4 text-left transition-colors duration-200 hover:border-primary/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:p-6"
+      className="pui-card pui-card-interactive group flex h-full w-full cursor-pointer flex-col p-4 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:p-5"
     >
       {/* Header — the chevron is the whole-card affordance: the card opens
           the full posting in a modal (the board detail register, in-dialog). */}
       <div className="flex items-start justify-between gap-2">
-        <span className="kicker kicker-gold">
+        <span className="kicker text-muted-foreground">
           No. {String(index + 1).padStart(2, "0")}
         </span>
         <span className="flex shrink-0 items-center gap-1.5">
@@ -534,7 +546,7 @@ function JobListCard({
   });
 
   return (
-    <div className="group relative border border-border bg-card transition-colors duration-200 hover:border-foreground/25">
+    <div className="pui-card pui-card-interactive group relative overflow-hidden">
       {/* Momentum rule — brand bar wipes in across the card on hover */}
       <span
         aria-hidden
@@ -551,7 +563,7 @@ function JobListCard({
             <h3 className="min-w-0 text-xl font-medium leading-snug tracking-[-0.01em] text-foreground sm:text-2xl">
               {humanizeTitle(title)}
             </h3>
-            {applied && <Badge variant="gold" className="shrink-0">Applied</Badge>}
+            {applied && <Badge variant="success" className="shrink-0">Applied</Badge>}
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-base text-muted-foreground">
             {meta.map((m, idx) => (
@@ -562,15 +574,15 @@ function JobListCard({
             ))}
           </div>
         </button>
-        <div className="flex shrink-0 items-center pr-6 sm:pr-10">
+        <div className="flex shrink-0 items-center pr-4 sm:pr-6">
           <button
             onClick={onToggle}
             aria-expanded={expanded}
             aria-label={expanded ? `Hide quick view — ${title}` : `Quick view — ${title}`}
-            className="grid size-12 shrink-0 place-items-center bg-primary text-white transition-colors duration-200 hover:bg-primary/85"
+            className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-white shadow-sm transition-all duration-200 hover:bg-primary/85 hover:shadow-md active:scale-[0.97]"
           >
-            {/* Square "+ / −" toggle — the Accenture careers
-                affordance (their purple squares, our blue). */}
+            {/* Rounded "+ / −" toggle — the quick-view affordance,
+                softened to the premium control register. */}
             {expanded ? (
               <Minus className="size-5" strokeWidth={2.5} />
             ) : (
@@ -623,7 +635,7 @@ function JobListCard({
               </dl>
               <div className="mt-7 flex flex-wrap items-center gap-3">
                 {applied ? (
-                  <Badge variant="gold">Applied — track it on your Home</Badge>
+                  <Badge variant="success">Applied — track it on your Home</Badge>
                 ) : (
                   <Button onClick={onOpen} disabled={overdue}>
                     Apply now
@@ -637,7 +649,7 @@ function JobListCard({
                   className="group/link inline-flex min-h-12 items-center gap-3 text-sm font-medium text-foreground transition-colors hover:text-primary"
                 >
                   Read full description
-                  <span className="grid size-8 place-items-center bg-primary text-white transition-colors duration-200 group-hover/link:bg-[#0E7ABF]">
+                  <span className="grid size-8 place-items-center rounded-lg bg-primary text-white transition-colors duration-200 group-hover/link:bg-[#0E7ABF]">
                     <ArrowRight
                       className="size-4 transition-transform duration-200 group-hover/link:translate-x-0.5"
                       strokeWidth={2.5}
@@ -677,12 +689,12 @@ function ApplicantHomeSkeleton() {
           <Skeleton className="h-10 w-40" />
           <div className="space-y-4 sm:space-y-5">
             {[0, 1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex items-center gap-5 border border-border bg-card px-6 py-7 sm:px-10">
+              <div key={i} className="flex items-center gap-5 rounded-2xl border border-border bg-card px-6 py-7 sm:px-10">
                 <div className="min-w-0 flex-1 space-y-3.5">
-                  <div className="h-7 w-3/4 animate-pulse bg-muted" />
-                  <div className="h-5 w-1/2 animate-pulse bg-muted" />
+                  <div className="h-7 w-3/4 animate-pulse rounded-md bg-muted" />
+                  <div className="h-5 w-1/2 animate-pulse rounded-md bg-muted" />
                 </div>
-                <div className="size-12 shrink-0 animate-pulse bg-primary/20" />
+                <div className="size-11 shrink-0 animate-pulse rounded-xl bg-primary/20" />
               </div>
             ))}
           </div>

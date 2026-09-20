@@ -528,8 +528,15 @@ html.lenis body {
   --shadow-pop: 0 8px 16px -4px rgb(9 14 24 / 0.1), 0 24px 56px -12px rgb(9 14 24 / 0.18);
   /* Ambient canvas wash behind the scope's cards */
   --pui-canvas: radial-gradient(1200px 480px at 50% -160px,
-    color-mix(in oklab, var(--primary) 9%, transparent), transparent 70%);
+    color-mix(in oklab, var(--primary) 11%, transparent), transparent 70%);
   --pui-ring: 0 0 0 3px color-mix(in oklab, var(--primary) 22%, transparent);
+}
+
+/* Dark mode — the wash lifts a touch stronger off the charcoal canvas so the
+   ambient glow survives against #16181D (light's 11% dies in the dark). */
+.dark .premium {
+  --pui-canvas: radial-gradient(1200px 480px at 50% -160px,
+    color-mix(in oklab, var(--primary) 17%, transparent), transparent 70%);
 }
 
 /* ---- Controls: inputs, selects, textareas → soft modern fields ------------ */

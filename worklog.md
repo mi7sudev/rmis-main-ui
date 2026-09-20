@@ -6364,3 +6364,27 @@ Work Log:
 Stage Summary:
 - Position Details is now a constrained two-column document: reading column + sticky summary/CTA rail with live Open/Closing soon/Closed status — noticeably less wide, more structured, RMIS language preserved (cool sheet, hairline borders, blue reserved for CTA/salary/status)
 - Logo system is now consistent: single official MIRDC emblem everywhere in chrome (sidebar desktop rail 56/40px, mobile drawer 40px, frontpage SiteHeader 56/40px), aligned to the header line; MIRDC.png remains only in footer + page-loader (out of scope)
+---
+Task ID: frontpage-enhance-08
+Agent: Z.ai Code (main)
+Task: Frontpage enhancement — user: "is there any further enhance we can do to the frontpage its too plane and simple"
+
+Work Log:
+- Baselined the jobs-first landing (SiteHeader + bare lead paragraph + "Open now" grid, page ended abruptly with no footer) in light/dark at 1440 and 390.
+- public-landing.tsx: composed SiteHeader + PositionsSection + PublicFooter inside the min-h-dvh flex column (footer mt-auto = sticky-bottom, pushed naturally on overflow).
+- positions.tsx rebuilt as an editorial frame around the jobs grid:
+  1) LANDING HERO — asymmetric lg 7/5 split: gold kicker "DOST-MIRDC · Careers" → display-xl h1 (established RMIS tagline "Build a career that moves the nation forward.") → standfirst naming the agency in full → CTA pair (primary "Browse open positions" smooth-scrolls to #open-positions with scroll-mt-24; ghost "How to apply" → #how-to-apply), staggered fade-up respecting reduced motion.
+  2) LIVE SNAPSHOT PANEL — flat block-surface slab (white / ember #242424) with the 2px momentum rule at rest, computing REAL figures from the same /api/jobs payload the grid renders: open positions count, hiring divisions count, closing-soonest future deadline (en-PH short date), salary-grade range (SG-6–SG-17); skeleton stats while loading; link-arrow "Browse all positions on the board" → #/jobs. Hero and grid can never disagree.
+  3) GOLD TICKER — slim MarqueeDivider band (Apply ✦ Track ✦ Advance ✦ DOST-MIRDC ✦ …) restored as the hero→grid rhythm device; aria-hidden (decorative), static under reduced motion.
+  4) HOW TO APPLY (new sections/how-to-apply.tsx) — raised bg-surface band with kicker + display-lg, three hairline-divided steps (01 Browse positions / 02 Prepare your requirements — CS Form 212 / 03 Submit before the deadline) as an <ol> with ghost stat numerals, whileInView reveals, and the conversion pair (primary "Create an account" → #/signup, ghost "Sign in" → #/signin).
+- sections/footer.tsx (PublicFooter) rewritten as the institutional anchor: deep-moss block (#0E352C, canonical wash, same both modes) with MIRDC-mark.png + RMIS.png lockup, agency line + address, Links column (Browse positions / Sign in / Create account with gold underline-sweep hover), Contact ((02) 8837-0431 / mirdc@dost.gov.ph / Mon–Fri), CIP-ISO + TPS + DPO seals, bottom bar (© year DOST-MIRDC · Protected under RA 10173), and a GovPH seal watermark — converted the old white-background JPG into a parchment-tinted transparent knockout (public/govph-seal-mono.png, luminance→alpha, verified composited on moss) so the watermark sits clean at 8% opacity instead of showing a ghosted white box.
+- jobs-carousel.tsx: section header "Open now" demoted display-xl → display-lg so the hero owns the top typographic tier (display hierarchy: 48px hero > 36px section > 18px card titles).
+- Removed the old duplicate lead paragraph + sr-only h1 (the display h1 now carries the document outline).
+- Verified via agent-browser: light+dark × 1440/390 — hero stacks correctly on mobile with full-width CTAs, snapshot panel below; zero horizontal overflow (scrollWidth 390 = clientWidth 390); whileInView elements reveal on scroll (steps + footer verified scrolled into view in both modes). Functional: hero CTA scroll lands at y=896 with correct scroll-mt; "How to apply" scroll lands band top at 84px (clear of sticky header); division filter chip → 2 TSD cards; snapshot "Browse all" → #/jobs (board verified unaffected); card → #/jobs?job=4 detail; footer "Create account" → #/signup. Turbopack recompile clean, no dev.log errors.
+- bun run lint clean. Final polish pass: removed redundant [overflow:hidden] wrapper class, swapped an invisible Skeleton misuse for an sr-only span in the panel loading state.
+
+Stage Summary:
+- The frontpage is now a full editorial careers page — hero (identity + live stats) → gold ticker → jobs showcase → 3-step how-to-apply → institutional moss footer — while staying 100% in the RMIS × Accenture language (flat colour-blocking, sharp corners, blue rationed to CTA/links/rules, gold kickers, zero shadows).
+- All additions render from real data (snapshot figures computed from the same /api/jobs payload as the grid); jobs-first core untouched: first-12 grid, filters, view-all redirect, card→detail flow all preserved and re-verified.
+- Key files: public-landing.tsx, sections/positions.tsx (hero + snapshot + ticker), sections/how-to-apply.tsx (new), sections/footer.tsx (rewritten), jobs-carousel.tsx (one heading tier), public/govph-seal-mono.png (new transparent knockout asset).
+- Screenshots: /tmp/front-{before-light,before-dark}.png (baselines), /tmp/front-after-light-fold.png, /tmp/front-after-light-full.png, /tmp/front-after-howto.png, /tmp/front-after-footer.png, /tmp/front-after-dark-fold.png, /tmp/front-after-dark-howto.png, /tmp/front-after-dark-footer.png, /tmp/front-after-mobile-{top,mid,howto,footer}.png, /tmp/front-final-light-1440.png.

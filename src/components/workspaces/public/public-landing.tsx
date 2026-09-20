@@ -1,31 +1,23 @@
 "use client";
 
 // ============================================================================
-// RMIS — Public Landing (JOBS-FIRST refactor)
-// RMIS × Accenture design language: black #000000 canvas, white ink, sharp
-// 0px corners, electric blue #1591DC as the only interactive accent, royal
-// gold #E8A317 reserved for tiny heritage kickers. Depth = colour-blocking,
-// never shadows.
-//
-// The frontpage now showcases ONLY the open positions. All former editorial
-// sections were removed per the jobs-first redesign:
-//   ✗ Hero (sections/hero.tsx)
-//   ✗ ShowcaseBanner (sections/showcase-banner.tsx)
-//   ✗ Marquee dividers (sections/marquee-divider.tsx)
-//   ✗ Method (sections/method.tsx)
-//   ✗ Life (sections/life.tsx)
-//   ✗ CinematicShowcase (ui/motion/cinematic-showcase.tsx)
-//   ✗ Facilities (sections/facilities.tsx)
-//   ✗ PublicFooter (sections/footer.tsx)
-//   ✗ PageLoader branded preloader
+// RMIS — Public Landing (jobs-first + editorial frame)
+// RMIS × Accenture design language: token canvas, white/charcoal ink blocks,
+// sharp 0px corners, electric blue #1591DC as the only interactive accent,
+// royal gold reserved for heritage kickers. Depth = colour-blocking, never
+// shadows.
 //
 // COMPOSITION (top → bottom):
 //   1. SiteHeader          — unified topbar (logo + Positions + Sign In)
-//   2. PositionsSection    — the jobs showcase (hero band + carousel)
+//   2. PositionsSection    — hero band (agency identity + live snapshot
+//                            panel) → gold ticker → jobs showcase →
+//                            how-to-apply band
+//   3. PublicFooter        — deep-moss institutional footer
 // ============================================================================
 
 import { SiteHeader } from "@/components/site-header";
 import { PositionsSection } from "@/components/workspaces/public/sections/positions";
+import { PublicFooter } from "@/components/workspaces/public/sections/footer";
 
 export function PublicLanding() {
   return (
@@ -33,10 +25,13 @@ export function PublicLanding() {
       {/* ===== HEADER — unified SiteHeader (same as jobs board + auth) ===== */}
       <SiteHeader />
 
-      {/* ===== JOBS — the entire page body, starting directly under the header ===== */}
+      {/* ===== BODY — hero + ticker + positions + how-to-apply ===== */}
       <main className="flex flex-1 flex-col">
         <PositionsSection />
       </main>
+
+      {/* ===== FOOTER — institutional moss block (mt-auto pins it on short pages) ===== */}
+      <PublicFooter />
     </div>
   );
 }

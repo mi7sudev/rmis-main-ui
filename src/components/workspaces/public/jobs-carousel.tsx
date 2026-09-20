@@ -128,11 +128,12 @@ export function JobsCarousel({
 
   return (
     <div>
-      {/* Header row — gold kicker → display-xl headline → support sentence */}
+      {/* Header row — gold kicker → display-lg headline → support sentence
+          (display-lg keeps the hero's display-xl as the page's top tier) */}
       <div className="mb-10 border-b border-border pb-8 sm:mb-12">
         <div className="max-w-2xl">
           <p className="kicker kicker-gold">Open positions</p>
-          <h2 className="display-xl mt-3 text-foreground">Open now</h2>
+          <h2 className="display-lg mt-3 text-foreground">Open now</h2>
           <p className="mt-3 text-base leading-relaxed text-muted-foreground">
             {jobs.length} active {jobs.length === 1 ? "position" : "positions"} · Apply before the deadline
           </p>

@@ -1,0 +1,18 @@
+{
+  "id": "19bcec73-2e81-4951-ae6e-e4c7fc633f3c",
+  "applicantId": 1,
+  "uploadedById": 3,
+  "fileName": "19bcec73-2e81-4951-ae6e-e4c7fc633f3c.png",
+  "originalName": "Profile photo (extracted from PDS — xlsx-media)",
+  "mimeType": "image/png",
+  "size": 171858,
+  "filePath": "upload/1/19bcec73-2e81-4951-ae6e-e4c7fc633f3c.png",
+  "category": "PROFILE_PICTURE",
+  "status": "UPLOADED",
+  "extractedJson": null,
+  "extractionError": null,
+  "extractedAt": null,
+  "createdAt": "2026-09-20T05:48:55.940Z",
+  "updatedAt": "2026-09-20T05:48:55.940Z",
+  "fileTableId": 10
+}

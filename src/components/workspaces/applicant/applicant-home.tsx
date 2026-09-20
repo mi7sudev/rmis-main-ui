@@ -61,7 +61,7 @@ import { ApplicationDetailModal } from "./application-detail-modal";
 
 // ---------- House motion ---------------------------------------------------
 // Shared easing (matches /components/ui/motion primitives). Durations 0.4–0.9s,
-// transform/opacity only, black canvas + electric-blue #1591DC palette.
+// transform/opacity only. Motion + material per RMIS DESIGN.md.
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 // FadeIn — gentle opacity entrance for loading/empty/error states.
@@ -272,7 +272,7 @@ export function ApplicantHome() {
         {/* ===== Profile completion banner ===== */}
         {showProfileBanner && (
           <Reveal className="mt-8">
-            <div className="flex flex-col items-start gap-4 rounded-[1.25rem] border border-warning/25 bg-warning/10 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div className="flex flex-col items-start gap-4 rounded-xl border border-warning/25 bg-warning/10 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
               <div className="flex items-start gap-4">
                 <div className="grid size-11 shrink-0 place-items-center rounded-[0.875rem] bg-warning/15 text-warning">
                   <AlertTriangle className="size-5" strokeWidth={1.5} />
@@ -579,10 +579,10 @@ function JobListCard({
             onClick={onToggle}
             aria-expanded={expanded}
             aria-label={expanded ? `Hide quick view — ${title}` : `Quick view — ${title}`}
-            className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground transition-all duration-200 hover:bg-primary-hover active:scale-[0.97]"
+            className="grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground transition-all duration-200 hover:bg-primary-hover active:scale-[0.97]"
           >
-            {/* Rounded "+ / −" toggle — the quick-view affordance,
-                softened to the premium control register. */}
+            {/* Pill "+ / −" toggle — the quick-view affordance in the
+                spec's pill control register (matches the 02 board). */}
             {expanded ? (
               <Minus className="size-5" strokeWidth={2.5} />
             ) : (
@@ -649,7 +649,7 @@ function JobListCard({
                   className="group/link inline-flex min-h-12 items-center gap-3 text-sm font-medium text-foreground transition-colors hover:text-primary"
                 >
                   Read full description
-                  <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground transition-colors duration-200 group-hover/link:bg-primary-hover">
+                  <span className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground transition-colors duration-200 group-hover/link:bg-primary-hover">
                     <ArrowRight
                       className="size-4 transition-transform duration-200 group-hover/link:translate-x-0.5"
                       strokeWidth={2.5}

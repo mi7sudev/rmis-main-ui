@@ -403,10 +403,10 @@ export function FastTrackApplyDialog({
               Fast-Track Apply · PDS Auto-Fill
             </span>
           </DialogTitle>
-          <DialogDescription className="mt-1.5 pl-[52px] text-[11px] font-medium leading-relaxed text-white/80 sm:text-xs">
-            Apply to <strong className="font-semibold text-white">{jobTitle}</strong> by uploading your PDS
+          <DialogDescription className="mt-1.5 pl-[52px] text-[11px] font-medium leading-relaxed text-primary-foreground/80 sm:text-xs">
+            Apply to <strong className="font-semibold text-primary-foreground">{jobTitle}</strong> by uploading your PDS
             (CS Form 212). We read every page — including your extra trainings &amp; awards —
-            auto-fill your profile, and <strong className="text-white">you review and certify</strong>{" "}
+            auto-fill your profile, and <strong className="text-primary-foreground">you review and certify</strong>{" "}
             the details before submitting.
           </DialogDescription>
         </DialogHeader>

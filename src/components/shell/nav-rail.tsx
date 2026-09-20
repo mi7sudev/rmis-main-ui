@@ -90,12 +90,15 @@ function BrandMark({ expanded }: { expanded: boolean }) {
     >
       {/* flex + items-center: the chip must be a flex container. Tailwind's
           preflight makes <img> display:block, and an INLINE wrapper around a
-          block image gets fragmented by the browser — the white background
+          block image gets fragmented by the browser — the background
           then paints as two empty line-box strips (24px each) above/below the
           logo, while the image overflows the fragments sideways. That was the
           "horizontal line through the logo" artifact on the collapsed dark
-          rail. The site-header chip already uses this exact pattern. */}
-      <span className="flex shrink-0 items-center rounded-none bg-white px-2 py-1.5">
+          rail. The site-header chip already uses this exact pattern.
+          Parchment plate (not bg-white): the MIRDC mark is black-on-transparent,
+          so it reads on both the obsidian and paper canvases — and the spec
+          forbids pure white surfaces. */}
+      <span className="flex shrink-0 items-center rounded-none bg-parchment px-2 py-1.5">
         <img src="/MIRDC.png" alt="MIRDC" className="h-7 w-auto object-contain" />
       </span>
       {expanded && (
@@ -374,7 +377,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="flex w-[280px] flex-col border-r border-border p-0">
         <SheetHeader className="flex h-16 flex-row items-center gap-2.5 border-b border-border px-4 space-y-0">
-          <span className="shrink-0 rounded-none bg-white px-1.5 py-1">
+          <span className="shrink-0 rounded-none bg-parchment px-1.5 py-1">
             <img src="/MIRDC.png" alt="MIRDC" className="h-6 w-auto object-contain" />
           </span>
           <SheetTitle className="text-sm font-bold tracking-tight">

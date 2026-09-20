@@ -87,7 +87,7 @@ export function NotificationCenter({ open, onOpenChange }: { open: boolean; onOp
         <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground" aria-label="Notifications">
           <Bell className="size-[18px]" />
           {count > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white ring-2 ring-background">
+            <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-[#e9ebdf] ring-2 ring-background">
               {count}
             </span>
           )}
@@ -117,7 +117,7 @@ export function NotificationCenter({ open, onOpenChange }: { open: boolean; onOp
               const Icon = n.icon;
               const tone =
                 n.category === "attention"
-                  ? "bg-[#B45309]/10 text-[#B45309]"
+                  ? "bg-warning/10 text-warning-ink"
                   : n.category === "updates"
                   ? "bg-primary/10 text-primary"
                   : "bg-secondary text-muted-foreground";

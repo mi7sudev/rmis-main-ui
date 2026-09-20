@@ -2,16 +2,17 @@
 
 // ============================================================================
 // SiteHeader — the unified topbar shared across the public landing, jobs
-// board, and sign-in / sign-up pages. Accenture design language: black
-// canvas bar, hairline border, sharp primary CTA — no glass shadow, no pill.
+// board, and sign-in / sign-up pages. RMIS material language (RMIS DESIGN.md):
+// mode-aware canvas bar, hairline border, parchment-plate logo, pill CTA —
+// no glass shadow, no drop elevation.
 //
 // Premium scroll behavior:
 //   - On scroll > 40px the header CONDENSES: smaller padding, the logos
 //     shrink slightly, the blur deepens. Depth comes from the hairline
 //     border, never a drop shadow.
 //   - The whole header is `sticky top-0` so it stays anchored.
-//   - The "Positions" link keeps its text-swap hover (blue-tint ink); the
-//     Sign in / Dashboard CTA is a sharp electric-blue block.
+//   - The "Positions" link keeps its text-swap hover (brand-tint ink); the
+//     Sign in / Dashboard CTA is a filled luminance pill.
 //   - Reduced motion → instant transition (no spring, no blur animation).
 //
 // Mobile responsiveness:
@@ -63,7 +64,7 @@ export function SiteHeader() {
           className="flex items-center"
           aria-label="RMIS home"
         >
-          <span className="flex shrink-0 items-center rounded-none bg-white px-2.5 py-1.5 sm:px-3 sm:py-2">
+          <span className="flex shrink-0 items-center rounded-none bg-parchment px-2.5 py-1.5 sm:px-3 sm:py-2">
             <img
               src="/MIRDC.png"
               alt="MIRDC"

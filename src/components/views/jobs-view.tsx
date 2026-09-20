@@ -610,7 +610,7 @@ export function JobsView() {
               </button>
 
               <aside
-                className={`mt-4 rounded-[1.25rem] border border-border bg-card p-5 shadow-sm lg:sticky lg:top-[85px] lg:mt-0 lg:self-start lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none ${
+                className={`mt-4 rounded-xl border border-border bg-card p-5 lg:sticky lg:top-[85px] lg:mt-0 lg:self-start lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 ${
                   mobileFiltersOpen ? "block" : "hidden lg:block"
                 }`}
               >
@@ -781,11 +781,12 @@ export function JobsView() {
                                   onClick={() => setExpandedId(expanded ? null : job.id)}
                                   aria-expanded={expanded}
                                   aria-label={expanded ? `Hide quick view — ${title}` : `Quick view — ${title}`}
-                                  className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground transition-all duration-200 hover:bg-primary-hover active:scale-[0.97]"
+                                  className="grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground transition-all duration-200 hover:bg-primary-hover active:scale-[0.97]"
                                 >
-                                  {/* Rounded "+ / −" toggle — the quick-view
-                                      affordance, softened to the premium
-                                      control register. */}
+                                  {/* Pill "+ / −" toggle — the quick-view
+                                      affordance in the spec's pill control
+                                      register (buttons are 0px or 9999px —
+                                      nothing in between). */}
                                   {expanded ? (
                                     <Minus className="size-5" strokeWidth={2.5} />
                                   ) : (
@@ -858,7 +859,7 @@ export function JobsView() {
                                         className="group/link inline-flex min-h-11 items-center gap-3 text-sm font-medium text-foreground transition-colors hover:text-primary"
                                       >
                                         Read full description
-                                        <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground transition-colors duration-200 group-hover/link:bg-primary-hover">
+                                        <span className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground transition-colors duration-200 group-hover/link:bg-primary-hover">
                                           <ArrowRight
                                             className="size-4 transition-transform duration-200 group-hover/link:translate-x-0.5"
                                             strokeWidth={2.5}
@@ -888,7 +889,7 @@ export function JobsView() {
                         onClick={() => goToPage(safePage - 1)}
                         disabled={safePage === 1}
                         aria-label="Previous page"
-                        className="grid size-12 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+                        className="grid size-12 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
                       >
                         <ArrowLeft className="size-5" strokeWidth={2} />
                       </button>
@@ -902,7 +903,7 @@ export function JobsView() {
                             key={p}
                             onClick={() => goToPage(p)}
                             aria-current={p === safePage ? "page" : undefined}
-                            className={`grid h-12 min-w-12 items-center justify-center rounded-lg border px-2.5 text-base tabular-nums transition-colors ${
+                            className={`grid h-12 min-w-12 items-center justify-center rounded-full border px-2.5 text-base tabular-nums transition-colors ${
                               p === safePage
                                 ? "border-primary/40 bg-primary/10 font-semibold text-primary"
                                 : "border-transparent text-muted-foreground hover:bg-secondary hover:text-foreground"
@@ -916,7 +917,7 @@ export function JobsView() {
                         onClick={() => goToPage(safePage + 1)}
                         disabled={safePage === totalPages}
                         aria-label="Next page"
-                        className="grid size-12 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+                        className="grid size-12 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
                       >
                         <ArrowRight className="size-5" strokeWidth={2} />
                       </button>
@@ -986,7 +987,7 @@ export function JobsView() {
           )}
           <AlertDialogFooter className="shrink-0">
             <AlertDialogCancel disabled={cancelling}>Keep</AlertDialogCancel>
-            <AlertDialogAction onClick={() => { if (cancelJob) doCancel(cancelJob); setCancelJob(null); }} disabled={cancelling} className="bg-destructive text-white hover:bg-[#B80525]">
+            <AlertDialogAction onClick={() => { if (cancelJob) doCancel(cancelJob); setCancelJob(null); }} disabled={cancelling}>
               {cancelling && <Loader2 className="size-4 animate-spin" />}
               {cancelling ? "Cancelling…" : "Yes, Cancel"}
             </AlertDialogAction>
@@ -1083,11 +1084,11 @@ function JobDetailView({
     >
       {/* Top bar — sticky UNDER the condensed SiteHeader */}
       <div className="sticky top-[53px] z-30 flex items-center justify-between border-b border-border bg-background/95 px-4 py-3 backdrop-blur sm:top-[65px] sm:px-6">
-        <button onClick={onClose} className="group flex h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+        <button onClick={onClose} className="group flex h-11 items-center gap-2 rounded-full px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
           <ArrowRight className="size-4 rotate-180 transition-transform duration-200 group-hover:translate-x-[-3px]" strokeWidth={2} />
           Back to Positions
         </button>
-        <button onClick={onClose} className="grid size-11 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" aria-label="Close">
+        <button onClick={onClose} className="grid size-11 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" aria-label="Close">
           <X className="size-4" strokeWidth={2} />
         </button>
       </div>

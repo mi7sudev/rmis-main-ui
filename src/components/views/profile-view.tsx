@@ -83,8 +83,8 @@ function CompletionRing({ percent, size = 76 }: { percent: number; size?: number
       <svg width={size} height={size} className="-rotate-90" aria-hidden>
         <defs>
           <linearGradient id="pui-ring-grad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#1591DC" />
-            <stop offset="100%" stopColor="#6FC6F2" />
+            <stop offset="0%" stopColor="#e9ebdf" />
+            <stop offset="100%" stopColor="#8b867f" />
           </linearGradient>
         </defs>
         <circle
@@ -524,7 +524,7 @@ export function ProfileView() {
                     aria-current={isActive ? "page" : undefined}
                     className={`relative isolate flex min-h-11 min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-0.5 transition-colors ${
                       isActive
-                        ? "text-white"
+                        ? "text-primary-foreground"
                         : "text-foreground hover:bg-secondary"
                     }`}
                   >
@@ -536,27 +536,27 @@ export function ProfileView() {
                       <motion.span
                         aria-hidden
                         layoutId="pui-mobile-seg"
-                        className="absolute inset-0 -z-10 rounded-lg bg-primary shadow-sm"
+                        className="absolute inset-0 -z-10 rounded-lg bg-primary"
                         transition={{ type: "spring", stiffness: 500, damping: 42 }}
                       />
                     )}
                     <span
                       className={`text-[10px] font-extrabold leading-none tabular-nums ${
-                        isActive ? "text-white/85" : "text-muted-foreground"
+                        isActive ? "text-primary-foreground/85" : "text-muted-foreground"
                       }`}
                     >
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     {filled ? (
                       <CheckCircle2
-                        className={`size-3.5 shrink-0 ${isActive ? "text-white" : "text-success"}`}
+                        className={`size-3.5 shrink-0 ${isActive ? "text-primary-foreground" : "text-success"}`}
                         strokeWidth={2}
                       />
                     ) : (
                       <span
                         aria-hidden
                         className={`size-1.5 shrink-0 rounded-full ${
-                          isActive ? "bg-white/60" : "bg-muted-foreground/35"
+                          isActive ? "bg-primary-foreground/60" : "bg-muted-foreground/35"
                         }`}
                       />
                     )}

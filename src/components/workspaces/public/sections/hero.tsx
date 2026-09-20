@@ -119,7 +119,7 @@ export function HeroSection() {
                 <MagneticButton strength={0.25}>
                   <button
                     onClick={() => navigate(user ? "jobs" : "signin")}
-                    className="group inline-flex h-12 items-center justify-between gap-3 rounded-none bg-[#112E81] px-6 text-sm font-medium text-white transition-colors hover:bg-[#0D2468] sm:px-8"
+                    className="group inline-flex h-12 items-center justify-between gap-3 rounded-full bg-parchment px-6 text-sm text-obsidian transition-colors hover:bg-[#f5f6ec] sm:px-8"
                   >
                     {user ? "Browse positions" : "Find opportunities"}
                     <ArrowRight className="size-5 transition-transform duration-200 group-hover:translate-x-1" />
@@ -138,11 +138,11 @@ export function HeroSection() {
               >
                 <PixelSwap
                   firstContent={
-                    <div className="flex h-full w-full flex-col justify-center bg-[#112E81] px-5 py-6 sm:px-8 sm:py-8">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#E8A317]">
+                    <div className="flex h-full w-full flex-col justify-center bg-moss px-5 py-6 sm:px-8 sm:py-8">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-limestone">
                         About RMIS
                       </p>
-                      <p className="mt-3 text-xs font-medium leading-relaxed text-white/85 sm:text-sm lg:text-base">
+                      <p className="mt-3 text-xs font-medium leading-relaxed text-parchment/85 sm:text-sm lg:text-base">
                         RMIS connects talented professionals with opportunities at the
                         Metals Industry Research and Development Center. Apply for
                         positions, track your application, and join a team advancing

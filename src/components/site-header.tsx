@@ -82,7 +82,7 @@ export function SiteHeader() {
             {!onJobs && (
               <button
                 onClick={() => navigate("jobs")}
-                className="group relative inline-flex min-h-11 shrink-0 items-center overflow-hidden px-3 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
+                className="group relative inline-flex min-h-11 shrink-0 items-center overflow-hidden px-3 font-label text-sm tracking-[0.01em] text-foreground/70 transition-colors hover:text-foreground"
               >
                 <span className="block transition-transform duration-200 group-hover:-translate-y-full">Positions</span>
                 <span className="absolute inset-0 flex items-center px-3 text-brand-light transition-transform duration-200 group-hover:translate-y-0">Positions</span>
@@ -92,7 +92,7 @@ export function SiteHeader() {
           {user ? (
             <button
               onClick={() => navigate(homeViewForRole(user.role))}
-              className="group inline-flex h-11 shrink-0 items-center gap-1.5 rounded-none bg-primary px-5 text-sm font-medium text-white transition-colors hover:bg-[#0E7ABF] active:opacity-60"
+              className="group inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-primary bg-primary px-5 text-sm text-primary-foreground transition-colors hover:bg-primary-hover hover:border-primary-hover active:opacity-60"
             >
               Dashboard
               <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -100,7 +100,7 @@ export function SiteHeader() {
           ) : (
             <button
               onClick={() => navigate("signin")}
-              className="group inline-flex h-11 shrink-0 items-center gap-1.5 rounded-none bg-primary px-5 text-sm font-medium text-white transition-colors hover:bg-[#0E7ABF] active:opacity-60"
+              className="group inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-primary bg-primary px-5 text-sm text-primary-foreground transition-colors hover:bg-primary-hover hover:border-primary-hover active:opacity-60"
             >
               Sign in
               <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />

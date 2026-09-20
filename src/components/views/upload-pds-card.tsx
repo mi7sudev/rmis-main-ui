@@ -303,7 +303,7 @@ export function UploadPdsCard({
               : "border-primary/35 bg-secondary/40 hover:border-primary hover:bg-secondary/70 hover:shadow"
           }`}
         >
-          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-primary to-[#0E7ABF] text-white shadow-sm">
+          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
             <UploadCloud className="size-4.5" strokeWidth={1.5} />
           </span>
           <span className="min-w-0 flex-1">
@@ -463,7 +463,7 @@ export function UploadPdsCard({
                 void handleClearForms();
               }}
               disabled={clearing}
-              className="bg-destructive text-white hover:bg-[#B80525]"
+              className="bg-destructive text-[#e9ebdf] hover:bg-destructive/85"
             >
               {clearing ? (
                 <><Loader2 className="size-4 animate-spin" /> Clearing…</>

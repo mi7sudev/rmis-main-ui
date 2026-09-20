@@ -69,12 +69,12 @@ export function FacilitiesSection() {
   }, [activeFacility]);
 
   return (
-    <section className="border-b border-border bg-[#F8FAFC]">
+    <section className="border-b border-border bg-background">
       <div className="mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
         <div className="mb-10 flex flex-wrap items-end justify-between gap-6 border-b border-border pb-8 sm:mb-12">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8A6210]">Facilities</p>
-            <h2 className="mt-3 text-4xl font-medium tracking-tight text-[#112E81] sm:text-5xl lg:text-6xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">Facilities</p>
+            <h2 className="mt-3 text-4xl font-medium tracking-tight text-foreground sm:text-5xl lg:text-6xl">
               Our centers
             </h2>
           </div>
@@ -119,7 +119,7 @@ export function FacilitiesSection() {
               /* soft card that grows in sync with the panel slide (same 700ms
                  house easing) so card + panel move as ONE assembly on <lg;
                  desktop cards are already tall enough. */
-              className={`group relative flex cursor-pointer flex-row overflow-hidden rounded-none border border-border bg-white [transition:min-height_700ms_cubic-bezier(0.22,1,0.36,1),border-color_300ms_ease] hover:border-primary/30 motion-reduce:[transition:none] lg:flex-col ${
+              className={`group relative flex cursor-pointer flex-row overflow-hidden rounded-none border border-border bg-card [transition:min-height_700ms_cubic-bezier(0.22,1,0.36,1),border-color_300ms_ease] hover:border-primary/30 motion-reduce:[transition:none] lg:flex-col ${
                 isOpen ? "max-lg:min-h-[26rem]" : ""
               }`}
             >
@@ -143,17 +143,17 @@ export function FacilitiesSection() {
                   transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                 />
                 {/* Dark gradient overlay for badge legibility */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#112E81]/40 via-transparent to-[#112E81]/20" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/20" />
                 {/* Number badge */}
-                <span className="absolute left-2 top-2 z-10 rounded-none bg-[#112E81]/85 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-sm sm:left-4 sm:top-4 sm:px-3 sm:text-xs">
+                <span className="absolute left-2 top-2 z-10 rounded-none bg-moss/90 px-2.5 py-1 text-[10px] font-medium text-parchment backdrop-blur-sm sm:left-4 sm:top-4 sm:px-3 sm:text-xs">
                   {facility.num}
                 </span>
                 {/* Tag chip */}
-                <span className="absolute right-2 top-2 z-10 rounded-none border border-[#E8A317]/60 bg-[#112E81]/80 px-2.5 py-1 text-[10px] font-medium text-[#E8A317] backdrop-blur-sm sm:right-4 sm:top-4 sm:text-[11px]">
+                <span className="absolute right-2 top-2 z-10 rounded-none border border-[#c9903d]/50 bg-moss/85 px-2.5 py-1 text-[10px] font-medium text-[#c9903d] backdrop-blur-sm sm:right-4 sm:top-4 sm:text-[11px]">
                   {facility.tag}
                 </span>
                 {/* Expansion affordance — gold DETAILS chip */}
-                <span className="absolute bottom-2 right-2 z-10 flex items-center gap-1 rounded-none bg-[#E8A317] px-2.5 py-1 text-[10px] font-medium text-[#112E81] sm:bottom-4 sm:right-4 sm:text-[11px]">
+                <span className="absolute bottom-2 right-2 z-10 flex items-center gap-1 rounded-[4px] bg-[#c9903d] px-2.5 py-1 text-[10px] font-medium text-obsidian sm:bottom-4 sm:right-4 sm:text-[11px]">
                   Details
                   <Plus className="h-3 w-3" strokeWidth={3} />
                 </span>
@@ -167,7 +167,7 @@ export function FacilitiesSection() {
                 }}
                 className="flex flex-1 flex-col p-3 sm:p-5 lg:p-8"
               >
-                <h3 className="text-lg font-medium tracking-tight text-[#112E81] sm:text-2xl">
+                <h3 className="text-lg font-medium tracking-tight text-foreground sm:text-2xl">
                   {facility.name}
                 </h3>
                 <p className="mt-1 text-xs font-medium leading-snug text-muted-foreground sm:text-sm">
@@ -180,14 +180,14 @@ export function FacilitiesSection() {
                     visible: { scaleX: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
                     hovered: { width: "100%" },
                   }}
-                  className="mt-2 h-0.5 w-10 origin-left rounded-none bg-[#E8A317] sm:mt-4 sm:w-12"
+                  className="mt-2 h-0.5 w-10 origin-left rounded-full bg-[#c9903d] sm:mt-4 sm:w-12"
                 />
                 {/* Welcome tagline (gold-tint ink) */}
-                <p className="mt-2 text-xs font-semibold leading-snug text-[#8A6210] sm:mt-4 sm:text-sm">
+                <p className="mt-2 text-xs font-semibold leading-snug text-gold sm:mt-4 sm:text-sm">
                   {facility.welcome}
                 </p>
                 {/* Short description */}
-                <p className="mt-1.5 text-xs leading-relaxed text-[#112E81]/80 sm:mt-3 sm:text-sm">
+                <p className="mt-1.5 text-xs leading-relaxed text-foreground/80 sm:mt-3 sm:text-sm">
                   {facility.desc}
                 </p>
               </motion.div>
@@ -198,29 +198,29 @@ export function FacilitiesSection() {
                    infographic. Click again / Escape slides it back down. */}
               <div
                 aria-hidden={!isOpen}
-                className={`absolute inset-0 z-20 flex flex-col bg-white transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+                className={`absolute inset-0 z-20 flex flex-col bg-card transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
                   isOpen ? "translate-y-0" : "translate-y-full"
                 }`}
               >
                 {/* Gold leading strip */}
-                <div className="h-1 w-full shrink-0 bg-[#E8A317]" />
+                <div className="h-1 w-full shrink-0 bg-[#c9903d]" />
                 {/* Navy identity strip */}
                 <div
-                  className={`shrink-0 bg-[#112E81] px-4 py-3 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none sm:px-6 sm:py-4 ${
+                  className={`shrink-0 bg-moss px-4 py-3 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none sm:px-6 sm:py-4 ${
                     isOpen ? "translate-y-0 opacity-100 delay-150" : "translate-y-3 opacity-0"
                   }`}
                 >
-                  <p className="text-sm font-medium leading-none tracking-tight text-white sm:text-base">
+                  <p className="text-sm font-medium leading-none tracking-tight text-parchment sm:text-base">
                     {facility.name}
                   </p>
-                  <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E8A317] sm:text-[11px]">
+                  <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#c9903d] sm:text-[11px]">
                     {facility.title}
                   </p>
                 </div>
                 {/* Description infographic — full card width (never boxed
                      small); scrolls only if taller than the card. */}
                 <div
-                  className="min-h-0 flex-1 overflow-y-auto bg-white [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-[#112E81]/25 [&::-webkit-scrollbar-track]:bg-transparent"
+                  className="min-h-0 flex-1 overflow-y-auto bg-card [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-parchment/25 [&::-webkit-scrollbar-track]:bg-transparent"
                   data-lenis-prevent
                 >
                   <img
@@ -240,7 +240,7 @@ export function FacilitiesSection() {
                    Driven by the parent article's `whileHover="hovered"` variant. */}
               <motion.div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 z-30 bg-gradient-to-r from-transparent via-[#E8A317]/25 to-transparent"
+                className="pointer-events-none absolute inset-0 z-30 bg-gradient-to-r from-transparent via-[#c9903d]/25 to-transparent"
                 variants={{
                   hidden: { x: "-100%" },
                   visible: { x: "-100%" },

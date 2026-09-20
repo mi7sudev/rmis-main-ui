@@ -12,7 +12,7 @@ import { ShieldCheck } from "lucide-react";
 // ============================================================================
 export function Footer() {
   return (
-    <footer className="relative mt-auto overflow-hidden border-t-2 border-primary bg-card dark:bg-[#101216]">
+    <footer className="relative mt-auto overflow-hidden border-t border-rim bg-card dark:bg-void">
       {/* GovPH seal — bottom-left watermark behind text */}
       <div className="pointer-events-none absolute bottom-0 left-0 z-0 opacity-10">
         <Image
@@ -28,9 +28,9 @@ export function Footer() {
       {/* Footer content — z-10 so it sits above the seal */}
       <div className="relative z-10 mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <div className="flex max-w-2xl items-start gap-3 text-xs leading-relaxed text-muted-foreground dark:text-[#A6A6A6]">
+          <div className="flex max-w-2xl items-start gap-3 text-xs leading-relaxed text-muted-foreground dark:text-[#94958e]">
             {/* Icon chip — sharp square block */}
-            <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-none border border-border bg-background text-gold dark:bg-secondary">
+            <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-[4px] border border-rim bg-background text-gold dark:bg-secondary">
               <ShieldCheck className="size-4" />
             </span>
             <p>
@@ -39,7 +39,7 @@ export function Footer() {
               authorized DOST-MIRDC personnel.
             </p>
           </div>
-          <p className="shrink-0 text-xs font-semibold tracking-[0.08em] text-muted-foreground dark:text-[#A6A6A6] uppercase">
+          <p className="shrink-0 text-xs font-semibold tracking-[0.08em] text-muted-foreground dark:text-[#94958e] uppercase">
             © {new Date().getFullYear()} DOST-MIRDC · RMIS
           </p>
         </div>

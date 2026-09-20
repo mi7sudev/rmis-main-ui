@@ -579,7 +579,7 @@ function JobListCard({
             onClick={onToggle}
             aria-expanded={expanded}
             aria-label={expanded ? `Hide quick view — ${title}` : `Quick view — ${title}`}
-            className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-white shadow-sm transition-all duration-200 hover:bg-primary/85 hover:shadow-md active:scale-[0.97]"
+            className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground transition-all duration-200 hover:bg-primary-hover active:scale-[0.97]"
           >
             {/* Rounded "+ / −" toggle — the quick-view affordance,
                 softened to the premium control register. */}
@@ -649,7 +649,7 @@ function JobListCard({
                   className="group/link inline-flex min-h-12 items-center gap-3 text-sm font-medium text-foreground transition-colors hover:text-primary"
                 >
                   Read full description
-                  <span className="grid size-8 place-items-center rounded-lg bg-primary text-white transition-colors duration-200 group-hover/link:bg-[#0E7ABF]">
+                  <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground transition-colors duration-200 group-hover/link:bg-primary-hover">
                     <ArrowRight
                       className="size-4 transition-transform duration-200 group-hover/link:translate-x-0.5"
                       strokeWidth={2.5}

@@ -74,10 +74,10 @@ function urgencyLabel(days: number | null): { text: string; tone: "urgent" | "wa
 // sharp, dark-on-light chips (colour-blocking, not tinted pills). Tokens invert
 // in dark mode so the chip stays readable on the charcoal block.
 const TONE_STYLES: Record<string, string> = {
-  urgent: "bg-[#E2062E] text-white",
+  urgent: "bg-destructive text-[#e9ebdf]",
   warning: "bg-foreground/10 text-foreground",
   normal: "bg-foreground/5 text-foreground/70",
-  closed: "bg-foreground text-white/70",
+  closed: "bg-foreground text-background/70",
 };
 
 function formatSalary(amount: number | null): string {
@@ -195,7 +195,7 @@ export function JobsCarousel({
           <button
             type="button"
             onClick={onViewAll}
-            className="group inline-flex h-12 items-center gap-2.5 border border-input px-8 text-sm font-semibold text-foreground transition-colors duration-200 hover:border-primary hover:bg-primary hover:text-white"
+            className="group inline-flex h-12 items-center gap-2.5 rounded-full border border-input px-8 text-sm text-foreground transition-colors duration-200 hover:border-primary hover:bg-primary hover:text-primary-foreground"
           >
             View all {visibleJobs.length} positions
             <ArrowRight
@@ -329,7 +329,7 @@ function FilterChip({
       onClick={onClick}
       className={`inline-flex min-h-12 shrink-0 items-center gap-2 border px-4 py-2 text-sm font-medium transition-colors ${
         active
-          ? "border-primary bg-primary text-white"
+          ? "border-primary bg-primary text-primary-foreground"
           : "border-input text-muted-foreground hover:border-input-hover hover:text-foreground"
       }`}
     >
@@ -338,7 +338,7 @@ function FilterChip({
           Mobile caps tighter so two chips peek per screen and the rail's
           scroll affordance is obvious. */}
       <span className="max-w-[10.5rem] truncate sm:max-w-[15rem]">{label}</span>
-      <span className={`text-xs tabular-nums ${active ? "text-white/70" : "text-muted-foreground"}`}>
+      <span className={`text-xs tabular-nums ${active ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
         {count}
       </span>
     </button>

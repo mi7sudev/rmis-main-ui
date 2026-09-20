@@ -303,7 +303,7 @@ export function ApplicationDetailModal({
             <AlertDialogAction
               onClick={() => { setConfirmOpen(false); void doCancel(); }}
               disabled={cancelling}
-              className="bg-destructive text-white hover:bg-[#B80525]"
+              className="bg-destructive text-[#e9ebdf] hover:bg-destructive/85"
             >
               {cancelling && <Loader2 className="size-4 animate-spin" />}
               {cancelling ? "Cancelling…" : "Yes, Cancel"}

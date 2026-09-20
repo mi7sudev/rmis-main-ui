@@ -22,35 +22,42 @@ html.lenis body {
 }
 
 /* ============================================================================
-   RMIS — AUTHENTIC ACCENTURE DESIGN SYSTEM (source-of-truth port)
+   RMIS — WARM OBSIDIAN DESIGN SYSTEM
    ----------------------------------------------------------------------------
-   Ported from the measured accenture.com token sheet. The brand accent is
-   RMIS electric blue #1591DC standing in for Accenture purple #A100FF.
+   Source of truth: RMIS DESIGN.md ("Retool — Style Reference" — warm obsidian
+   workshop: a precision tool surface lit by ember glow).
+
+   THE MATERIAL SYSTEM:
+   · Obsidian canvas #151515 with the ember-rust radial bleed from the
+     bottom-left — warmth without saturation.
+   · ZERO box-shadows anywhere. Depth is communicated entirely through
+     surface colour: void #0E0E0E recedes, canvas #151515 grounds,
+     ember #242424 floats. Flat-material elevation, no light source.
+   · Parchment #E9EBDF is the system's single "bright" — primary text,
+     primary borders, filled CTA fill. Never pure white (#FFFFFF), never
+     pure black (#000000).
+   · Muted teal washes (#185849 Forest Deep / #0E352C Midnight Moss) are the
+     ONLY chromatic punctuation — the page registers near-achromatic.
+   · Binary radius grammar: 4px tags · 8px default cards · 12px large cards ·
+     9999px pill CTAs · hairline #3F403D Charcoal Rim borders.
+   · Type: Inter stands in for saansFont (300 display / 380 body / 570
+     labels), Space Grotesk stands in for pxGroteskFont (eyebrows, nav,
+     micro-UI at +0.013em tracking).
+   · Motion: cubic-bezier(0.72, 0, 0.12, 1) — mechanical, precise.
 
    DUAL-MODE SYSTEM (next-themes, class strategy):
-   · .dark  → the SOFT CHARCOAL canvas sheet (#16181D — dark mode without
-     the eye-strain of pure black)
-   · :root  → the LIGHT sheet: white canvas, #F1F1EF surface blocks, black ink
-   Both speak the same Accenture language:
-   · Sharp 0px corners everywhere — rectilinear, tech-forward
-   · NO drop shadows — depth via colour-blocking and borders only
-   · Electric blue #1591DC is THE interactive accent in both modes
-   · Big bold display type (Inter as the Graphik stand-in), Fraunces as the
-     GT Sectra Fine editorial stand-in
-   · Focus states: solid 2px #1591DC outline
-   · Royal gold survives ONLY as a small heritage accent (kickers, badges);
-     it is mode-tuned — #E8A317 on black, deep #8A6210 on white — so 12px
-     kicker caps stay legible on the light canvas.
-   · "Ink" tokens pair a status wash with its readable text colour per mode
-     (e.g. danger-ink: #FF8296 on black vs #C40823 on white).
+   · .dark  → the CANONICAL spec sheet: obsidian canvas, parchment ink.
+   · :root  → the warm-paper inversion: obsidian ink on warm limestone
+     paper (#EDEDE4). Same material laws — still never pure white.
    ============================================================================ */
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-serif: var(--font-serif);
-  --font-mono: var(--font-geist-mono);
+  --font-label: var(--font-label);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -90,6 +97,12 @@ html.lenis body {
   --color-accent-1: var(--accent-1);
   --color-accent-2: var(--accent-2);
   --color-accent-3: var(--accent-3);
+  /* Material surfaces — the flat-elevation ladder */
+  --color-void: var(--void);
+  --color-ember: var(--ember);
+  --color-rim: var(--rim);
+  --color-teal: var(--teal);
+  --color-moss: var(--moss);
   /* Mode-tuned ink pairings — wash + readable text colour per mode */
   --color-danger-ink: var(--danger-ink);
   --color-success-ink: var(--success-ink);
@@ -106,214 +119,274 @@ html.lenis body {
   --color-danger-foreground: var(--danger-foreground);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
-  /* Accenture geometry — SHARP. Every radius collapses to 0. */
-  --radius-sm: 0rem;
-  --radius-md: 0rem;
-  --radius-lg: 0rem;
-  --radius-xl: 0rem;
-  --radius-2xl: 0rem;
-  /* Accenture elevation = colour-blocking. Legacy shadow tokens are
-     neutralised so any stray shadow-* class renders flat. */
-  --shadow-soft: 0 0 #0000;
-  --shadow-lift: 0 0 #0000;
-  --shadow-pop: 0 0 #0000;
 }
 
-/* ============================================================================
-   FLUID TYPE CURVE — measured live from accenture.com/us-en/careers/jobsearch
-   Fixed at the 1440 reference below 1440px, then scales ×(viewport/1440) up
-   to a ×4/3 cap at 1920px:
-     14→18.67 · 16→21.33 · 18→24 · 20→26.67 · 24→32 · 30→40
-   Overrides Tailwind's font-size tokens so every text-* utility rides the
-   curve system-wide (frontpage, boards, admin, dialogs). Paired line-height
-   ratios are unitless and scale automatically. text-xs stays fixed (micro-
-   tags / badges keep a consistent size).
-   ============================================================================ */
 @theme {
-  /* Accenture motion signature (audited 0.55s cubic-bezier(0.85,0,0,1)) */
-  --ease-deliberate: cubic-bezier(0.85, 0, 0, 1);
+  /* Static material colours — fixed identities, same in both modes.
+     (Dark-surface contexts — footer, hero overlays — reference these
+     directly; mode-aware text always goes through the semantic tokens.) */
+  --color-parchment: #e9ebdf;
+  --color-obsidian: #151515;
+  --color-copper: #8b867f;
+  --color-fog: #cbccc4;
+  --color-limestone: #b6b8af;
+  --color-forest: #185849;
+  --color-midnight: #0e352c;
 
-  --text-xs: 0.75rem;                                /* 12px — deliberately fixed */
-  --text-sm: clamp(0.875rem, 0.9722vw, 1.1667rem);   /* 14 → 18.67 */
-  --text-base: clamp(1rem, 1.1111vw, 1.3333rem);     /* 16 → 21.33 */
-  --text-lg: clamp(1.125rem, 1.25vw, 1.5rem);        /* 18 → 24 */
-  --text-xl: clamp(1.25rem, 1.3889vw, 1.6667rem);    /* 20 → 26.67 */
-  --text-2xl: clamp(1.5rem, 1.6667vw, 2rem);         /* 24 → 32 */
-  --text-3xl: clamp(1.875rem, 2.0833vw, 2.5rem);     /* 30 → 40 */
-}
+  /* Radius grammar — binary per the spec: 4 tags / 8 default cards /
+     12 large cards / 36 pill-large / 9999 pill CTAs. No in-between. */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 12px;
+  --radius-2xl: 12px;
+  --radius-3xl: 36px;
 
-:root {
-  /* ----------------------------------------------------------------------------
-   * ACCENTURE TOKEN SHEET — LIGHT MODE (:root default)
-   * White canvas · black ink · primary #1591DC · surface block #F1F1EF
-   * ---------------------------------------------------------------------------- */
-  --radius: 0rem;
+  /* FLAT-MATERIAL ELEVATION — zero shadows. Depth lives in surface colour
+     steps and hairline rims only. Every shadow utility renders flat. */
+  --shadow-2xs: 0 0 #0000;
+  --shadow-xs: 0 0 #0000;
+  --shadow-sm: 0 0 #0000;
+  --shadow-md: 0 0 #0000;
+  --shadow-lg: 0 0 #0000;
+  --shadow-xl: 0 0 #0000;
+  --shadow-2xl: 0 0 #0000;
+  --inset-shadow-2xs: 0 0 #0000;
+  --inset-shadow-xs: 0 0 #0000;
+  --inset-shadow-sm: 0 0 #0000;
+  --drop-shadow-xs: 0 0 #0000;
+  --drop-shadow-sm: 0 0 #0000;
+  --drop-shadow-md: 0 0 #0000;
+  --drop-shadow-lg: 0 0 #0000;
 
-  /* Brand — electric blue (replaces Accenture purple #A100FF) */
-  --brand: #1591DC;
-  --brand-light: #0E7ABF;         /* link tint — deep enough for white canvas */
-  --primary: #1591DC;
-  --primary-hover: #0E7ABF;       /* darkened primary — button hover */
-  --primary-foreground: #FFFFFF;
-  --royal-gold: #8A6210;
+  /* Motion signature — mechanical precision (spec: cubic-bezier(.72,0,.12,1)) */
+  --ease-deliberate: cubic-bezier(0.72, 0, 0.12, 1);
 
-  /* Core surfaces */
-  --canvas: #FFFFFF;
-  --ink: #000000;
-  --surface: #F1F1EF;             /* the signature Accenture surface block */
-  --surface-foreground: #000000;
-  --gold: #8A6210;                /* heritage accent — deepened for white */
-
-  /* Decorative colour-block accents (Accenture accent hues) */
-  --accent-1: #0041F0;            /* bright blue block */
-  --accent-2: #E2062E;            /* red block / destructive */
-  --accent-3: #0A4A74;            /* deep blue block */
-
-  /* Page canvas = pure white, black ink */
-  --background: #FFFFFF;
-  --foreground: #000000;
-  --card: #F7F7F5;                /* raised panel — a breath off the canvas */
-  --card-foreground: #000000;
-  --popover: #FFFFFF;
-  --popover-foreground: #000000;
-
-  /* Secondary / muted — the surface block family */
-  --secondary: #F1F1EF;
-  --secondary-foreground: #000000;
-  --muted: #F1F1EF;
-  --muted-foreground: #5A5A58;
-
-  /* Accent = interactive hover wash (light ghost-hover) */
-  --accent: #E8E8E6;
-  --accent-foreground: #000000;
-
-  /* Destructive = accent red */
-  --destructive: #E2062E;
-
-  /* Borders — measured light hairline; input stroke per states spec */
-  --border: #E0E0DE;
-  --input: #A2A2A0;               /* their measured light input stroke */
-  --input-hover: #5A5A58;         /* darkens on hover (inverse of the dark mode) */
-  --ring: #1591DC;                /* focus-visible = 2px blue outline */
-
-  /* Semantic status colors (light-tuned) */
-  --success: #178A50;
-  --success-foreground: #FFFFFF;
-  --warning: #B45309;
-  --warning-foreground: #FFFFFF;
-  --danger: #E2062E;
-  --danger-foreground: #FFFFFF;
-  --info: #0041F0;
-  --info-foreground: #FFFFFF;
-
-  /* Mode-tuned status inks — wash/text pairs that read on white */
-  --danger-ink: #C40823;
-  --success-ink: #157F45;
-  --warning-ink: #8A6210;
-  --info-ink: #0E7ABF;
-  --tablehead: #F1F1EF;           /* table header band (matches surface) */
-  --scrollbar-thumb: #C6C6C4;
-
-  /* Chart palette — blue-led with accent blocks */
-  --chart-1: #1591DC;
-  --chart-2: #E8A317;
-  --chart-3: #0041F0;
-  --chart-4: #E2062E;
-  --chart-5: #616160;
-
-  /* Sidebar — white navigation rail with black ink */
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #000000;
-  --sidebar-primary: #1591DC;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F1F1EF;
-  --sidebar-accent-foreground: #000000;
-  --sidebar-border: #E0E0DE;
-  --sidebar-ring: #1591DC;
+  /* ------------------------------------------------------------------
+     TYPE SCALE — the spec's fixed ladder with its metrics baked in:
+     12/14/16/18/24/36/48/60/72 · lh 1.2 small, 1.5 body, 1.05 headings,
+     1.0 display · tracking +0.012em micro → -0.022em display.
+     ------------------------------------------------------------------ */
+  --text-xs: 0.75rem;                                /* 12 caption */
+  --text-xs--line-height: 1.2;
+  --text-xs--letter-spacing: 0.012em;
+  --text-sm: 0.875rem;                               /* 14 body-sm */
+  --text-sm--line-height: 1.5;
+  --text-sm--letter-spacing: 0.01em;
+  --text-base: 1rem;                                 /* 16 body */
+  --text-base--line-height: 1.5;
+  --text-base--letter-spacing: 0em;
+  --text-lg: 1.125rem;                               /* 18 subheading */
+  --text-lg--line-height: 1.2;
+  --text-lg--letter-spacing: -0.01em;
+  --text-xl: 1.25rem;                                /* 20 — bridge tier */
+  --text-xl--line-height: 1.2;
+  --text-xl--letter-spacing: -0.01em;
+  --text-2xl: 1.5rem;                                /* 24 heading-sm */
+  --text-2xl--line-height: 1.2;
+  --text-2xl--letter-spacing: -0.01em;
+  --text-3xl: 2.25rem;                               /* 36 heading */
+  --text-3xl--line-height: 1.05;
+  --text-3xl--letter-spacing: -0.01em;
+  --text-4xl: 3rem;                                  /* 48 heading-lg */
+  --text-4xl--line-height: 1.05;
+  --text-4xl--letter-spacing: -0.01em;
+  --text-5xl: 3.75rem;                               /* 60 */
+  --text-5xl--line-height: 1;
+  --text-5xl--letter-spacing: -0.02em;
+  --text-6xl: 4.5rem;                                /* 72 display */
+  --text-6xl--line-height: 1;
+  --text-6xl--letter-spacing: -0.022em;
+  --text-7xl: 6rem;                                  /* 96 */
+  --text-7xl--line-height: 1;
+  --text-7xl--letter-spacing: -0.022em;
 }
 
 /* ----------------------------------------------------------------------------
-   DARK MODE (.dark) — the SOFT CHARCOAL canvas sheet. The heritage look was
-   pure #000; it read as an eye-straining void, so the sheet is lifted to a
-   quiet charcoal ramp (#16181D canvas → #1D2026 cards → #262A31 blocks) with
-   a whisper of cool blue in the hue so it sits next to #1591DC cleanly.
-   Same relative structure as before: canvas < card < popover < muted < accent.
-   The --surface token INVERTS to charcoal #1D2026 (same as --card) with white
-   ink, so .block-surface ledger cards/panels/tooltips read as dark blocks
-   in dark mode (mirroring the light sheet's white-on-#F1F1EF register).
+   LIGHT SHEET (:root default) — the warm-paper inversion. Obsidian ink on
+   warm limestone paper. Every law of the material system holds: no pure
+   white, no shadows, teal as the only chroma, hairline warm rims.
+   ---------------------------------------------------------------------------- */
+:root {
+  --radius: 8px;
+
+  /* Brand — muted teal (the only chromatic voice; links/accents) */
+  --brand: #175247;
+  --brand-light: #1d6b5d;
+  --primary: #151515;             /* obsidian CTA — the luminance inversion */
+  --primary-hover: #2e2e2a;
+  --primary-foreground: #e9ebdf;
+  --royal-gold: #7a5518;
+
+  /* Core surfaces — warm paper ladder */
+  --canvas: #edede4;
+  --ink: #151515;
+  --surface: #e3e3d8;             /* raised paper block */
+  --surface-foreground: #151515;
+  --gold: #7a5518;
+
+  /* Decorative colour-block accents — muted teal-led */
+  --accent-1: #185849;
+  --accent-2: #a8402f;
+  --accent-3: #0e352c;
+
+  --background: #edede4;
+  --foreground: #151515;
+  --card: #f6f6ee;                /* raised paper — floats above canvas */
+  --card-foreground: #151515;
+  --popover: #f6f6ee;
+  --popover-foreground: #151515;
+
+  --secondary: #e3e3d8;
+  --secondary-foreground: #151515;
+  --muted: #e7e7dc;
+  --muted-foreground: #5d5e54;    /* ash, darkened for paper */
+
+  --accent: #e2e2d6;              /* ghost hover wash */
+  --accent-foreground: #151515;
+
+  --destructive: #a8402f;         /* muted rust — never saturated */
+
+  --border: #d5d5c7;              /* warm hairline rim */
+  --input: #a9a99b;
+  --input-hover: #5d5e54;
+  --ring: #151515;
+
+  --success: #3d6b4f;
+  --success-foreground: #e9ebdf;
+  --warning: #9a6b1f;
+  --warning-foreground: #e9ebdf;
+  --danger: #a8402f;
+  --danger-foreground: #e9ebdf;
+  --info: #185849;
+  --info-foreground: #e9ebdf;
+
+  --danger-ink: #8f3a2b;
+  --success-ink: #2f5a40;
+  --warning-ink: #7a5518;
+  --info-ink: #175247;
+  --tablehead: #e7e7dc;
+  --scrollbar-thumb: #c2c2b2;
+
+  /* Material ladder (mode-inverted) */
+  --void: #e4e4d8;                /* recessed field/panel bed */
+  --ember: #f6f6ee;               /* raised surface */
+  --rim: #d5d5c7;
+  --teal: #185849;
+  --moss: #0e352c;
+
+  --chart-1: #2e6b5e;
+  --chart-2: #b98a3e;
+  --chart-3: #8b5e3c;
+  --chart-4: #a8402f;
+  --chart-5: #5d5e54;
+
+  --sidebar: #edede4;
+  --sidebar-foreground: #151515;
+  --sidebar-primary: #151515;
+  --sidebar-primary-foreground: #e9ebdf;
+  --sidebar-accent: #e3e3d8;
+  --sidebar-accent-foreground: #151515;
+  --sidebar-border: #d5d5c7;
+  --sidebar-ring: #151515;
+
+  /* Ambient canvas wash — a whisper of teal under page headers */
+  --pui-canvas: radial-gradient(
+    1200px 480px at 50% -160px,
+    color-mix(in oklab, var(--teal) 7%, transparent),
+    transparent 70%
+  );
+  --pui-ring: 0 0 0 3px color-mix(in oklab, #151515 16%, transparent);
+}
+
+/* ----------------------------------------------------------------------------
+   DARK SHEET (.dark) — THE CANONICAL SPEC. Near-black obsidian canvas,
+   parchment ink, ember raised surfaces, charcoal rims. The signature look.
    next-themes toggles this class on <html>.
    ---------------------------------------------------------------------------- */
 .dark {
-  --brand: #1591DC;
-  --brand-light: #8ECBF0;         /* lightened link tint for the charcoal canvas */
-  --primary: #1591DC;
-  --primary-hover: #0E7ABF;
-  --primary-foreground: #FFFFFF;
-  --royal-gold: #E8A317;
+  --brand: #8fbfb3;
+  --brand-light: #a9cfc5;
+  --primary: #e9ebdf;             /* parchment CTA — the luminance CTA */
+  --primary-hover: #f5f6ec;
+  --primary-foreground: #151515;
+  --royal-gold: #c9903d;
 
-  --canvas: #16181D;
-  --ink: #FFFFFF;
-  --surface: #1D2026;             /* charcoal block — inverts with white ink in dark mode */
-  --surface-foreground: #FFFFFF;
-  --gold: #E8A317;
+  --canvas: #151515;
+  --ink: #e9ebdf;
+  --surface: #242424;             /* ember surface — raised slab */
+  --surface-foreground: #e9ebdf;
+  --gold: #c9903d;
 
-  --accent-1: #0041F0;
-  --accent-2: #E2062E;
-  --accent-3: #0A4A74;
+  --accent-1: #185849;
+  --accent-2: #a8402f;
+  --accent-3: #0e352c;
 
-  --background: #16181D;
-  --foreground: #FFFFFF;
-  --card: #1D2026;
-  --card-foreground: #FFFFFF;
-  --popover: #202329;
-  --popover-foreground: #FFFFFF;
+  --background: #151515;
+  --foreground: #e9ebdf;
+  --card: #242424;                /* ember — cards float by lightness alone */
+  --card-foreground: #e9ebdf;
+  --popover: #1d1d1d;             /* recessed popover — the Deep register */
+  --popover-foreground: #e9ebdf;
 
-  --secondary: #262A31;
-  --secondary-foreground: #FFFFFF;
-  --muted: #262A31;
-  --muted-foreground: #A6ADB6;
+  --secondary: #242424;
+  --secondary-foreground: #e9ebdf;
+  --muted: #1e1e1e;
+  --muted-foreground: #94958e;    /* Ash Text */
 
-  --accent: #2F343C;
-  --accent-foreground: #FFFFFF;
+  --accent: #2b2b29;              /* warm ghost hover wash */
+  --accent-foreground: #e9ebdf;
 
-  --destructive: #E2062E;
+  --destructive: #a8402f;
 
-  --border: #292D34;
-  --input: #565B63;
-  --input-hover: #A2A2A0;         /* brightens on hover, per the states spec */
-  --ring: #1591DC;
+  --border: #3f403d;              /* Charcoal Rim */
+  --input: #52534e;
+  --input-hover: #8b867f;         /* Copper Wire */
+  --ring: #e9ebdf;
 
-  --success: #2FBF71;
-  --success-foreground: #000000;
-  --warning: #F5A623;
-  --warning-foreground: #000000;
-  --danger: #E2062E;
-  --danger-foreground: #FFFFFF;
-  --info: #0041F0;
-  --info-foreground: #FFFFFF;
+  --success: #3d6b4f;
+  --success-foreground: #e9ebdf;
+  --warning: #b98a3e;
+  --warning-foreground: #151515;
+  --danger: #a8402f;
+  --danger-foreground: #e9ebdf;
+  --info: #185849;
+  --info-foreground: #e9ebdf;
 
-  /* Status inks tuned for the charcoal canvas (light inks on /10 washes) */
-  --danger-ink: #FF8296;
-  --success-ink: #6EE7B7;
-  --warning-ink: #FCD34D;
-  --info-ink: #5FB8F0;
-  --tablehead: #1B1E24;
-  --scrollbar-thumb: #383D45;
+  --danger-ink: #e8937f;
+  --success-ink: #9fc4a8;
+  --warning-ink: #e5be7d;
+  --info-ink: #8fbfb3;
+  --tablehead: #1b1b1b;
+  --scrollbar-thumb: #3f403d;
 
-  --chart-1: #1591DC;
-  --chart-2: #E8A317;
-  --chart-3: #0041F0;
-  --chart-4: #E2062E;
-  --chart-5: #A6A6A6;
+  --void: #1a1a1a;                /* recessed field/panel bed */
+  --ember: #242424;
+  --rim: #3f403d;
+  --teal: #185849;
+  --moss: #0e352c;
 
-  --sidebar: #16181D;
-  --sidebar-foreground: #FFFFFF;
-  --sidebar-primary: #1591DC;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #2F343C;
-  --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: #292D34;
-  --sidebar-ring: #1591DC;
+  --chart-1: #5fa898;
+  --chart-2: #b98a3e;
+  --chart-3: #8b867f;
+  --chart-4: #c86a54;
+  --chart-5: #94958e;
+
+  --sidebar: #151515;
+  --sidebar-foreground: #e9ebdf;
+  --sidebar-primary: #e9ebdf;
+  --sidebar-primary-foreground: #151515;
+  --sidebar-accent: #242424;
+  --sidebar-accent-foreground: #e9ebdf;
+  --sidebar-border: #3f403d;
+  --sidebar-ring: #e9ebdf;
+
+  --pui-canvas: radial-gradient(
+    1200px 480px at 50% -160px,
+    color-mix(in oklab, var(--teal) 14%, transparent),
+    transparent 70%
+  );
+  --pui-ring: 0 0 0 3px color-mix(in oklab, #e9ebdf 20%, transparent);
 }
 
 @layer base {
@@ -324,9 +397,30 @@ html.lenis body {
     -webkit-text-size-adjust: 100%;
     color-scheme: light;
     background-color: var(--background);
+    /* Warm-paper canvas: a quiet ember wash bleeds from the bottom-left,
+       mirroring the spec's obsidian gradient at paper opacity. */
+    background-image: radial-gradient(
+      at -5% 105%,
+      rgba(146, 108, 53, 0.1) 0%,
+      rgba(24, 88, 73, 0.06) 32%,
+      rgba(85, 62, 45, 0.04) 52%,
+      rgba(237, 237, 228, 0) 80%
+    );
+    background-attachment: fixed;
   }
   html.dark {
     color-scheme: dark;
+    /* THE OBSIDIAN CANVAS — the spec's exact hero gradient: warm
+       amber-rust bleeding from the bottom-left into near-black. */
+    background-image: radial-gradient(
+      at -5% 105%,
+      rgba(27, 46, 68, 0.5) 26%,
+      rgba(51, 45, 43, 0.5) 44%,
+      rgba(74, 43, 17, 0.5) 62%,
+      rgba(73, 31, 22, 0.5) 66%,
+      rgba(21, 21, 21, 0) 85%,
+      rgba(21, 21, 21, 0.03) 100%
+    );
   }
   body {
     @apply bg-background text-foreground;
@@ -334,6 +428,7 @@ html.lenis body {
        a scroll container — one long unbroken string can't scroll the page
        (and its sticky rails) sideways. Zero effect when nothing overflows. */
     overflow-x: clip;
+    font-weight: 380; /* spec body weight */
     font-feature-settings: "rlig" 1, "calt" 1, "tnum" 1;
     font-family: var(--font-sans), "Inter", -apple-system, BlinkMacSystemFont,
       "Segoe UI", Helvetica, Arial, sans-serif;
@@ -341,11 +436,11 @@ html.lenis body {
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
-  /* Accenture headline voice — Graphik-style: medium weights, tight tracking.
-     Display sizes opt into weight 600 + uppercase via the display utilities. */
+  /* Headline voice — the spec's compressed light authority: weight 380,
+     tight tracking. Display tiers drop to 300 via the display utilities. */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-sans), "Inter", sans-serif;
-    letter-spacing: -0.02em;
+    font-weight: 380;
+    letter-spacing: -0.01em;
     text-wrap: balance;
   }
   .tabular-nums {
@@ -353,9 +448,9 @@ html.lenis body {
   }
   ::selection {
     background-color: var(--primary);
-    color: #FFFFFF;
+    color: var(--primary-foreground);
   }
-  /* Focus-visible: solid 2px blue outline (Accenture states spec) */
+  /* Focus-visible: solid 2px outline in the mode's luminance ink */
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
@@ -373,328 +468,383 @@ html.lenis body {
     border: 2px solid var(--background);
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--muted-foreground);
+    background: var(--input-hover);
   }
 }
 
 /* ============================================================================
-   TYPOGRAPHY SCALE — measured from the Accenture token sheet
-   (Inter stands in for Graphik; add .display-serif for GT Sectra moments)
+   TYPOGRAPHY UTILITIES — the spec's type voice
+   (Inter stands in for saansFont; Space Grotesk stands in for pxGroteskFont)
    ============================================================================ */
 
 @layer utilities {
-  /* Display XXL-strong — hero: 100px/500/uppercase/-3px on 1440 viewports.
-     Accenture law (audited across 11 pages): display type is HUGE-MEDIUM-TIGHT
-     — weight 500, never bold. Hierarchy lives in the scale jump, not weight. */
+  /* Display — 72px tier: weight 300 (authority through mass, not stroke),
+     sentence case, -0.022em. The signature headline treatment. */
   .display-hero {
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: -0.03em;
-    line-height: 0.95;
-    font-size: clamp(2.75rem, 1.2rem + 7vw, 6.25rem);
+    font-weight: 300;
+    letter-spacing: -0.022em;
+    line-height: 1;
+    font-size: clamp(2.75rem, 1.2rem + 7vw, 4.5rem);
   }
-  /* Display XL — 48px/500/-1.44px (the audited H2 section tier) */
+  /* Display XL — the 48px tier: weight 300, -0.02em */
   .display-xl {
-    font-weight: 500;
-    letter-spacing: -0.03em;
-    line-height: 1.08;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
     font-size: clamp(2rem, 1.1rem + 3.8vw, 3rem);
   }
-  /* Display LG — 40px/500/-1.2px (the audited mid-display tier) */
+  /* Display LG — the 36px tier: weight 380, -0.01em */
   .display-lg {
-    font-weight: 500;
-    letter-spacing: -0.03em;
-    line-height: 1.12;
-    font-size: clamp(1.625rem, 1.1rem + 2.2vw, 2.5rem);
+    font-weight: 380;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    font-size: clamp(1.625rem, 1.1rem + 2.2vw, 2.25rem);
   }
-  /* Heading MD — 24px/500 → 32px at 1920 (rides the Accenture fluid curve) */
+  /* Heading MD — the 24px tier: weight 380, -0.01em */
   .heading-md {
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    line-height: 1.3;
-    font-size: clamp(1.5rem, 1.6667vw, 2rem);
+    font-weight: 380;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    font-size: clamp(1.5rem, 1.6667vw, 1.5rem);
   }
-  /* Editorial serif display (GT Sectra Fine stand-in) — pair with a size */
+  /* Legacy serif slots — migrated to the spec's single-sans voice
+     (kept as class names so existing JSX renders without edits). */
   .display-serif {
-    font-family: var(--font-serif), Georgia, "Times New Roman", serif;
-    font-weight: 400;
+    font-family: var(--font-sans), "Inter", sans-serif;
+    font-weight: 300;
     letter-spacing: -0.01em;
   }
-  /* Serif standfirst — the audited ONE-per-page editorial counter-voice
-     (GT Sectra Fine 24px/300 under the H1). Pair with a fluid text size. */
   .standfirst {
-    font-family: var(--font-serif), Georgia, "Times New Roman", serif;
+    font-family: var(--font-sans), "Inter", sans-serif;
     font-weight: 300;
     font-style: normal;
     line-height: 1.45;
     letter-spacing: 0;
   }
-  /* Stat numerals — numbers as display typography (audited: 48px/500/−1.44px).
-     Weight 500 + tight tracking + tabular figures; never bold. */
+  /* Stat numerals — numbers as display typography (light weight, tight) */
   .stat-numeral {
-    font-weight: 500;
-    letter-spacing: -0.03em;
+    font-weight: 300;
+    letter-spacing: -0.02em;
     line-height: 1;
     font-variant-numeric: tabular-nums;
   }
-  /* Kicker / eyebrow — the audited single uppercase voice:
-     14px / 500 / UPPERCASE / +0.02em (0.28px @14px). Merger of the old
-     12px/600/+0.16em and 10px/bold micro-label systems. */
+  /* Kicker / eyebrow — pxGrotesk register: Space Grotesk 400 13px at
+     +0.013em, sentence case. Interface chrome, not content. */
   .kicker {
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+    font-family: var(--font-label), ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    letter-spacing: 0.013em;
     line-height: 1.2;
   }
   .kicker-gold {
     color: var(--gold);
   }
 
-  /* ---- Colour-blocking utilities (Accenture elevation strategy) ----------
-     Light blocks carry BLACK text; brand blocks carry white/gold ink. ---- */
+  /* ---- Colour-blocking utilities (flat-material elevation) --------------- */
   .block-surface {
     background-color: var(--surface);
     color: var(--surface-foreground);
   }
   .block-ink {
-    background-color: #FFFFFF;
-    color: #000000;
+    background-color: #e9ebdf; /* parchment block — the luminance inversion */
+    color: #151515;
   }
   .block-primary {
     background-color: var(--primary);
-    color: #FFFFFF;
+    color: var(--primary-foreground);
   }
   .block-accent {
-    background-color: var(--accent-1);
-    color: #FFFFFF;
+    background-color: var(--teal); /* Forest Deep wash */
+    color: #e9ebdf;
   }
   .block-red {
     background-color: var(--accent-2);
-    color: #FFFFFF;
+    color: #e9ebdf;
   }
   .block-deep {
-    background-color: var(--accent-3);
-    color: #FFFFFF;
+    background-color: var(--moss); /* Midnight Moss — deepest wash */
+    color: #e9ebdf;
   }
   .block-gold {
     background-color: var(--gold);
-    color: #000000;
+    color: #151515;
   }
 
-  /* Accenture signature ">" momentum link */
+  /* Momentum link — quiet arrow slide on hover */
   .link-arrow {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    font-weight: 500;
+    font-weight: 380;
   }
   .link-arrow::after {
     content: ">";
     font-weight: 400;
-    transition: transform 0.15s ease;
+    transition: transform 0.2s var(--ease-deliberate);
   }
   .link-arrow:hover::after {
     transform: translateX(3px);
   }
+
+  /* ---- pui primitives — now GLOBAL (one material language app-wide) ------ */
+  .pui-card {
+    border-radius: var(--radius-lg); /* 12px — large-card register */
+    border: 1px solid var(--rim);
+    background: var(--card);
+  }
+  .pui-card-interactive {
+    transition: border-color 0.25s var(--ease-deliberate),
+      background-color 0.25s var(--ease-deliberate);
+  }
+  .pui-card-interactive:hover {
+    border-color: color-mix(in oklab, var(--copper, #8b867f) 45%, var(--rim));
+    background: color-mix(in oklab, var(--foreground) 3%, var(--card));
+  }
+  .pui-tile {
+    border-radius: var(--radius-md); /* 8px — default-card register */
+  }
+  .pui-chip {
+    border-radius: 9999px;
+    border: 1px solid var(--rim);
+    background: var(--surface);
+  }
+  /* Scrollable lists: slim modern scrollbar */
+  .pui-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--muted-foreground) 30%, transparent)
+      transparent;
+  }
+  .pui-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .pui-scroll::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--muted-foreground) 28%, transparent);
+  }
+  .pui-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 /* ============================================================================
-   PREMIUM SCOPE — modern soft-surface layer for the applicant Profile
-   experience. The base RMIS sheet is hard-flat (radius 0, no shadows); the
-   applicant-facing profile and its forms opt into a contemporary enterprise
-   language (Deel / Greenhouse / LinkedIn grade) by carrying the `.premium`
-   class on their root element. Everything outside the scope — admin,
-   evaluator, public pages — keeps the Accenture-flat geometry untouched.
-
-   Mechanics: radius/shadow custom properties are re-declared inside the
-   scope (they cascade to every descendant), and the canonical shadcn
-   primitives are re-rounded via their data-slot hooks. Portaled surfaces
-   (Dialog / Drawer / Select content) render outside the subtree, so each
-   portal root also carries the .premium class from its wrapper component.
+   COMPONENT SURFACES — the flat-material control layer (global)
+   ----------------------------------------------------------------------------
+   Unlayered rules: they outrank utility classes so the whole app speaks one
+   language regardless of which primitives a view composes. Depth = surface
+   steps + hairline rims; the only box-shadows allowed are focus rings and
+   invalid-state rings (a11y affordances, not elevation).
    ============================================================================ */
 
-.premium {
-  /* Re-tuned geometry tokens (cascade into every descendant) */
-  --radius-sm: 0.5rem;
-  --radius-md: 0.625rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.25rem;
-  --radius: 0.625rem;
-  /* Layered elevation — soft, ambient, never heavy */
-  --shadow-soft: 0 1px 2px 0 rgb(9 14 24 / 0.05), 0 1px 3px 0 rgb(9 14 24 / 0.04);
-  --shadow-lift: 0 4px 8px -2px rgb(9 14 24 / 0.06), 0 12px 28px -6px rgb(9 14 24 / 0.1);
-  --shadow-pop: 0 8px 16px -4px rgb(9 14 24 / 0.1), 0 24px 56px -12px rgb(9 14 24 / 0.18);
-  /* Ambient canvas wash behind the scope's cards */
-  --pui-canvas: radial-gradient(1200px 480px at 50% -160px,
-    color-mix(in oklab, var(--primary) 11%, transparent), transparent 70%);
-  --pui-ring: 0 0 0 3px color-mix(in oklab, var(--primary) 22%, transparent);
-}
-
-/* Dark mode — the wash lifts a touch stronger off the charcoal canvas so the
-   ambient glow survives against #16181D (light's 11% dies in the dark). */
-.dark .premium {
-  --pui-canvas: radial-gradient(1200px 480px at 50% -160px,
-    color-mix(in oklab, var(--primary) 17%, transparent), transparent 70%);
-}
-
-/* ---- Controls: inputs, selects, textareas → soft modern fields ------------ */
-.premium [data-slot="input"],
-.premium [data-slot="textarea"],
-.premium [data-slot="select-trigger"] {
-  border-radius: var(--radius-md);
+/* ---- Cards ----------------------------------------------------------------- */
+[data-slot="card"] {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--rim);
   background: var(--card);
-  box-shadow: var(--shadow-soft);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.premium [data-slot="input"]:hover,
-.premium [data-slot="textarea"]:hover,
-.premium [data-slot="select-trigger"]:hover {
-  border-color: color-mix(in oklab, var(--primary) 35%, var(--input));
+
+/* ---- Fields: inputs, selects, textareas → recessed material beds ----------
+   Fields recede INTO the surface (the Deep register) while cards float —
+   the material inversion that makes forms read as instrument panels. */
+[data-slot="input"],
+[data-slot="textarea"],
+[data-slot="select-trigger"] {
+  border-radius: var(--radius-md);
+  background: var(--void);
+  border-color: var(--input);
+  transition: border-color 0.2s var(--ease-deliberate),
+    box-shadow 0.2s var(--ease-deliberate);
 }
-.premium [data-slot="input"]:focus-visible,
-.premium [data-slot="textarea"]:focus-visible,
-.premium [data-slot="select-trigger"]:focus-visible {
-  border-color: var(--primary);
+[data-slot="input"]::placeholder,
+[data-slot="textarea"]::placeholder {
+  color: color-mix(in oklab, var(--muted-foreground) 70%, transparent);
+}
+[data-slot="input"]:hover,
+[data-slot="textarea"]:hover,
+[data-slot="select-trigger"]:hover {
+  border-color: var(--input-hover);
+}
+[data-slot="input"]:focus-visible,
+[data-slot="textarea"]:focus-visible,
+[data-slot="select-trigger"]:focus-visible {
+  border-color: color-mix(in oklab, var(--foreground) 55%, var(--input));
   box-shadow: var(--pui-ring);
+  outline: none;
 }
-.premium [data-slot="input"][aria-invalid="true"],
-.premium [data-slot="textarea"][aria-invalid="true"] {
+[data-slot="input"][aria-invalid="true"],
+[data-slot="textarea"][aria-invalid="true"] {
   border-color: var(--destructive);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--destructive) 16%, transparent);
 }
-.premium [data-slot="select-trigger"] {
+[data-slot="select-trigger"] {
   height: 2.75rem;
   padding-inline: 0.875rem;
 }
-/* Multiline fields → tinted canvas wash (reference form's textarea register:
-   a breath of primary inside the field so long-form text feels like a
-   dedicated writing surface, not another input). */
-.premium [data-slot="textarea"] {
-  background: color-mix(in oklab, var(--primary) 4%, var(--card));
-}
-.premium [data-slot="textarea"]::placeholder {
-  color: color-mix(in oklab, var(--muted-foreground) 75%, transparent);
+/* Multiline fields → a whisper of teal (the spec's atmospheric wash role) */
+[data-slot="textarea"] {
+  background: color-mix(in oklab, var(--teal) 3%, var(--void));
 }
 
-/* ---- Buttons → pill-soft modern actions ----------------------------------- */
-.premium [data-slot="button"] {
-  border-radius: var(--radius-md);
-  transition: box-shadow 0.15s ease, transform 0.15s ease, background-color 0.15s ease,
-    border-color 0.15s ease, color 0.15s ease;
+/* ---- Buttons → pill grammar -------------------------------------------------
+   The spec's binary radius: CTAs are 9999px pills, always. Primary is a
+   LUMINANCE CTA — parchment fill on obsidian (obsidian fill on paper). */
+[data-slot="button"] {
+  border-radius: 9999px;
+  font-weight: 380;
+  letter-spacing: 0.01em;
+  transition: background-color 0.2s var(--ease-deliberate),
+    border-color 0.2s var(--ease-deliberate), color 0.2s var(--ease-deliberate),
+    opacity 0.2s var(--ease-deliberate);
 }
-.premium [data-slot="button"]:not([data-variant="ghost"]):not([data-variant="link"]):active {
+[data-slot="button"]:not([data-variant="ghost"]):not([data-variant="link"]):active {
   transform: translateY(0.5px);
 }
-.premium [data-slot="button"][data-variant="default"] {
-  box-shadow: 0 1px 2px rgb(9 14 24 / 0.12), inset 0 1px 0 rgb(255 255 255 / 0.12);
+[data-slot="button"][data-variant="default"] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: 1px solid var(--primary);
 }
-.premium [data-slot="button"][data-variant="default"]:hover {
-  box-shadow: 0 4px 12px -2px color-mix(in oklab, var(--primary) 45%, transparent);
+[data-slot="button"][data-variant="default"]:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
 }
-.premium [data-slot="button"][data-variant="outline"] {
-  box-shadow: var(--shadow-soft);
+[data-slot="button"][data-variant="outline"] {
+  background: transparent;
+  border: 1px solid var(--rim);
+  color: var(--foreground);
 }
-
-/* ---- Badges → true pills ---------------------------------------------------- */
-.premium [data-slot="badge"] {
-  border-radius: 999px;
+[data-slot="button"][data-variant="outline"]:hover {
+  background: var(--accent);
+  border-color: var(--input-hover);
 }
-
-/* ---- Progress → rounded track with gradient fill --------------------------- */
-.premium [data-slot="progress"] {
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--muted-foreground) 14%, transparent);
+[data-slot="button"][data-variant="secondary"] {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  border: 1px solid var(--rim);
 }
-.premium [data-slot="progress-indicator"] {
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--primary), color-mix(in oklab, var(--primary) 55%, #7FD1F5));
+[data-slot="button"][data-variant="secondary"]:hover {
+  background: var(--accent);
 }
-
-/* ---- Dialogs (desktop) → floating rounded sheets ---------------------------
-   Two match forms: `.premium [data-slot=…]` for a premium ANCESTOR, and
-   `.premium[data-slot=…]` for the portal root that carries .premium ITSELF
-   (dialogs portal to <body>, outside every premium subtree — the wrapper
-   puts the class straight on the content element). Same for drawers. ------ */
-.premium [data-slot="dialog-content"],
-.premium [data-slot="alert-dialog-content"],
-.premium[data-slot="dialog-content"],
-.premium[data-slot="alert-dialog-content"] {
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-pop);
-}
-.premium [data-slot="dialog-overlay"],
-.premium [data-slot="alert-dialog-overlay"] {
-  background: rgb(9 14 24 / 0.5);
-  backdrop-filter: blur(3px);
-}
-
-/* ---- Drawer (mobile bottom sheet) → rounded top + grabber ------------------ */
-.premium [data-slot="drawer-content"],
-.premium[data-slot="drawer-content"] {
-  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
-  box-shadow: var(--shadow-pop);
-}
-
-/* ---- Select dropdown panel (portal root carries .premium itself) ----------- */
-.premium[data-slot="select-content"],
-.premium [data-slot="select-content"] {
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-pop);
-}
-.premium[data-slot="select-item"],
-.premium [data-slot="select-item"] {
-  border-radius: calc(var(--radius-lg) - 4px);
-}
-
-/* ---- Scrollable lists: slim modern scrollbar -------------------------------- */
-.premium .pui-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 30%, transparent) transparent;
-}
-.premium .pui-scroll::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-.premium .pui-scroll::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--muted-foreground) 28%, transparent);
-}
-.premium .pui-scroll::-webkit-scrollbar-track {
+[data-slot="button"][data-variant="ghost"] {
   background: transparent;
 }
+[data-slot="button"][data-variant="ghost"]:hover {
+  background: var(--accent);
+}
+[data-slot="button"][data-variant="destructive"] {
+  background: var(--destructive);
+  color: #e9ebdf;
+  border: 1px solid var(--destructive);
+}
+[data-slot="button"][data-variant="destructive"]:hover {
+  background: color-mix(in oklab, var(--destructive) 82%, #151515);
+}
+[data-slot="button"][data-variant="link"] {
+  color: var(--brand);
+  border-radius: 4px;
+}
+[data-slot="button"][data-variant="link"]:hover {
+  color: var(--brand-light);
+}
 
-/* ---- Empty states → soft AI-tinted icon tile -------------------------------- */
-.premium [data-slot="empty-result-icon"] {
-  border-radius: var(--radius-xl);
-  border: 1px solid color-mix(in oklab, var(--primary) 22%, transparent);
+/* ---- Badges → 4px tags (the spec's tags-badges register) ------------------- */
+[data-slot="badge"] {
+  border-radius: 4px;
+}
+
+/* ---- Progress → pill track with parchment fill ----------------------------- */
+[data-slot="progress"] {
+  border-radius: 999px;
+  background: var(--void);
+  border: 1px solid color-mix(in oklab, var(--rim) 70%, transparent);
+}
+[data-slot="progress-indicator"] {
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--primary),
+    color-mix(in oklab, var(--primary) 62%, var(--copper, #8b867f))
+  );
+}
+
+/* ---- Dialogs / Sheets → floating ember slabs ------------------------------- */
+[data-slot="dialog-content"],
+[data-slot="alert-dialog-content"] {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--rim);
+  background: var(--card);
+}
+[data-slot="dialog-overlay"],
+[data-slot="alert-dialog-overlay"] {
+  background: rgb(0 0 0 / 0.55);
+  backdrop-filter: blur(3px);
+}
+.dark [data-slot="dialog-overlay"],
+.dark [data-slot="alert-dialog-overlay"] {
+  background: rgb(0 0 0 / 0.65);
+}
+
+/* ---- Drawer (mobile bottom sheet) → rounded top ---------------------------- */
+[data-slot="drawer-content"],
+[data-slot="sheet-content"] {
+  border-color: var(--rim);
+}
+[data-slot="drawer-content"] {
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+/* ---- Dropdown / Select panels → recessed popover register ------------------ */
+[data-slot="select-content"],
+[data-slot="dropdown-menu-content"],
+[data-slot="popover-content"],
+[data-slot="hover-card-content"],
+[data-slot="command"],
+[data-slot="context-menu-content"],
+[data-slot="menubar-content"] {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--rim);
+  background: var(--popover);
+  color: var(--popover-foreground);
+}
+[data-slot="select-item"],
+[data-slot="dropdown-menu-item"],
+[data-slot="command-item"] {
+  border-radius: 4px;
+}
+[data-slot="tooltip-content"] {
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--surface-foreground);
+  border: 1px solid var(--rim);
+}
+
+/* ---- Empty states → teal-washed icon tile ----------------------------------- */
+[data-slot="empty-result-icon"] {
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in oklab, var(--teal) 35%, transparent);
   background: linear-gradient(
     135deg,
-    color-mix(in oklab, var(--primary) 12%, transparent),
-    color-mix(in oklab, var(--primary) 4%, transparent)
+    color-mix(in oklab, var(--teal) 16%, transparent),
+    color-mix(in oklab, var(--teal) 5%, transparent)
   );
-  color: var(--primary);
-  box-shadow: var(--shadow-soft);
+  color: var(--info-ink);
 }
 
-/* ---- Cards: standard + interactive lift variant ------------------------------ */
-.premium .pui-card {
-  border-radius: var(--radius-2xl);
-  border: 1px solid color-mix(in oklab, var(--border) 82%, transparent);
-  background: var(--card);
-  box-shadow: var(--shadow-soft);
-}
-.premium .pui-card-interactive {
-  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-}
-.premium .pui-card-interactive:hover {
-  box-shadow: var(--shadow-lift);
-  border-color: color-mix(in oklab, var(--primary) 30%, var(--border));
-}
-.premium .pui-tile {
-  border-radius: var(--radius-xl);
-}
-.premium .pui-chip {
-  border-radius: 999px;
+/* ============================================================================
+   PREMIUM SCOPE — compatibility shim. The whole app now speaks the obsidian
+   material language, so the old soft-surface overrides are gone; the class
+   remains a no-op for JSX that still carries it, plus the ambient canvas
+   wash tokens for views that reference them inline.
+   ============================================================================ */
+.premium {
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 12px;
+  --radius-2xl: 12px;
+  --radius: 8px;
+  --shadow-soft: 0 0 #0000;
+  --shadow-lift: 0 0 #0000;
+  --shadow-pop: 0 0 #0000;
 }

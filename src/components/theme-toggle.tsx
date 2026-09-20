@@ -1,14 +1,15 @@
 "use client";
 
 // ============================================================================
-// ThemeToggle — the dark/light switch in the Accenture language.
+// ThemeToggle — the dark/light switch in the RMIS DESIGN.md language.
 //
-// · Sharp 0px square, 44px touch target, hairline border, no shadow
+// · 44px pill (the nav's single button shape — the spec forbids mixing
+//   square and pill buttons in one row), hairline border, no shadow
 // · Ghost variant for the nav rail (borderless, rail-tinted hover)
 // · CSS-driven icon swap: BOTH icons render and the .dark class (set on
 //   <html> by next-themes before hydration) decides which shows — Sun while
-//   the black canvas is active (tap → light), Moon while the light sheet is
-//   active (tap → dark). No mounted-state means zero hydration risk.
+//   the obsidian canvas is active (tap → light), Moon while the warm-paper
+//   sheet is active (tap → dark). No mounted-state means zero hydration risk.
 // ============================================================================
 
 import { useTheme } from "next-themes";
@@ -23,7 +24,7 @@ export function ThemeToggle({ variant = "default", className = "" }: ThemeToggle
   const { resolvedTheme, setTheme } = useTheme();
 
   const base =
-    "inline-grid size-11 shrink-0 place-items-center rounded-none transition-colors active:opacity-60";
+    "inline-grid size-11 shrink-0 place-items-center rounded-full transition-colors active:opacity-60";
   const skin =
     variant === "ghost"
       ? "hover:bg-accent hover:text-foreground"

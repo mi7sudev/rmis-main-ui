@@ -225,7 +225,7 @@ export function SignUpView() {
                     <span
                       aria-hidden
                       className={`mt-0.5 flex size-5 shrink-0 items-center justify-center border transition-colors ${
-                        agreed ? "border-primary bg-primary text-white" : "border-input bg-transparent"
+                        agreed ? "border-primary bg-primary text-primary-foreground" : "border-input bg-transparent"
                       }`}
                     >
                       {agreed && <Check className="size-3.5" strokeWidth={3} />}

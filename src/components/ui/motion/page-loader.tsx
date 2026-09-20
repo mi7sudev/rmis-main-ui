@@ -85,7 +85,7 @@ export function PageLoader() {
             {/* Wordmark — masked slide up */}
             <div className="overflow-hidden">
               <motion.h1
-                className="text-3xl font-black uppercase tracking-[0.3em] text-white sm:text-5xl"
+                className="text-3xl font-light uppercase tracking-[0.3em] text-parchment sm:text-5xl"
                 initial={{ y: "110%" }}
                 animate={{ y: "0%" }}
                 transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}

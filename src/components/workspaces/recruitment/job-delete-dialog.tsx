@@ -81,7 +81,7 @@ export function JobDeleteDialog({
           <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             disabled={deleting}
-            className="bg-destructive text-white hover:bg-[#B80525]"
+            className="bg-destructive text-[#e9ebdf] hover:bg-destructive/85"
             onClick={(e) => {
               e.preventDefault(); // keep the dialog open while the request runs
               void confirmDelete();

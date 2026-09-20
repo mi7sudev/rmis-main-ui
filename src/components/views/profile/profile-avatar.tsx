@@ -72,7 +72,7 @@ export function ProfileAvatar({
       disabled={uploading}
       title="Click to upload your profile photo"
       aria-label={`Upload profile photo for ${name}`}
-      className={`group relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-[1rem] text-base font-extrabold text-primary transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-wait disabled:opacity-70 sm:size-20 sm:rounded-[1.25rem] sm:text-lg lg:size-24 lg:text-xl ${
+      className={`group relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-[12px] text-base font-extrabold text-primary transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-wait disabled:opacity-70 sm:size-20 sm:text-lg lg:size-24 lg:text-xl ${
         photoUrl
           ? "bg-secondary shadow-sm ring-2 ring-primary/25"
           : "border border-dashed border-primary/40 bg-gradient-to-br from-primary/15 to-primary/5 hover:border-primary hover:shadow-sm"
@@ -93,7 +93,7 @@ export function ProfileAvatar({
       {!uploading && (
         <span
           aria-hidden
-          className="absolute inset-0 hidden place-items-center bg-primary/60 text-white group-hover:grid"
+          className="absolute inset-0 hidden place-items-center bg-obsidian/60 text-parchment group-hover:grid"
         >
           <Camera className="size-4 sm:size-5" strokeWidth={2} />
         </span>

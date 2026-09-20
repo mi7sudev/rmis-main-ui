@@ -597,7 +597,7 @@ export function JobsView() {
                   <SlidersHorizontal className="size-5" strokeWidth={1.5} />
                   Filters
                   {hasActiveFilters && (
-                    <span className="grid size-6 place-items-center rounded-md bg-primary text-xs font-medium tabular-nums tracking-[-0.02em] text-white">
+                    <span className="grid size-6 place-items-center rounded-md bg-primary text-xs font-medium tabular-nums tracking-[-0.02em] text-primary-foreground">
                       {activeFilterCount}
                     </span>
                   )}
@@ -659,7 +659,7 @@ export function JobsView() {
                             aria-hidden
                             className={`flex size-5 shrink-0 items-center justify-center rounded-[0.375rem] border transition-colors ${
                               checked
-                                ? "border-primary bg-primary text-white"
+                                ? "border-primary bg-primary text-primary-foreground"
                                 : "border-muted-foreground/50 bg-transparent group-hover:border-foreground/60"
                             }`}
                           >
@@ -781,7 +781,7 @@ export function JobsView() {
                                   onClick={() => setExpandedId(expanded ? null : job.id)}
                                   aria-expanded={expanded}
                                   aria-label={expanded ? `Hide quick view — ${title}` : `Quick view — ${title}`}
-                                  className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-white shadow-sm transition-all duration-200 hover:bg-primary/85 hover:shadow-md active:scale-[0.97]"
+                                  className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground transition-all duration-200 hover:bg-primary-hover active:scale-[0.97]"
                                 >
                                   {/* Rounded "+ / −" toggle — the quick-view
                                       affordance, softened to the premium
@@ -858,7 +858,7 @@ export function JobsView() {
                                         className="group/link inline-flex min-h-11 items-center gap-3 text-sm font-medium text-foreground transition-colors hover:text-primary"
                                       >
                                         Read full description
-                                        <span className="grid size-8 place-items-center rounded-lg bg-primary text-white transition-colors duration-200 group-hover/link:bg-[#0E7ABF]">
+                                        <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground transition-colors duration-200 group-hover/link:bg-primary-hover">
                                           <ArrowRight
                                             className="size-4 transition-transform duration-200 group-hover/link:translate-x-0.5"
                                             strokeWidth={2.5}

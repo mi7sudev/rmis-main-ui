@@ -27,7 +27,7 @@ export function MethodSection() {
   const lineScale = useTransform(methodProgress, [0, 1], [0, 1]);
 
   return (
-    <section ref={methodRef} className="border-b border-white/10 bg-[#112E81] text-white">
+    <section ref={methodRef} className="border-b border-parchment/10 bg-moss text-parchment">
       <div className="mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
         {/* Header */}
         <motion.div
@@ -35,7 +35,7 @@ export function MethodSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-12 flex flex-wrap items-end justify-between gap-6 border-b border-white/15 pb-8 sm:mb-16"
+          className="mb-12 flex flex-wrap items-end justify-between gap-6 border-b border-parchment/15 pb-8 sm:mb-16"
         >
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#E8A317]">Method</p>
@@ -43,7 +43,7 @@ export function MethodSection() {
               How it works
             </h2>
           </div>
-          <p className="hidden max-w-xs text-right text-sm leading-relaxed text-white/70 sm:block">
+          <p className="hidden max-w-xs text-right text-sm leading-relaxed text-parchment/70 sm:block">
             Four stages from submission to the face-to-face process
           </p>
         </motion.div>
@@ -51,13 +51,13 @@ export function MethodSection() {
         {/* Progress line — delivery tracker style */}
         <div className="relative px-2 sm:px-4">
           {/* Faint base track — the full-width rail */}
-          <div className="absolute left-2 right-2 top-3.5 h-0.5 bg-white/15 sm:left-4 sm:right-4 sm:top-5" />
+          <div className="absolute left-2 right-2 top-3.5 h-0.5 bg-parchment/15 sm:left-4 sm:right-4 sm:top-5" />
           {/* Scroll-scrubbed gold fill — draws left→right as the section
                scrolls through the viewport, retracts on scroll-up.
                This replaces the old one-shot `whileInView` draw. */}
           <motion.div
             style={{ scaleX: lineScale }}
-            className="absolute left-2 right-2 top-3.5 h-0.5 origin-left bg-[#E8A317] sm:left-4 sm:right-4 sm:top-5"
+            className="absolute left-2 right-2 top-3.5 h-0.5 origin-left bg-[#c9903d] sm:left-4 sm:right-4 sm:top-5"
           />
 
           {/* Checkpoints */}
@@ -77,14 +77,14 @@ export function MethodSection() {
                 className="group flex flex-col items-center text-center"
               >
                 {/* Dot on the line — solid rounded chip covers the track behind it */}
-                <div className="relative z-10 flex size-7 items-center justify-center rounded-full border border-[#E8A317] bg-[#112E81] transition-all duration-300 group-hover:scale-125 group-hover:bg-[#E8A317] sm:size-10">
+                <div className="relative z-10 flex size-7 items-center justify-center rounded-full border border-[#E8A317] bg-[#112E81] transition-all duration-300 group-hover:scale-125 group-hover:bg-[#c9903d] sm:size-10">
                   <span className="text-[10px] font-medium tabular-nums tracking-[-0.02em] text-[#E8A317] transition-colors group-hover:text-[#112E81] sm:text-xs">
                     {step.num}
                   </span>
                 </div>
                 {/* Stage name */}
                 <div className="mt-2 sm:mt-4">
-                  <p className="text-[10px] font-semibold leading-tight text-white sm:text-sm">
+                  <p className="text-[10px] font-semibold leading-tight text-parchment sm:text-sm">
                     {step.stage}
                   </p>
                 </div>

@@ -43,7 +43,7 @@ export function LifeSection() {
   const { user } = useSession();
 
   return (
-    <section className="border-b border-white/10 bg-[#112E81] text-white">
+    <section className="border-b border-parchment/10 bg-moss text-parchment">
       <div className="mx-auto max-w-[1400px] 2xl:max-w-[1680px]">
         <div className="grid lg:grid-cols-12">
           {/* Left — editorial copy */}
@@ -55,11 +55,11 @@ export function LifeSection() {
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="flex h-full flex-col justify-center px-4 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24"
             >
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#E8A317]">Life at DOST-MIRDC</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-limestone">Life at DOST-MIRDC</p>
               <h2 className="mt-3 text-4xl font-medium tracking-tight sm:text-5xl lg:text-6xl">
                 Where innovation becomes industry
               </h2>
-              <p className="mt-8 max-w-md text-base leading-relaxed text-white/80">
+              <p className="mt-8 max-w-md text-base leading-relaxed text-parchment/80">
                 Discover the people, facilities, technologies, and opportunities
                 that make DOST-MIRDC a place to build a meaningful career.
               </p>

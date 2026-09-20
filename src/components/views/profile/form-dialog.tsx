@@ -263,7 +263,7 @@ export function ResponsiveFormDialog({
             <AlertDialogCancel disabled={saving}>Keep editing</AlertDialogCancel>
             <AlertDialogAction
               onClick={discard}
-              className="bg-destructive text-white hover:bg-[#B80525]"
+              className="bg-destructive text-[#e9ebdf] hover:bg-destructive/85"
             >
               Discard changes
             </AlertDialogAction>

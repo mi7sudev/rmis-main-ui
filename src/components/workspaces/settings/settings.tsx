@@ -647,7 +647,7 @@ function UsersPanel() {
               onClick={() =>
                 confirmDisable && handleToggleActive(confirmDisable)
               }
-              className="bg-destructive text-white hover:bg-destructive/90"
+              className="bg-destructive text-[#e9ebdf] hover:bg-destructive/85"
             >
               {togglingId === confirmDisable?.id ? (
                 <Loader2 className="mr-2 size-4 animate-spin" />
@@ -687,7 +687,7 @@ function UsersPanel() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => confirmDelete && handleDelete(confirmDelete)}
-              className="bg-destructive text-white hover:bg-destructive/90"
+              className="bg-destructive text-[#e9ebdf] hover:bg-destructive/85"
             >
               {deletingId === confirmDelete?.id ? (
                 <Loader2 className="mr-2 size-4 animate-spin" />

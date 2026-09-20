@@ -18,7 +18,7 @@ export function PublicFooter() {
   const { navigate } = useNav();
 
   return (
-    <footer className="relative overflow-hidden bg-[#112E81] text-white">
+    <footer className="relative overflow-hidden bg-moss text-parchment">
       {/* Top marquee — gold ticker, same rhythm as the section dividers */}
       <MarqueeDivider
         items={["Recruitment Management & Information System", "DOST-MIRDC", "Build a career that moves the nation forward", "Protected under RA 10173"]}
@@ -68,11 +68,11 @@ export function PublicFooter() {
                 <img src="/MIRDC.png" alt="MIRDC" className="h-9 w-auto object-contain sm:h-12" />
                 <img src="/RMIS.png" alt="RMIS" className="w-11 h-auto object-contain sm:w-12 sm:h-12" />
               </div>
-              <p className="mt-3 max-w-sm text-xs leading-relaxed text-white/60 sm:mt-4 sm:text-sm">
+              <p className="mt-3 max-w-sm text-xs leading-relaxed text-parchment/60 sm:mt-4 sm:text-sm">
                 Recruitment Management & Information System. DOST-Metals
                 Industry Research and Development Center.
               </p>
-              <p className="mt-1.5 text-xs text-white/50 sm:mt-2 sm:text-sm">
+              <p className="mt-1.5 text-xs text-parchment/50 sm:mt-2 sm:text-sm">
                 DOST Compound, Bicutan, Taguig City
               </p>
             </div>
@@ -85,11 +85,11 @@ export function PublicFooter() {
             }}
             className="sm:col-span-3 sm:border-l sm:border-white/15 sm:pl-8"
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">Links</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-parchment/60">Links</p>
             <ul className="mt-3 space-y-2 sm:mt-4 sm:space-y-3">
-              <li><button onClick={() => navigate("jobs")} className="group relative text-sm font-medium text-white transition-colors hover:text-[#E8A317]"><span className="relative">Browse positions<span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#E8A317] transition-all duration-300 group-hover:w-full" /></span></button></li>
-              <li><button onClick={() => navigate("signin")} className="group relative text-sm font-medium text-white transition-colors hover:text-[#E8A317]"><span className="relative">Sign in<span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#E8A317] transition-all duration-300 group-hover:w-full" /></span></button></li>
-              <li><button onClick={() => navigate("signup")} className="group relative text-sm font-medium text-white transition-colors hover:text-[#E8A317]"><span className="relative">Create account<span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#E8A317] transition-all duration-300 group-hover:w-full" /></span></button></li>
+              <li><button onClick={() => navigate("jobs")} className="group relative text-sm font-medium text-white transition-colors hover:text-[#c9903d]"><span className="relative">Browse positions<span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#c9903d] transition-all duration-300 group-hover:w-full" /></span></button></li>
+              <li><button onClick={() => navigate("signin")} className="group relative text-sm font-medium text-white transition-colors hover:text-[#c9903d]"><span className="relative">Sign in<span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#c9903d] transition-all duration-300 group-hover:w-full" /></span></button></li>
+              <li><button onClick={() => navigate("signup")} className="group relative text-sm font-medium text-white transition-colors hover:text-[#c9903d]"><span className="relative">Create account<span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#c9903d] transition-all duration-300 group-hover:w-full" /></span></button></li>
             </ul>
           </motion.div>
           {/* Contact column + seals — seals sit to the right of Contact */}
@@ -101,8 +101,8 @@ export function PublicFooter() {
             className="flex items-start justify-between gap-4 sm:col-span-4 sm:border-l sm:border-white/15 sm:pl-8"
           >
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">Contact</p>
-              <ul className="mt-3 space-y-2 text-sm font-medium text-white/60 sm:mt-4 sm:space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-parchment/60">Contact</p>
+              <ul className="mt-3 space-y-2 text-sm font-medium text-parchment/60 sm:mt-4 sm:space-y-3">
                 <li>(02) 8837-0431</li>
                 <li>mirdc@dost.gov.ph</li>
                 <li>Mon–Fri, 8AM–5PM</li>
@@ -131,10 +131,10 @@ export function PublicFooter() {
           }}
           className="mt-8 flex flex-col items-start gap-3 border-t border-white/15 pt-5 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
         >
-          <p className="text-xs font-medium text-white/50">
+          <p className="text-xs font-medium text-parchment/50">
             © {new Date().getFullYear()} DOST-MIRDC. All rights reserved.
           </p>
-          <p className="text-xs font-medium text-white/40">
+          <p className="text-xs font-medium text-parchment/40">
             Protected under RA 10173
           </p>
         </motion.div>

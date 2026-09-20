@@ -37,9 +37,9 @@ export type TrackingStep = {
 // Node + ink vocabulary per state (mode-tuned tokens; dark-mode safe).
 const NODE_CLASSES: Record<TrackingStepState, string> = {
   done: "bg-success text-success-foreground",
-  current: "bg-primary text-white",
+  current: "bg-primary text-primary-foreground",
   upcoming: "border border-input bg-background text-muted-foreground",
-  failed: "bg-destructive text-white",
+  failed: "bg-destructive text-[#e9ebdf]",
 };
 
 const LABEL_CLASSES: Record<TrackingStepState, string> = {

@@ -126,25 +126,25 @@ function RailItem({ item, expanded }: { item: NavItem; expanded: boolean }) {
         expanded
           ? `relative flex min-h-11 w-full items-center gap-2.5 rounded-none px-3 py-2 text-sm font-medium transition-colors ${
               active
-                ? "bg-primary text-white"
-                : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-white"
+                ? "bg-primary text-primary-foreground"
+                : "text-sidebar-foreground hover:bg-sidebar-accent"
             }`
           : `group relative grid size-12 place-items-center rounded-none transition-colors ${
               active
-                ? "bg-primary text-white"
-                : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-white"
+                ? "bg-primary text-primary-foreground"
+                : "text-sidebar-foreground hover:bg-sidebar-accent"
             }`
       }
     >
       {expanded && active && (
         <span
           aria-hidden
-          className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-none bg-white"
+          className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-none bg-primary-foreground"
         />
       )}
       <Icon
         className={`size-[18px] shrink-0 transition-transform group-hover:translate-x-px ${
-          active ? "text-white" : ""
+          active ? "text-primary-foreground" : ""
         }`}
       />
       {expanded && <span className="truncate">{item.label}</span>}
@@ -231,7 +231,7 @@ export function NavRail() {
             onClick={collapse}
             aria-label="Collapse sidebar"
             title="Collapse sidebar"
-            className="ml-auto grid size-9 shrink-0 place-items-center text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-white"
+            className="ml-auto grid size-9 shrink-0 place-items-center text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
           >
             <PanelLeftClose className="size-[18px]" />
           </button>
@@ -400,13 +400,13 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                         onOpenChange(false);
                       }}
                       className={`relative flex min-h-12 w-full items-center gap-2.5 rounded-none px-3 py-2.5 text-sm font-medium transition-colors ${
-                        active ? "bg-primary text-white" : "text-foreground/80 hover:bg-accent hover:text-foreground"
+                        active ? "bg-primary text-primary-foreground" : "text-foreground/80 hover:bg-accent hover:text-foreground"
                       }`}
                     >
-                      {active && <span aria-hidden className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-none bg-white" />}
-                      <Icon className={`size-[18px] shrink-0 ${active ? "text-white" : "text-muted-foreground"}`} />
+                      {active && <span aria-hidden className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-none bg-primary-foreground" />}
+                      <Icon className={`size-[18px] shrink-0 ${active ? "text-primary-foreground" : "text-muted-foreground"}`} />
                       <span className="truncate">{item.label}</span>
-                      {active && <ChevronRight className="ml-auto size-4 shrink-0 text-white/70" />}
+                      {active && <ChevronRight className="ml-auto size-4 shrink-0 text-primary-foreground/70" />}
                     </button>
                   );
                 })}

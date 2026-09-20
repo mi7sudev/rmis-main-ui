@@ -395,8 +395,8 @@ export function FastTrackApplyDialog({
     <Dialog open={open} onOpenChange={(o) => { if (!o) closeDialog(); }}>
       <DialogContent className="max-w-lg gap-0 overflow-hidden p-0 sm:max-w-lg">
         <DialogHeader className="space-y-0 gap-0 bg-primary px-5 py-5 text-left sm:px-6">
-          <DialogTitle className="flex items-center gap-3 text-base font-bold tracking-[-0.01em] text-white">
-            <span className="grid size-10 shrink-0 place-items-center rounded-none bg-white/10 text-white">
+          <DialogTitle className="flex items-center gap-3 text-base font-bold tracking-[-0.01em] text-primary-foreground">
+            <span className="grid size-10 shrink-0 place-items-center rounded-none bg-obsidian/10 text-primary-foreground">
               <Zap className="size-5" strokeWidth={1.5} />
             </span>
             <span className="min-w-0">

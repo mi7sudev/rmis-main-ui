@@ -6242,3 +6242,22 @@ Stage Summary:
 - RMIS electric blue #1591DC restored as the brand primary (CTAs, focus rings, selection, progress fill, sidebar primary) in BOTH light and dark modes; hover #0E7ABF, foreground white.
 - Token-only change — every page/component using `bg-primary`/`text-primary`/`--ring` inherits automatically; no JSX edits needed.
 - Surfaces/typography/teal link accents of the warm-obsidian system retained per user scope ("swap the black", not a full theme revert).
+
+---
+Task ID: profile-desktop-hero-refactor-06
+Agent: main (Z.ai Code)
+Task: User request — profile DESKTOP layout "not looking great"; refactor hero (avatar/name/badges/ring/advisory/PDS) and the 7-step desktop stepper (01 Personal … 07 Documents) for better positioning.
+
+Work Log:
+- Diagnosed desktop issues in profile-view.tsx: (1) huge dead void between left identity cluster and far-right ring; (2) "1 OF 7 SECTIONS" kicker floated awkwardly above the ring; (3) amber advisory + PDS strip rendered as disconnected full-width bands; (4) stepper was 3 stacked rows per step (number+label / circle / approx) left-packed inside flex-1 cells → ragged, airy, unbalanced; (5) CompletionRing gradient still used leftover obsidian-theme parchment→copper stops instead of the new blue.
+- Rewrote DesktopStepper as a single-row bar: number INSIDE each 24px circle (check when done, primary ring when active, numbered dot upcoming), label locked beside it, "(Approx X Min)" under the label on a fixed h-8 text block (shown xl+ only so exactly-lg widths never overflow), connectors are now flex-1 flex children (auto-centered, no absolute-position math) with the same tone grammar (solid primary = done, dashed primary/70 = current, hairline = ahead). Stepper height ~32px, verified no horizontal overflow at 1024/1440.
+- Restructured the hero into a two-zone composition: Zone A = avatar + name + badges + documents + advisory (moved INSIDE the identity zone as a footnote, max width follows identity); Zone B = completion lockup right of a hairline divider (blue ring + "N of 7 sections" + "N to go"/"All sections complete" + Mark Complete). PDS strip stays docked along the hero bottom. Mobile stacks in the same order and reads tighter.
+- CompletionRing gradient stops → #1591DC → #0E7ABF (blue, matches restored primary).
+- Loading skeleton updated to match the new layout (hero block + stepper bar + section card; dropped the stale 352px left-rail grid).
+- Verified via agent-browser: 1440 light + dark, 1024 (lg edge), 390 mobile (hero stack + sticky strip intact); clicked stepper step 02 → active ring + dashed connector + section swap all correct; sr-only/aria labels preserved; no h-overflow. Lint clean, dev.log clean.
+
+Stage Summary:
+- Profile desktop hero is now a balanced two-zone card (identity+advisory | divider | ring lockup) instead of two distant clusters with a void; advisory no longer a standalone band.
+- Desktop stepper is one tight aligned row (circles with inline numbers, flexing connectors) replacing the ragged 3-row-per-step rail.
+- Ring and all stepper active/complete states now speak the restored RMIS blue #1591DC.
+- Files touched: src/components/views/profile-view.tsx only.

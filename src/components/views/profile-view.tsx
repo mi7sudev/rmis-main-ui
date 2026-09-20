@@ -83,8 +83,8 @@ function CompletionRing({ percent, size = 76 }: { percent: number; size?: number
       <svg width={size} height={size} className="-rotate-90" aria-hidden>
         <defs>
           <linearGradient id="pui-ring-grad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#e9ebdf" />
-            <stop offset="100%" stopColor="#8b867f" />
+            <stop offset="0%" stopColor="#1591DC" />
+            <stop offset="100%" stopColor="#0E7ABF" />
           </linearGradient>
         </defs>
         <circle
@@ -124,13 +124,13 @@ function CompletionRing({ percent, size = 76 }: { percent: number; size?: number
 }
 
 // -----------------------------------------------------------------------------
-// DesktopStepper — the reference layout base (Jur-style horizontal step bar):
-// bold step numbers with short labels on one line, circle indicators below
-// (filled check = completed, primary ring = current, soft dot = upcoming),
-// progress connectors (solid through completed steps, dashed into the current
-// one, muted hairline ahead), and "(Approx X Min)" estimates under every step
-// that isn't finished yet. Replaces the old vertical left rail: the section
-// card below takes the full content width, like the reference form.
+// DesktopStepper (lg+) — a single-row numbered step bar in the reference's
+// wizard grammar: circle indicators (filled check = completed, primary ring =
+// current, numbered dot = upcoming) locked to their labels, joined by
+// flexing connectors (solid primary through completed steps, dashed into the
+// current one, muted hairline ahead). Unfinished steps carry their
+// "(Approx X Min)" estimate under the label on a fixed-height text block —
+// every cell shares one baseline, so the connectors stay perfectly centered.
 // -----------------------------------------------------------------------------
 
 // Compact step labels — the reference keeps step names short ("Preliminary",
@@ -156,74 +156,69 @@ function DesktopStepper({
 }) {
   return (
     <nav aria-label="Profile sections" className="mt-6 hidden lg:block">
-      <ol className="flex items-start">
+      <ol className="flex items-center">
         {SECTIONS.map((s, i) => {
           const isActive = active === s.id;
           const done = checks[s.id];
-          const next = SECTIONS[i + 1];
-          // Connector reflects the progress up to its RIGHT endpoint: solid
-          // primary once that step is completed, dashed while it is the
-          // current one, muted hairline for everything still ahead.
-          const lineTone = next
-            ? checks[next.id]
-              ? "border-primary"
-              : next.id === active
-                ? "border-dashed border-primary/70"
-                : "border-border"
-            : "";
+          // Connector BEFORE this step reflects progress up to its RIGHT
+          // endpoint (this step): solid primary once completed, dashed while
+          // it is the current one, muted hairline for everything still ahead.
+          const lineTone = done
+            ? "border-primary"
+            : isActive
+              ? "border-dashed border-primary/70"
+              : "border-border";
           return (
-            <li key={s.id} className="relative flex min-w-0 flex-1 items-start last:flex-none">
+            <li key={s.id} className="flex min-w-0 items-center">
+              {i > 0 && (
+                <span
+                  aria-hidden
+                  className={`mx-2 h-0 min-w-2 flex-1 border-t-2 xl:mx-3 ${lineTone}`}
+                />
+              )}
               <button
                 type="button"
                 onClick={() => onSelect(s.id)}
                 aria-current={isActive ? "step" : undefined}
                 aria-label={`Section ${i + 1}: ${s.label}`}
-                className="group flex min-w-0 flex-col items-start rounded-lg text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                className="group flex shrink-0 items-center gap-2 rounded-lg text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
               >
-                {/* Fixed-height number row — keeps the circle center at a
-                    deterministic y (20 + 8 + 11 = 39px) so the progress
-                    connector aligns exactly with it. */}
-                <span className="flex h-5 items-center gap-1.5 whitespace-nowrap">
-                  <span className="text-[15px] font-extrabold leading-none tabular-nums tracking-tight text-foreground">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
+                {/* Circle indicator — the step number lives INSIDE the circle
+                    (check once completed), so each step is one tight lockup. */}
+                <span
+                  aria-hidden
+                  className={`grid size-6 shrink-0 place-items-center rounded-full text-[10px] font-extrabold tabular-nums transition-colors ${
+                    done
+                      ? "bg-primary text-primary-foreground"
+                      : isActive
+                        ? "border-2 border-primary bg-background text-primary"
+                        : "border border-border bg-muted/60 text-muted-foreground"
+                  }`}
+                >
+                  {done ? (
+                    <Check className="size-3" strokeWidth={3.5} />
+                  ) : (
+                    String(i + 1).padStart(2, "0")
+                  )}
+                </span>
+                {/* Fixed-height text block — keeps every cell the same height
+                    whether or not the estimate line is shown, so the flex
+                    connectors stay centered on the circle row. */}
+                <span className="flex h-8 flex-col justify-center">
                   <span
-                    className={`max-w-40 truncate text-[13px] font-semibold leading-none transition-colors ${
+                    className={`text-[13px] font-semibold leading-tight transition-colors ${
                       isActive || done ? "text-foreground" : "text-muted-foreground"
                     } group-hover:text-primary`}
                   >
                     {STEP_LABELS[s.id]}
                   </span>
+                  {!done && (
+                    <span className="hidden text-[10px] font-medium leading-tight text-muted-foreground/75 xl:block">
+                      Approx {s.minutes} Min
+                    </span>
+                  )}
                 </span>
-                <span
-                  aria-hidden
-                  className={`mt-2 grid size-[22px] shrink-0 place-items-center rounded-full transition-colors ${
-                    done
-                      ? "bg-primary"
-                      : isActive
-                        ? "border-2 border-primary bg-background"
-                        : "border border-border bg-muted/60"
-                  }`}
-                >
-                  {done && <Check className="size-3 text-primary-foreground" strokeWidth={3.5} />}
-                </span>
-                {!done && (
-                  <span className="mt-1.5 text-[11px] font-medium text-muted-foreground/85">
-                    (Approx {s.minutes} Min)
-                  </span>
-                )}
               </button>
-              {/* Connector — absolute so it starts at THIS circle's right
-                  edge (left-6 = 22px circle + 2px) and runs to the li edge,
-                  which is exactly the next circle's left edge: no gap, no
-                  dependence on label widths. Vertically centered on the
-                  circle (top-[38px] + 2px border = 39px center). */}
-              {next && (
-                <span
-                  aria-hidden
-                  className={`pointer-events-none absolute left-6 right-0 top-[38px] h-0 border-t-2 ${lineTone}`}
-                />
-              )}
             </li>
           );
         })}
@@ -311,12 +306,9 @@ export function ProfileView() {
             </div>
           </div>
           <>
-            <Skeleton className="mt-6 h-28 w-full rounded-2xl" />
-            <Skeleton className="mt-4 h-16 w-full rounded-2xl" />
-            <div className="mt-6 grid gap-4 lg:grid-cols-[352px_minmax(0,1fr)]">
-              <Skeleton className="h-72 rounded-2xl" />
-              <Skeleton className="h-96 rounded-2xl" />
-            </div>
+            <Skeleton className="mt-6 h-40 w-full rounded-2xl" />
+            <Skeleton className="mt-6 h-9 w-full rounded-lg" />
+            <Skeleton className="mt-5 h-96 w-full rounded-2xl" />
           </>
         </div>
       </div>
@@ -389,66 +381,97 @@ export function ProfileView() {
           </div>
         </header>
 
-        {/* Identity + completion hero — first surface on phones. */}
+        {/* Identity + completion hero — first surface on phones. Desktop (lg+)
+            composes two zones: identity + requirement note on the left, the
+            completion lockup in a divider-separated panel on the right; the
+            PDS auto-fill strip stays docked along the card's bottom edge. */}
         <div className="pui-card mt-0 p-4 sm:mt-6 sm:p-5 lg:p-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
-            <div className="flex min-w-0 items-center gap-4">
-              <ProfileAvatar
-                photoUrl={photoUrl}
-                initials={initials}
-                name={applicantName || "Applicant"}
-                onPhotoChanged={() => void loadAll(true)}
-              />
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="truncate text-base font-bold tracking-[-0.015em] text-foreground sm:text-lg">
-                    {applicantName}
-                  </h2>
-                  {profile.isProfileComplete ? (
-                    <Badge variant="success" className="gap-1">
-                      <CheckCircle2 className="size-3" /> Complete
-                    </Badge>
-                  ) : (
-                    // Amber, not red: "incomplete" is a work-in-progress
-                    // state, not an error — red is reserved for failures.
-                    <Badge variant="warning" className="gap-1">
-                      <AlertCircle className="size-3" /> Incomplete
-                    </Badge>
-                  )}
-                  {pdsLocked && (
-                    <Badge
-                      variant="outline"
-                      className="gap-1 border-primary/30 bg-primary/10 text-[11px] text-info-ink"
-                    >
-                      <Sparkles className="size-3" /> AI-assisted
-                    </Badge>
-                  )}
-                </div>
-                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                  {profile.submittedDate && (
-                    <span>Submitted {formatDate(profile.submittedDate)}</span>
-                  )}
-                  <span className="inline-flex items-center gap-1">
-                    <FileStack className="size-3.5" />
-                    {documents.length} document{documents.length === 1 ? "" : "s"}
-                  </span>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+            {/* Zone A — identity: avatar, name, status chips, documents, and
+                the requirement note (guidance amber, never error red). */}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-4">
+                <ProfileAvatar
+                  photoUrl={photoUrl}
+                  initials={initials}
+                  name={applicantName || "Applicant"}
+                  onPhotoChanged={() => void loadAll(true)}
+                />
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="truncate text-base font-bold tracking-[-0.015em] text-foreground sm:text-lg">
+                      {applicantName}
+                    </h2>
+                    {profile.isProfileComplete ? (
+                      <Badge variant="success" className="gap-1">
+                        <CheckCircle2 className="size-3" /> Complete
+                      </Badge>
+                    ) : (
+                      // Amber, not red: "incomplete" is a work-in-progress
+                      // state, not an error — red is reserved for failures.
+                      <Badge variant="warning" className="gap-1">
+                        <AlertCircle className="size-3" /> Incomplete
+                      </Badge>
+                    )}
+                    {pdsLocked && (
+                      <Badge
+                        variant="outline"
+                        className="gap-1 border-primary/30 bg-primary/10 text-[11px] text-info-ink"
+                      >
+                        <Sparkles className="size-3" /> AI-assisted
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                    {profile.submittedDate && (
+                      <span>Submitted {formatDate(profile.submittedDate)}</span>
+                    )}
+                    <span className="inline-flex items-center gap-1">
+                      <FileStack className="size-3.5" />
+                      {documents.length} document{documents.length === 1 ? "" : "s"}
+                    </span>
+                  </div>
                 </div>
               </div>
+
+              {/* Requirements hint — calm amber advisory (guidance, not an
+                  error: red is reserved for real failures). Lives inside the
+                  identity zone as a footnote to the name, not a standalone
+                  banner row. */}
+              {!canMarkComplete && !profile.isProfileComplete && (
+                <div className="mt-3.5 flex items-start gap-2.5 rounded-xl border border-warning/25 bg-warning/10 px-3.5 py-2.5">
+                  <Info className="mt-0.5 size-3.5 shrink-0 text-warning" strokeWidth={1.5} />
+                  <span className="text-xs leading-relaxed text-warning-ink">
+                    Profile completion requires your Personal Information (first name,
+                    last name, and email) and at least one entry each in Education and
+                    Work Experience.
+                  </span>
+                </div>
+              )}
             </div>
 
-            {/* Ring + primary action cluster */}
-            <div className="flex items-center justify-between gap-4 md:justify-end md:gap-6">
-              <div className="flex items-center gap-3 md:flex-col md:items-end md:gap-1.5">
+            {/* Zone B — completion lockup: ring + position readout, with the
+                primary action beside it. A hairline divider separates it from
+                the identity zone on desktop. */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-3 lg:shrink-0 lg:border-l lg:border-border/70 lg:pl-6">
+              <div className="flex items-center gap-3.5">
                 <CompletionRing percent={completion.percent} />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground md:order-first">
-                  {completion.filled} of {completion.total} sections
-                </span>
+                <div>
+                  <p className="text-sm font-bold tabular-nums tracking-[-0.01em] text-foreground">
+                    {completion.filled} of {completion.total} sections
+                  </p>
+                  <p className="text-[11px] font-medium text-muted-foreground">
+                    {profile.isProfileComplete
+                      ? "All sections complete"
+                      : `${completion.total - completion.filled} to go`}
+                  </p>
+                </div>
               </div>
               {!profile.isProfileComplete && canMarkComplete && (
                 <Button
                   onClick={() => setCompleteOpen(true)}
                   disabled={markingComplete}
-                  className="shrink-0 md:order-last"
+                  className="shrink-0"
                 >
                   <ShieldCheck className="size-4" strokeWidth={1.5} />
                   Mark Complete
@@ -456,19 +479,6 @@ export function ProfileView() {
               )}
             </div>
           </div>
-
-          {/* Requirements hint — calm amber advisory (guidance, not an error:
-              red is reserved for real failures). */}
-          {!canMarkComplete && !profile.isProfileComplete && (
-            <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-warning/25 bg-warning/10 px-3.5 py-2.5">
-              <Info className="mt-0.5 size-3.5 shrink-0 text-warning" strokeWidth={1.5} />
-              <span className="text-xs leading-relaxed text-warning-ink">
-                Profile completion requires your Personal Information (first name,
-                last name, and email) and at least one entry each in Education and
-                Work Experience.
-              </span>
-            </div>
-          )}
 
           {/* PDS auto-fill — docked at the bottom of the identity card so the
               stepper → form-card rhythm below stays exactly like the reference

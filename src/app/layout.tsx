@@ -44,9 +44,9 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  // Match the mobile browser chrome to each sheet (warm paper / obsidian).
+  // Match the mobile browser chrome to each sheet (cool enterprise / obsidian).
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#EDEDE4" },
+    { media: "(prefers-color-scheme: light)", color: "#F7F8FA" },
     { media: "(prefers-color-scheme: dark)", color: "#151515" },
   ],
 };

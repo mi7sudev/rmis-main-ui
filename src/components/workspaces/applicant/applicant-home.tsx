@@ -40,7 +40,7 @@ import {
   FileText,
   MapPin,
   Clock,
-  AlertTriangle,
+  Info,
   ArrowRight,
   Briefcase,
   Plus,
@@ -272,14 +272,14 @@ export function ApplicantHome() {
         {/* ===== Profile completion banner ===== */}
         {showProfileBanner && (
           <Reveal className="mt-8">
-            <div className="flex flex-col items-start gap-4 rounded-xl border border-warning/25 bg-warning/10 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div className="flex flex-col items-start gap-4 rounded-[10px] border border-primary/15 bg-primary/[0.06] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
               <div className="flex items-start gap-4">
-                <div className="grid size-11 shrink-0 place-items-center rounded-[0.875rem] bg-warning/15 text-warning">
-                  <AlertTriangle className="size-5" strokeWidth={1.5} />
+                <div className="grid size-11 shrink-0 place-items-center rounded-[0.875rem] bg-primary/10 text-primary">
+                  <Info className="size-5" strokeWidth={1.5} />
                 </div>
                 <div>
                   <p className="text-sm font-semibold tracking-[-0.01em] text-foreground">Complete Your Profile</p>
-                  <p className="mt-1 text-sm leading-relaxed text-warning-ink">
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                     Finish your applicant profile to apply for positions and speed up processing.
                   </p>
                 </div>

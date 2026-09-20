@@ -49,8 +49,9 @@ html.lenis body {
 
    DUAL-MODE SYSTEM (next-themes, class strategy):
    · .dark  → the CANONICAL spec sheet: obsidian canvas, parchment ink.
-   · :root  → the warm-paper inversion: obsidian ink on warm limestone
-     paper (#EDEDE4). Same material laws — still never pure white.
+   · :root  → the enterprise cool inversion: near-black ink on the quiet
+     cool-gray canvas (#F7F8FA) with pure-white surfaces. Same material
+     laws — zero shadows, hairline rims.
    ============================================================================ */
 
 @theme inline {
@@ -205,9 +206,11 @@ html.lenis body {
 }
 
 /* ----------------------------------------------------------------------------
-   LIGHT SHEET (:root default) — the warm-paper inversion. Obsidian ink on
-   warm limestone paper. Every law of the material system holds: no pure
-   white, no shadows, teal as the only chroma, hairline warm rims.
+   LIGHT SHEET (:root default) — the enterprise cool sheet. Near-black ink on
+   the quiet cool-gray canvas (#F7F8FA) with pure-white surfaces, neutral
+   hairlines and cool gray secondary text — the same dialect the applicant
+   profile speaks. Blue #1591DC stays rationed to CTA / progress / focus /
+   active nav; shadows remain zero everywhere.
    ---------------------------------------------------------------------------- */
 :root {
   --radius: 8px;
@@ -220,10 +223,10 @@ html.lenis body {
   --primary-foreground: #ffffff;
   --royal-gold: #7a5518;
 
-  /* Core surfaces — warm paper ladder */
-  --canvas: #edede4;
+  /* Core surfaces — cool enterprise ladder */
+  --canvas: #f7f8fa;
   --ink: #151515;
-  --surface: #e3e3d8;             /* raised paper block */
+  --surface: #ffffff;             /* raised block — pure white */
   --surface-foreground: #151515;
   --gold: #7a5518;
 
@@ -232,26 +235,26 @@ html.lenis body {
   --accent-2: #a8402f;
   --accent-3: #0e352c;
 
-  --background: #edede4;
+  --background: #f7f8fa;          /* quiet cool-gray canvas */
   --foreground: #151515;
-  --card: #f6f6ee;                /* raised paper — floats above canvas */
+  --card: #ffffff;                /* pure-white surfaces */
   --card-foreground: #151515;
-  --popover: #f6f6ee;
+  --popover: #ffffff;
   --popover-foreground: #151515;
 
-  --secondary: #e3e3d8;
-  --secondary-foreground: #151515;
-  --muted: #e7e7dc;
-  --muted-foreground: #5d5e54;    /* ash, darkened for paper */
+  --secondary: #f1f3f6;           /* cool wash for hovers / inset rows */
+  --secondary-foreground: #1a1d23;
+  --muted: #eef0f4;
+  --muted-foreground: #5c6470;    /* cool gray secondary text */
 
-  --accent: #e2e2d6;              /* ghost hover wash */
-  --accent-foreground: #151515;
+  --accent: #eef1f5;              /* ghost hover wash */
+  --accent-foreground: #1a1d23;
 
   --destructive: #a8402f;         /* muted rust — never saturated */
 
-  --border: #d5d5c7;              /* warm hairline rim */
-  --input: #a9a99b;
-  --input-hover: #5d5e54;
+  --border: #e4e8ee;              /* neutral hairline */
+  --input: #cdd3dc;               /* field stroke — calm neutral */
+  --input-hover: #98a1ae;
   --ring: #1591DC;                /* focus-visible = 2px blue outline */
 
   --success: #3d6b4f;
@@ -267,13 +270,13 @@ html.lenis body {
   --success-ink: #2f5a40;
   --warning-ink: #7a5518;
   --info-ink: #175247;
-  --tablehead: #e7e7dc;
-  --scrollbar-thumb: #c2c2b2;
+  --tablehead: #f1f3f6;
+  --scrollbar-thumb: #cdd3dc;
 
   /* Material ladder (mode-inverted) */
-  --void: #e4e4d8;                /* recessed field/panel bed */
-  --ember: #f6f6ee;               /* raised surface */
-  --rim: #d5d5c7;
+  --void: #ffffff;                /* fields read WHITE, never beige */
+  --ember: #ffffff;               /* raised surface */
+  --rim: #e4e8ee;
   --teal: #185849;
   --moss: #0e352c;
 
@@ -283,20 +286,20 @@ html.lenis body {
   --chart-4: #a8402f;
   --chart-5: #5d5e54;
 
-  --sidebar: #edede4;
+  --sidebar: #f7f8fa;
   --sidebar-foreground: #151515;
   --sidebar-primary: #1591DC;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e3e3d8;
+  --sidebar-accent: #eef1f5;
   --sidebar-accent-foreground: #151515;
-  --sidebar-border: #d5d5c7;
+  --sidebar-border: #e4e8ee;
   --sidebar-ring: #1591DC;
 
-  /* Ambient canvas wash — a whisper of teal under page headers */
+  /* Ambient wash: a whisper of brand blue behind the record header */
   --pui-canvas: radial-gradient(
-    1200px 480px at 50% -160px,
-    color-mix(in oklab, var(--teal) 7%, transparent),
-    transparent 70%
+    900px 320px at 50% -120px,
+    color-mix(in oklab, #1591DC 4%, transparent),
+    transparent 65%
   );
   --pui-ring: 0 0 0 3px color-mix(in oklab, #1591DC 22%, transparent);
 }
@@ -399,14 +402,13 @@ html.lenis body {
     -webkit-text-size-adjust: 100%;
     color-scheme: light;
     background-color: var(--background);
-    /* Warm-paper canvas: a quiet ember wash bleeds from the bottom-left,
-       mirroring the spec's obsidian gradient at paper opacity. */
+    /* Cool enterprise canvas: a whisper of brand blue bleeding from the
+       top edge into the quiet cool-gray bed — same dialect as the
+       profile sheet. */
     background-image: radial-gradient(
-      at -5% 105%,
-      rgba(146, 108, 53, 0.1) 0%,
-      rgba(24, 88, 73, 0.06) 32%,
-      rgba(85, 62, 45, 0.04) 52%,
-      rgba(237, 237, 228, 0) 80%
+      1200px 560px at 50% -180px,
+      color-mix(in oklab, #1591DC 4%, transparent),
+      transparent 68%
     );
     background-attachment: fixed;
   }
@@ -852,37 +854,14 @@ html.lenis body {
 }
 
 /* ----------------------------------------------------------------------------
-   ENTERPRISE WORKSPACE SHEET — applicant profile (light mode only)
-   The profile speaks the restrained enterprise dialect: cool-gray canvas
-   (#F7F8FA), pure-white surfaces, neutral hairlines, white instrument inputs.
-   Blue #1591DC is rationed to progress / CTA / focus / active nav. Dark mode
-   is deliberately untouched — it keeps the canonical obsidian sheet.
-   Portaled dialogs that carry .premium (SelectContent, AlertDialog) inherit
-   the same sheet, so dropdowns and confirm dialogs stay coherent.
+   ENTERPRISE SHEET — promoted to the root light theme (see :root above), so
+   EVERY page now speaks the same cool-gray dialect the profile page speaks:
+   #F7F8FA canvas, pure-white surfaces, neutral hairlines, cool gray
+   secondary text. The former html:not(.dark) .premium token block is
+   redundant and removed; .premium remains only as the radius/shadow shim
+   plus the control overrides below. Dark mode is untouched — the canonical
+   obsidian sheet still holds app-wide.
    ---------------------------------------------------------------------------- */
-html:not(.dark) .premium {
-  --background: #f7f8fa;          /* quiet cool-gray canvas */
-  --card: #ffffff;                /* pure-white surfaces */
-  --popover: #ffffff;
-  --secondary: #f1f3f6;           /* cool wash for hovers / inset rows */
-  --secondary-foreground: #1a1d23;
-  --muted: #eef0f4;
-  --accent: #eef1f5;              /* ghost hover wash */
-  --accent-foreground: #1a1d23;
-  --border: #e4e8ee;              /* neutral hairline */
-  --rim: #e4e8ee;
-  --input: #cdd3dc;               /* field stroke — calm neutral */
-  --input-hover: #98a1ae;
-  --muted-foreground: #5c6470;    /* cool gray secondary text */
-  --tablehead: #f1f3f6;
-  --void: #ffffff;                /* fields read WHITE, never beige */
-  /* Ambient wash: a whisper of brand blue behind the record header */
-  --pui-canvas: radial-gradient(
-    900px 320px at 50% -120px,
-    color-mix(in oklab, #1591DC 4%, transparent),
-    transparent 65%
-  );
-}
 
 /* ---- Enterprise control overrides (scoped to the premium subtree) ----------
    Buttons lose the pill grammar for an 8px enterprise radius; fields gain the

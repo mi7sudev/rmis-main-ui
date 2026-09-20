@@ -6286,3 +6286,25 @@ Stage Summary:
 - Enterprise token sheet is scoped to `.premium` light mode only — zero impact on other views; dark mode untouched.
 - Key files: globals.css (premium sheet), profile-view.tsx, upload-pds-card.tsx, profile/form-fields.tsx, profile/personal-info-section.tsx, profile/profile-avatar.tsx, profile/education-section.tsx, profile/work-experience-section.tsx.
 - Screenshots: /tmp/final-light-1440.png (final default state), /tmp/test-typing.png (autosave+ring), /tmp/profile-after-dark-top.png (dark), /tmp/resp-{1280,1024,768,390}.png.
+
+---
+Task ID: theme-global-cool-sheet-06
+Agent: Z.ai Code (main)
+Task: Adapt the profile page's light color scheme (enterprise cool sheet) to ALL other pages — user: "update the rest of the white page its not matching the profile page i like the color of the profile page we should adapt it to the rest of the pages".
+
+Work Log:
+- Root cause: light mode had TWO sheets — :root warm-paper (#EDEDE4 canvas, #F6F6EE cards, warm hairlines #D5D5C7, warm html wash) used by every page EXCEPT profile, which carried the .premium scope (html:not(.dark) .premium) with the enterprise cool sheet (#F7F8FA canvas, white cards, neutral hairlines #E4E8EE).
+- globals.css: promoted the enterprise cool sheet to the root light theme. :root now carries: --background/canvas #F7F8FA, --card/popover/surface/void/ember #FFFFFF, --secondary #F1F3F6 (+fg #1A1D23), --muted #EEF0F4, --muted-foreground #5C6470, --accent #EEF1F5 (+fg #1A1D23), --border/rim #E4E8EE, --input #CDD3DC, --input-hover #98A1AE, --tablehead #F1F3F6, --scrollbar-thumb #CDD3DC, --sidebar #F7F8FA (accent #EEF1F5, border #E4E8EE), --pui-canvas = 4% blue whisper. Brand/teal/gold/status/chart tokens untouched. Removed the now-redundant html:not(.dark) .premium token block (kept .premium radius/shadow shim + control overrides + textarea bed rule). Updated sheet header comments.
+- globals.css base: light html background wash swapped from warm amber/teal bleed to a 4% brand-blue whisper fading from the top edge; dark obsidian wash untouched.
+- layout.tsx: light themeColor meta #EDEDE4 → #F7F8FA (mobile browser chrome).
+- applicant-home.tsx: "Complete Your Profile" banner restyled from warm warning tint (bg-warning/10 + amber icon, clashed as a beige patch on the cool sheet) to the same quiet blue info dialect as the profile completion note (rounded-[10px], border-primary/15, bg-primary/[0.06], Info icon tile bg-primary/10 text-primary, body text-muted-foreground); AlertTriangle import swapped for Info.
+- Dev server hiccup: Turbopack served a stale CSS chunk (old tokens) after the edit; touch didn't bust it. Restarted dev server (pkill next + bun run dev) — fresh chunk verified via curl (0× edede4, 3× f7f8fa).
+- Verified via agent-browser at 1440×900: landing (logged out), sign-in, applicant home, jobs board, profile — all light pages now render the same cool-gray canvas + white surfaces; home banner matches profile banner. Dark mode spot-checks (home + profile): canonical obsidian sheet unchanged. Functional checks: sign-out via account menu, demo-chip sign-in as testapplicant, home data loads (jobs/applications API 200), profile completion ring/banners intact.
+- bun run lint clean; dev.log clean (no errors).
+
+Stage Summary:
+- ONE light dialect app-wide: the enterprise cool sheet (#F7F8FA / white / neutral hairlines / blue-rationed accents) is now the global light theme; the .premium class remains as a no-op shim for profile-scoped control overrides.
+- Zero JSX layout changes outside the one home banner restyle; all business logic untouched.
+- Key files: src/app/globals.css, src/app/layout.tsx, src/components/workspaces/applicant/applicant-home.tsx.
+- Screenshots: /tmp/unify-{profile-light-final,home3-light,jobs-light,landing2-light,signin-light,home-dark,profile-dark}.png.
+- Next (queued): Stage 1 — RMIS Design.md full-site audit + fixes; Stage 2 — mobile responsiveness (frontpage/login/job posting/job detail/profile compact 7-section).

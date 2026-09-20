@@ -72,14 +72,14 @@ export function ProfileAvatar({
       disabled={uploading}
       title="Click to upload your profile photo"
       aria-label={`Upload profile photo for ${name}`}
-      className={`group relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-[12px] text-base font-extrabold text-primary transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-wait disabled:opacity-70 sm:size-20 sm:text-lg lg:size-24 lg:text-xl ${
+      className={`group relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-[10px] text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-wait disabled:opacity-70 ${
         photoUrl
-          ? "bg-secondary shadow-sm ring-2 ring-primary/25"
-          : "border border-dashed border-primary/40 bg-gradient-to-br from-primary/15 to-primary/5 hover:border-primary hover:shadow-sm"
+          ? "bg-secondary ring-1 ring-border"
+          : "border border-input bg-secondary/60 text-muted-foreground hover:border-primary/50 hover:text-primary"
       }`}
     >
       {uploading ? (
-        <Loader2 className="size-6 animate-spin text-primary" />
+        <Loader2 className="size-5 animate-spin text-primary" />
       ) : photoUrl ? (
         <img
           src={photoUrl}
@@ -87,15 +87,15 @@ export function ProfileAvatar({
           className="absolute inset-0 h-full w-full object-cover"
         />
       ) : (
-        initials || <User className="size-6 sm:size-7 lg:size-8" strokeWidth={1.5} />
+        initials || <User className="size-6" strokeWidth={1.5} />
       )}
       {/* Hover affordance — camera overlay hinting the photo is replaceable */}
       {!uploading && (
         <span
           aria-hidden
-          className="absolute inset-0 hidden place-items-center bg-obsidian/60 text-parchment group-hover:grid"
+          className="absolute inset-0 hidden place-items-center bg-black/55 text-white group-hover:grid"
         >
-          <Camera className="size-4 sm:size-5" strokeWidth={2} />
+          <Camera className="size-4" strokeWidth={2} />
         </span>
       )}
       <input

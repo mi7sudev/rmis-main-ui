@@ -104,8 +104,9 @@ function useDisclosureGroups() {
 }
 
 // -----------------------------------------------------------------------------
-// SubSection — collapsible group card. A disclosure header (title + fill-state
-// summary + chevron) over the canonical bordered body. Controlled by the
+// SubSection — collapsible group INSIDE the section's single white surface.
+// A hairline divides groups; the head row is compact enterprise metadata
+// (icon + title, muted fill-state summary, subtle chevron). Controlled by the
 // parent's openGroups map (breakpoint-aware defaults — see groupDefaults).
 // -----------------------------------------------------------------------------
 function SubSection({
@@ -124,29 +125,29 @@ function SubSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="pui-card overflow-hidden">
+    <section className="border-b border-border last:border-b-0">
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={open}
-        className="flex w-full items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-secondary/50 sm:px-5 sm:py-3.5"
+        className="flex w-full items-center gap-2.5 px-4 py-3.5 text-left transition-colors hover:bg-secondary/40 sm:px-6"
       >
-        <Icon className="size-4.5 shrink-0 text-primary" strokeWidth={1.5} />
-        <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-foreground">
+        <Icon className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
+        <h3 className="text-[14px] font-semibold tracking-[-0.01em] text-foreground">
           {title}
         </h3>
         {summary && (
-          <span className="hidden min-w-0 truncate text-[11.5px] font-medium text-muted-foreground/80 sm:inline">
-            · {summary}
+          <span className="ml-auto hidden shrink-0 text-xs tabular-nums text-muted-foreground sm:inline">
+            {summary}
           </span>
         )}
         <ChevronDown
           aria-hidden
-          className={`ml-auto size-4 shrink-0 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`ml-auto size-4 shrink-0 text-muted-foreground/70 transition-transform duration-200 sm:ml-3 ${open ? "" : "-rotate-90"}`}
           strokeWidth={1.5}
         />
       </button>
-      {open && <div className="border-t border-border/60">{children}</div>}
+      {open && <div className="border-t border-border/70">{children}</div>}
     </section>
   );
 }
@@ -201,35 +202,35 @@ export function PersonalInfoSection({
   }
 
   // Autosave indicator — shared by the header action slot (desktop) and the
-  // fixed mobile save bar.
+  // fixed mobile save bar. Reads as quiet "last saved" metadata.
   const autosaveIndicator = (
-    <span aria-live="polite" className="inline-flex items-center gap-1.5 text-xs font-semibold">
+    <span aria-live="polite" className="inline-flex items-center gap-1.5 text-xs font-medium">
       {autosave === "saving" && (
         <>
           <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
-          <span className="text-muted-foreground">Autosaving…</span>
+          <span className="text-muted-foreground">Saving…</span>
         </>
       )}
       {autosave === "saved" && (
         <>
           <CheckCircle2 className="size-3.5 text-success" />
-          <span className="text-success-ink">Autosaved</span>
+          <span className="text-muted-foreground">Changes saved</span>
         </>
       )}
       {autosave === "error" && (
         <>
           <AlertCircle className="size-3.5 text-danger-ink" />
-          <span className="text-danger-ink">Autosave failed — click Save</span>
+          <span className="text-danger-ink">Save failed — click Save Changes</span>
         </>
       )}
     </span>
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <SectionHeader
         title="Personal Information"
-        description="Your identity, contact details, and legal declarations"
+        description="Your identity, contact details, and legal declarations."
         icon={User}
         action={
           <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1.5">
@@ -240,14 +241,15 @@ export function PersonalInfoSection({
             <Button
               onClick={onSave}
               disabled={!dirty || saving}
-              className="hidden md:inline-flex"
+              size="sm"
+              className="hidden h-9 px-4 text-[13px] md:inline-flex"
             >
               {saving ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                <Loader2 className="size-4 animate-spin" />
               ) : (
-                <CheckCircle2 className="h-4 w-4 mr-1.5" />
+                <CheckCircle2 className="size-4" strokeWidth={1.5} />
               )}
-              {saving ? "Saving..." : "Save Changes"}
+              {saving ? "Saving…" : "Save Changes"}
             </Button>
           </div>
         }
@@ -263,6 +265,9 @@ export function PersonalInfoSection({
         </div>
       )}
 
+      {/* FORM SURFACE — ONE clean bordered container; groups are separated
+          by hairlines instead of floating as independent cards. */}
+      <div className="pui-card overflow-hidden">
       {/* IDENTITY */}
       <SubSection
         title="Identity"
@@ -271,12 +276,13 @@ export function PersonalInfoSection({
         open={openGroups.identity ?? true}
         onToggle={() => toggle("identity")}
       >
-        <div className="grid grid-cols-1 gap-3.5 p-4 sm:gap-4 sm:p-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-5 p-4 sm:p-6 md:grid-cols-2 lg:grid-cols-3">
           <FieldWithExtraction
             label="First Name"
             value={form.firstName as string}
             fromExtraction={fromExtraction.has("firstName")}
             onChange={(v) => onChange("firstName", v)}
+            placeholder="Juan"
             required
           />
           <FieldWithExtraction
@@ -284,12 +290,14 @@ export function PersonalInfoSection({
             value={form.middleName as string}
             fromExtraction={fromExtraction.has("middleName")}
             onChange={(v) => onChange("middleName", v)}
+            placeholder="Santos"
           />
           <FieldWithExtraction
             label="Last Name"
             value={form.lastName as string}
             fromExtraction={fromExtraction.has("lastName")}
             onChange={(v) => onChange("lastName", v)}
+            placeholder="Dela Cruz"
             required
           />
           <FieldWithExtraction
@@ -305,6 +313,7 @@ export function PersonalInfoSection({
             fromExtraction={fromExtraction.has("emailAddress")}
             onChange={(v) => onChange("emailAddress", v)}
             type="email"
+            placeholder="Enter your email address"
             required
             helper="Interview invites and job offers are sent here."
           />
@@ -314,13 +323,14 @@ export function PersonalInfoSection({
             fromExtraction={fromExtraction.has("mobileNumber")}
             onChange={(v) => onChange("mobileNumber", v)}
             placeholder="09XXXXXXXXX"
-            hint="Format: 09XXXXXXXXX · 11 digits"
+            helper="Format: 09XXXXXXXXX · 11 digits"
           />
           <FieldWithExtraction
             label="Contact Number"
             value={form.contactNumber as string}
             fromExtraction={fromExtraction.has("contactNumber")}
             onChange={(v) => onChange("contactNumber", v)}
+            placeholder="(02) 8XXX-XXXX"
           />
           <FieldWithExtraction
             label="Date of Birth"
@@ -334,11 +344,12 @@ export function PersonalInfoSection({
             value={form.birthPlace as string}
             fromExtraction={fromExtraction.has("birthPlace")}
             onChange={(v) => onChange("birthPlace", v)}
+            placeholder="e.g. Quezon City"
           />
           {/* Short siblings pair two-per-row even on phones — halves the wall
               without cramping longer fields. The pair wrapper occupies one
               cell of the parent grid at md+. */}
-          <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-5">
             <SelectField
               label="Gender"
               value={form.gender as string}
@@ -370,6 +381,7 @@ export function PersonalInfoSection({
             value={form.citizenship as string}
             fromExtraction={fromExtraction.has("citizenship")}
             onChange={(v) => onChange("citizenship", v)}
+            placeholder="e.g. Filipino"
           />
           <FieldWithExtraction
             label="Religion"
@@ -400,13 +412,14 @@ export function PersonalInfoSection({
         open={openGroups.address ?? true}
         onToggle={() => toggle("address")}
       >
-        <div className="grid grid-cols-1 gap-3.5 p-4 sm:gap-4 sm:p-5 md:grid-cols-2 xl:grid-cols-3">
-          <div className="md:col-span-2 xl:col-span-3">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-5 p-4 sm:p-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="md:col-span-2 lg:col-span-3">
             <FieldWithExtraction
               label="Present Address"
               value={form.presentAddress as string}
               fromExtraction={fromExtraction.has("presentAddress")}
               onChange={(v) => onChange("presentAddress", v)}
+              placeholder="House no., street, barangay"
             />
           </div>
           <FieldWithExtraction
@@ -414,25 +427,29 @@ export function PersonalInfoSection({
             value={form.city as string}
             fromExtraction={fromExtraction.has("city")}
             onChange={(v) => onChange("city", v)}
+            placeholder="e.g. Quezon City"
           />
           <FieldWithExtraction
             label="Province"
             value={form.province as string}
             fromExtraction={fromExtraction.has("province")}
             onChange={(v) => onChange("province", v)}
+            placeholder="e.g. Metro Manila"
           />
-          <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-5">
             <FieldWithExtraction
               label="Country"
               value={form.country as string}
               fromExtraction={fromExtraction.has("country")}
               onChange={(v) => onChange("country", v)}
+              placeholder="Philippines"
             />
             <FieldWithExtraction
               label="Zip Code"
               value={form.zipCode as string}
               fromExtraction={fromExtraction.has("zipCode")}
               onChange={(v) => onChange("zipCode", v)}
+              placeholder="e.g. 1101"
             />
           </div>
         </div>
@@ -447,13 +464,13 @@ export function PersonalInfoSection({
         open={openGroups.legal ?? true}
         onToggle={() => toggle("legal")}
       >
-        <div className="space-y-4 p-4 sm:p-5">
-          <div className="grid grid-cols-1 gap-3.5 sm:gap-4 md:grid-cols-2">
-          <YesNoField
-            label="Have you ever been found guilty of any administrative offense?"
-            value={form.adminCase ? "Yes" : "No"}
-            onChange={(v) => onChange("adminCase", v === "Yes")}
-          />
+        <div className="space-y-4 p-4 sm:p-6">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
+            <YesNoField
+              label="Have you ever been found guilty of any administrative offense?"
+              value={form.adminCase ? "Yes" : "No"}
+              onChange={(v) => onChange("adminCase", v === "Yes")}
+            />
             {form.adminCase && (
               <FieldWithExtraction
                 label="Administrative Offense Details"
@@ -462,11 +479,11 @@ export function PersonalInfoSection({
                 onChange={(v) => onChange("adminCaseDetails", v)}
               />
             )}
-          <YesNoField
-            label="Have you been criminally charged before any court?"
-            value={form.crimeCharge ? "Yes" : "No"}
-            onChange={(v) => onChange("crimeCharge", v === "Yes")}
-          />
+            <YesNoField
+              label="Have you been criminally charged before any court?"
+              value={form.crimeCharge ? "Yes" : "No"}
+              onChange={(v) => onChange("crimeCharge", v === "Yes")}
+            />
             {form.crimeCharge && (
               <>
                 <FieldWithExtraction
@@ -497,7 +514,7 @@ export function PersonalInfoSection({
         open={openGroups.refs ?? true}
         onToggle={() => toggle("refs")}
       >
-        <div className="space-y-3 p-4 sm:p-5">
+        <div className="space-y-3 p-4 sm:p-6">
           <div className="flex items-center justify-between gap-2">
             <p className="text-xs text-muted-foreground">
               At least 1 reference recommended (max 5)
@@ -581,6 +598,7 @@ export function PersonalInfoSection({
           )}
         </div>
       </SubSection>
+      </div>
 
       {/* FIXED MOBILE SAVE BAR — appears only while the form is dirty; keeps
           the explicit flush in thumb reach no matter how far the applicant has

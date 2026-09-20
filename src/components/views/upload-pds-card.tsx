@@ -273,23 +273,27 @@ export function UploadPdsCard({
         // action button tucked under it — the strip is informational, not a
         // hero, so it must not eat a phone screen.
         <div className="pui-card flex w-full gap-3 p-4 sm:items-center sm:gap-4">
-          <span className="pui-tile grid size-10 shrink-0 place-items-center bg-success/10 text-success">
+          <span className="grid size-10 shrink-0 place-items-center rounded-[10px] border border-success/25 bg-success/10 text-success">
             <CheckCircle2 className="size-5" strokeWidth={1.5} />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold tracking-[-0.01em] text-foreground">
+            <p className="text-sm font-semibold tracking-[-0.01em] text-foreground">
               Profile populated from your document
             </p>
-            <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+            <p className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">
               To use a different document, clear all forms first — this erases
               every section so the new document can overwrite everything.
             </p>
             {clearFormsButton(
-              "mt-2.5 w-full sm:w-auto shrink-0 border-destructive/40 text-danger-ink hover:bg-destructive/10 hover:text-danger-ink"
+              "mt-2.5 h-9 w-full rounded-lg px-3 text-[13px] sm:w-auto shrink-0 border-destructive/40 text-danger-ink hover:bg-destructive/10 hover:text-danger-ink"
             )}
           </div>
         </div>
       ) : phase === "idle" ? (
+        // Enterprise document ingestion workspace — one wide horizontal strip:
+        // icon left, title + description + format meta center, Select File
+        // right. Refined hairline border (no dashed box); hover deepens the
+        // border and adds a whisper of blue; drag-over tints + rings.
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
@@ -297,27 +301,40 @@ export function UploadPdsCard({
           onDragLeave={() => setDragging(false)}
           onDrop={onDrop}
           aria-label="Upload PDS, resume, or certificate for auto-extraction"
-          className={`flex w-full items-center gap-3 rounded-xl border border-dashed p-3.5 text-left shadow-sm transition-all sm:gap-3.5 ${
+          className={`group flex w-full items-center gap-3.5 rounded-xl border bg-card p-4 text-left transition-all duration-200 sm:gap-4 sm:p-5 ${
             dragging
-              ? "border-primary bg-primary/10 ring-2 ring-primary/25"
-              : "border-primary/35 bg-secondary/40 hover:border-primary hover:bg-secondary/70 hover:shadow"
+              ? "border-primary bg-primary/[0.04] ring-2 ring-primary/15"
+              : "border-border hover:border-primary/40 hover:bg-primary/[0.015]"
           }`}
         >
-          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
-            <UploadCloud className="size-4.5" strokeWidth={1.5} />
+          <span
+            className={`grid size-11 shrink-0 place-items-center rounded-[10px] border transition-colors duration-200 ${
+              dragging
+                ? "border-primary/40 bg-primary/10 text-primary"
+                : "border-border bg-secondary/60 text-muted-foreground group-hover:border-primary/30 group-hover:text-primary"
+            }`}
+          >
+            <UploadCloud className="size-5" strokeWidth={1.5} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="flex items-center gap-1.5 text-sm font-bold tracking-[-0.01em] text-foreground">
-              PDS Upload · AI Auto-Fill
-              <Sparkles className="size-3.5 text-primary" />
+            <span className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-semibold tracking-[-0.01em] text-foreground">
+                PDS Upload
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-md border border-primary/20 bg-primary/[0.07] px-1.5 py-[3px] text-[10.5px] font-semibold uppercase leading-none tracking-[0.04em] text-primary">
+                <Sparkles className="size-2.5" /> AI Auto-Fill
+              </span>
             </span>
-            <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
-              Drop your PDS, resume, or certificates — AI fills your profile fields
-              <span className="hidden sm:inline"> · PDF, DOC, XLS, images · max 10MB</span>
+            <span className="mt-1 block text-[13px] leading-relaxed text-muted-foreground">
+              Drop your PDS, resume, or certificates and automatically populate
+              your profile.
+            </span>
+            <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground/70">
+              PDF, DOC, XLS, images · max 10MB
             </span>
           </span>
-          <span className="hidden shrink-0 items-center gap-1.5 border border-border bg-card px-3 py-2 text-xs font-bold text-foreground sm:inline-flex">
-            Select File <ChevronRight className="size-3.5 text-muted-foreground" />
+          <span className="hidden h-9 shrink-0 items-center rounded-lg border border-border bg-card px-3.5 text-[13px] font-semibold text-foreground transition-colors duration-200 group-hover:border-primary/40 group-hover:text-primary sm:inline-flex">
+            Select File
           </span>
         </button>
       ) : (
@@ -356,11 +373,11 @@ export function UploadPdsCard({
           {phase === "done" && applied && (
             <div>
               <div className="flex items-start gap-3">
-                <span className="pui-tile grid size-9 shrink-0 place-items-center bg-success/10 text-success">
+                <span className="grid size-9 shrink-0 place-items-center rounded-[10px] border border-success/25 bg-success/10 text-success">
                   <CheckCircle2 className="size-4.5" strokeWidth={1.5} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold tracking-[-0.01em] text-foreground">Profile updated</p>
+                  <p className="text-sm font-semibold tracking-[-0.01em] text-foreground">Profile updated</p>
                   <p className="mt-0.5 break-words text-xs leading-relaxed text-muted-foreground">
                     {totalFilled} field{totalFilled === 1 ? "" : "s"} updated from{" "}
                     <span className="font-semibold text-foreground">{fileName}</span>.
@@ -406,11 +423,11 @@ export function UploadPdsCard({
           {phase === "error" && (
             <div>
               <div className="flex items-start gap-3">
-                <span className="pui-tile grid size-9 shrink-0 place-items-center bg-destructive/10 text-destructive">
+                <span className="grid size-9 shrink-0 place-items-center rounded-[10px] border border-destructive/25 bg-destructive/10 text-destructive">
                   <AlertCircle className="size-4.5" strokeWidth={1.5} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold tracking-[-0.01em] text-foreground">Processing failed</p>
+                  <p className="text-sm font-semibold tracking-[-0.01em] text-foreground">Processing failed</p>
                   <p className="mt-0.5 break-words text-xs leading-relaxed text-muted-foreground">{error}</p>
                   {fileName && <p className="mt-1 break-words text-[11px] text-muted-foreground/80">File: {fileName}</p>}
                 </div>
@@ -500,15 +517,15 @@ function SummaryChip({
   return (
     <div
       className={`flex items-center gap-2 rounded-lg border border-border/70 p-2.5 transition-colors ${
-        has ? "bg-secondary/60" : "bg-secondary/30"
+        has ? "bg-secondary/50" : "bg-secondary/25"
       }`}
     >
       <span className={`grid size-7 shrink-0 place-items-center rounded-md ${has ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
         <Icon className="size-3.5" strokeWidth={1.5} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="kicker truncate text-muted-foreground">{label}</p>
-        <p className={`text-xs font-bold leading-tight ${has ? "text-foreground" : "text-muted-foreground/60"}`}>
+        <p className="truncate text-[11px] font-medium uppercase tracking-[0.05em] text-muted-foreground">{label}</p>
+        <p className={`text-xs font-semibold leading-tight ${has ? "text-foreground" : "text-muted-foreground/60"}`}>
           {has ? `${count} ${unit}` : "—"}
         </p>
         {replaced && (

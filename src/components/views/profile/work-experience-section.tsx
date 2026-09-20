@@ -223,7 +223,7 @@ export function WorkExperienceSection({
         value={form.monthlySalary}
         onChange={(v) => updateField("monthlySalary", v)}
         type="number"
-        hint="Gross monthly, before deductions"
+        helper="Gross monthly, before deductions"
       />
       <YesNoField
         label="Government Service?"

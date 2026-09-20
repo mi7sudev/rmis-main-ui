@@ -179,7 +179,7 @@ export function EducationSection({
         value={form.yearGraduated}
         onChange={(v) => updateField("yearGraduated", v)}
         placeholder="2023"
-        hint="Format: YYYY"
+        helper="Format: YYYY"
       />
       <FormField
         label="Units Earned"
@@ -223,12 +223,8 @@ export function EducationSection({
         // page). After the first save, entries list below and the header
         // "Add Education" button opens the dialog for additional entries.
         <div className="pui-card overflow-hidden">
-          <div className="relative border-b border-border/70 px-4 py-3.5 sm:px-6">
-            <span
-              aria-hidden
-              className="absolute bottom-[-1px] left-4 h-[3px] w-16 rounded-full bg-primary sm:left-6"
-            />
-            <h3 className="text-sm font-bold tracking-[-0.01em] text-foreground">
+          <div className="border-b border-border/70 px-4 py-3.5 sm:px-6">
+            <h3 className="text-sm font-semibold tracking-[-0.01em] text-foreground">
               Add Education Entry
             </h3>
             <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">

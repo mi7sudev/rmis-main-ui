@@ -73,7 +73,8 @@ export function FieldStack({
           className="text-[13px] font-medium leading-tight text-foreground"
         >
           {label}
-          {required && <span className="ml-0.5 text-danger-ink">*</span>}
+          {required && <span className="ml-0.5 text-danger-ink/80" aria-hidden>*</span>}
+          {required && <span className="sr-only"> (required)</span>}
         </Label>
         {fromExtraction && <DocChip />}
       </div>
@@ -93,9 +94,9 @@ export function FieldStack({
 }
 
 // -----------------------------------------------------------------------------
-// SectionHeader — gradient icon tile + title + meta + supporting line (+ action)
-// The reference form's "card head" grammar: title, muted time estimate inline
-// after it, and a short primary accent bar on the head's bottom hairline.
+// SectionHeader — enterprise section head: restrained square icon container,
+// 24px semibold title, muted supporting line, action slot on the right.
+// No gradient, no accent bar — hierarchy from typography and alignment alone.
 // -----------------------------------------------------------------------------
 export function SectionHeader({
   title,
@@ -112,32 +113,25 @@ export function SectionHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="relative flex flex-col gap-3 border-b border-border/70 pb-4 sm:flex-row sm:items-center sm:justify-between">
-      {/* Reference accent bar — short primary stroke on the head's hairline */}
-      <span
-        aria-hidden
-        className="absolute bottom-[-1px] left-0 h-[3px] w-24 rounded-full bg-primary"
-      />
-      <div className="flex items-center gap-3.5">
+    <div className="flex flex-col gap-3 border-b border-border pb-5 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+      <div className="flex items-start gap-3.5">
         <div
           aria-hidden
-          className="pui-tile grid size-10 shrink-0 place-items-center bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5 text-primary ring-1 ring-inset ring-primary/20 sm:size-11"
+          className="grid size-10 shrink-0 place-items-center rounded-[10px] border border-border bg-card text-primary"
         >
-          <Icon className="size-5" strokeWidth={1.5} />
+          <Icon className="size-[18px]" strokeWidth={1.5} />
         </div>
-        <div className="min-w-0">
-          <h2 className="flex flex-wrap items-baseline gap-x-2 text-lg font-semibold tracking-[-0.015em] text-foreground sm:text-xl">
+        <div className="min-w-0 pt-0.5">
+          <h2 className="text-[22px] font-semibold leading-tight tracking-[-0.02em] text-foreground sm:text-[24px]">
             {title}
-            {meta && (
-              <span className="text-[12.5px] font-normal tracking-normal text-muted-foreground">
-                ({meta})
-              </span>
-            )}
           </h2>
           {description && (
-            <p className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">
+            <p className="mt-1 text-[13.5px] leading-relaxed text-muted-foreground">
               {description}
             </p>
+          )}
+          {meta && (
+            <p className="mt-0.5 text-xs font-medium text-muted-foreground/80">{meta}</p>
           )}
         </div>
       </div>

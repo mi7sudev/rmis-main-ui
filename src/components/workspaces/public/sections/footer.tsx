@@ -60,7 +60,7 @@ export function PublicFooter() {
                 className="h-10 w-auto object-contain sm:h-12"
               />
               <img
-                src="/RMIS.png"
+                src="/RMIS-white.png"
                 alt="RMIS"
                 className="h-9 w-auto object-contain sm:h-10"
               />

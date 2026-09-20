@@ -6388,3 +6388,20 @@ Stage Summary:
 - All additions render from real data (snapshot figures computed from the same /api/jobs payload as the grid); jobs-first core untouched: first-12 grid, filters, view-all redirect, card→detail flow all preserved and re-verified.
 - Key files: public-landing.tsx, sections/positions.tsx (hero + snapshot + ticker), sections/how-to-apply.tsx (new), sections/footer.tsx (rewritten), jobs-carousel.tsx (one heading tier), public/govph-seal-mono.png (new transparent knockout asset).
 - Screenshots: /tmp/front-{before-light,before-dark}.png (baselines), /tmp/front-after-light-fold.png, /tmp/front-after-light-full.png, /tmp/front-after-howto.png, /tmp/front-after-footer.png, /tmp/front-after-dark-fold.png, /tmp/front-after-dark-howto.png, /tmp/front-after-dark-footer.png, /tmp/front-after-mobile-{top,mid,howto,footer}.png, /tmp/front-final-light-1440.png.
+---
+Task ID: rmis-logo-fix-09
+Agent: Z.ai Code (main)
+Task: Bug fix — user: "there was a bug on the rmis logo i only see one its not rendering the actual rmis logo"
+
+Work Log:
+- Diagnosed: the footer brand lockup renders MIRDC-mark.png (emblem) + RMIS.png (wordmark). RMIS.png was a 3241×3240 square with the wordmark confined to a 2729×774 middle band (bbox 256,1233→2985,2007) — at h-9/h-10 object-contain the visible letters were ~9px tall — AND the letters were pure black, invisible on the dark moss (#0E352C) footer. Net effect: user sees only ONE logo (the MIRDC emblem); the RMIS wordmark effectively fails to render.
+- Asset surgery (PIL, alpha-preserving): trimmed RMIS.png to its alpha bbox → proper 2729×774 wide wordmark (canonical black version for light surfaces); generated public/RMIS-white.png — identical trim with letters remapped to white while keeping the blue slash (#00A3E0 band untouched, threshold b>120), verified visually on dark composite.
+- footer.tsx: lockup wordmark src /RMIS.png → /RMIS-white.png (sizes unchanged h-9 sm:h-10 — now rendering at true proportions next to the h-10 sm:h-12 emblem).
+- page-loader.tsx: also referenced the black square RMIS.png on its #112E81 blue backdrop — swapped to RMIS-white.png (h-10 sm:h-14 so the wordmark sits optically under the two-up emblem h-12 sm:h-16). Noted during verification that PageLoader is currently ORPHANED (defined, never mounted anywhere) — stale comment on the component says PublicLanding mounts it; it does not. Left unmounted (out of scope); swap keeps it correct if revived.
+- Verified via agent-browser (1440×900): footer lockup now shows emblem + full-size white RMIS wordmark with blue slash; DOM probe confirms footer img renders 141×40 with natural size 2729×774 (trim correct, no square padding). curl: /RMIS-white.png 200 33KB, /RMIS.png 200 34.5KB.
+- bun run lint clean; dev.log clean.
+
+Stage Summary:
+- Root cause was the ASSET, not the markup: RMIS.png shipped as a huge square canvas with a black wordmark — tiny AND invisible on every dark surface it was used on. Two derivatives now exist: RMIS.png (trimmed black, light surfaces) and RMIS-white.png (trimmed white + blue slash, dark surfaces — footer, loader).
+- Footer lockup now reads MIRDC emblem + RMIS wordmark as designed; no layout or business logic touched.
+- Screenshots: /tmp/footer-fix.png (fixed lockup on moss), /tmp/rmis-on-dark.png (pre-fix black-on-dark diagnosis), /tmp/loader-fix*.png (loader timing probes; loader itself is unmounted dead code).

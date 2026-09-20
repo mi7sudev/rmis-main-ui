@@ -79,7 +79,7 @@ export function PageLoader() {
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
               <img src="/MIRDC.png" alt="MIRDC" className="h-12 w-auto object-contain sm:h-16" />
-              <img src="/RMIS.png" alt="RMIS" className="h-12 w-auto object-contain sm:h-16" />
+              <img src="/RMIS-white.png" alt="RMIS" className="h-10 w-auto object-contain sm:h-14" />
             </motion.div>
 
             {/* Wordmark — masked slide up */}

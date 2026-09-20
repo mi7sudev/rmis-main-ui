@@ -1052,7 +1052,7 @@ export function JobsView() {
 }
 
 // ============================================================================
-// JobDetailView — sharp-block detail page, rendered IN-FLOW inside the shell.
+// JobDetailView — premium detail page, rendered IN-FLOW inside the shell.
 // (Formerly a fixed inset-0 overlay with overflow-y-auto + data-lenis-prevent:
 // that produced a second scrollbar outside Lenis's scroll ownership, so
 // smooth scrolling never worked here. In-flow, the window is the only
@@ -1083,23 +1083,23 @@ function JobDetailView({
     >
       {/* Top bar — sticky UNDER the condensed SiteHeader */}
       <div className="sticky top-[53px] z-30 flex items-center justify-between border-b border-border bg-background/95 px-4 py-3 backdrop-blur sm:top-[65px] sm:px-6">
-        <button onClick={onClose} className="group flex h-11 items-center gap-2 px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+        <button onClick={onClose} className="group flex h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
           <ArrowRight className="size-4 rotate-180 transition-transform duration-200 group-hover:translate-x-[-3px]" strokeWidth={2} />
           Back to Positions
         </button>
-        <button onClick={onClose} className="grid size-11 place-items-center text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" aria-label="Close">
+        <button onClick={onClose} className="grid size-11 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" aria-label="Close">
           <X className="size-4" strokeWidth={2} />
         </button>
       </div>
 
-      {/* Hero — mode-aware canvas, gold kicker, primary colour-block accent */}
+      {/* Hero — mode-aware canvas, muted kicker, primary accent rule */}
       <div className="border-b border-border px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
         <div className="mx-auto max-w-[1400px] 2xl:max-w-[1680px]">
           <motion.p
             initial={reduced ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-            className="kicker kicker-gold"
+            className="kicker text-muted-foreground"
           >
             Position Details
           </motion.p>
@@ -1120,7 +1120,7 @@ function JobDetailView({
           >
             {pos?.placeOfAssignment && <span className="flex items-center gap-1.5"><MapPin className="size-4" strokeWidth={1.5} /> {pos.placeOfAssignment.name}</span>}
             {pos?.division && <span className="flex items-center gap-1.5"><Building2 className="size-4" strokeWidth={1.5} /> {divisionLabel(pos.division)}</span>}
-            {job.positionType && <span className="border border-input px-2.5 py-0.5 text-foreground">{job.positionType}</span>}
+            {job.positionType && <span className="rounded-full border border-input px-2.5 py-0.5 text-foreground">{job.positionType}</span>}
           </motion.div>
         </div>
       </div>
@@ -1155,7 +1155,7 @@ function JobDetailView({
 
         {pos && (pos.cscEducation || pos.cscWorkExperience || pos.cscTrainingRequirements || pos.cscEligibilityGroup || pos.specialSkill) && (
           <Section title="Minimum Qualification Requirements" icon={<GraduationCap className="size-4" strokeWidth={1.5} />}>
-            <dl className="divide-y divide-border/70 overflow-hidden border border-border">
+            <dl className="divide-y divide-border/70 overflow-hidden rounded-xl border border-border">
               {pos.cscEducation && <ReqRow icon={<GraduationCap className="size-4" strokeWidth={1.5} />} label="Education" value={pos.cscEducation} />}
               {pos.cscWorkExperience && <ReqRow icon={<Briefcase className="size-4" strokeWidth={1.5} />} label="Work Experience" value={pos.cscWorkExperience} />}
               {pos.cscTrainingRequirements && <ReqRow icon={<Award className="size-4" strokeWidth={1.5} />} label="Training" value={pos.cscTrainingRequirements} />}
@@ -1187,12 +1187,12 @@ function JobDetailView({
         <div className="mt-8 border-t border-border pt-6">
           {applied ? (
             <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-3 border border-success/40 bg-success/10 px-4 py-3.5">
+              <div className="flex items-center gap-3 rounded-xl border border-success/40 bg-success/10 px-4 py-3.5">
                 <CheckCircle2 className="size-6 text-success" strokeWidth={1.5} />
                 <p className="text-sm font-semibold text-success">Successfully Applied</p>
               </div>
               {onCancel && (
-                <button onClick={() => onCancel(job)} disabled={cancelling} className="group flex h-11 items-center gap-2 self-start border border-input px-5 text-sm font-medium text-foreground transition-colors hover:border-destructive/60 hover:bg-destructive/5 hover:text-danger-ink disabled:opacity-50">
+                <button onClick={() => onCancel(job)} disabled={cancelling} className="group flex h-11 items-center gap-2 self-start rounded-lg border border-input px-5 text-sm font-medium text-foreground transition-colors hover:border-destructive/60 hover:bg-destructive/5 hover:text-danger-ink disabled:opacity-50">
                   {cancelling ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" strokeWidth={1.5} />}
                   {cancelling ? "Cancelling…" : "Cancel Application"}
                 </button>

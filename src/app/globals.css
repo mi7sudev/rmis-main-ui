@@ -612,9 +612,15 @@ html.lenis body {
   background: linear-gradient(90deg, var(--primary), color-mix(in oklab, var(--primary) 55%, #7FD1F5));
 }
 
-/* ---- Dialogs (desktop) → floating rounded sheets --------------------------- */
+/* ---- Dialogs (desktop) → floating rounded sheets ---------------------------
+   Two match forms: `.premium [data-slot=…]` for a premium ANCESTOR, and
+   `.premium[data-slot=…]` for the portal root that carries .premium ITSELF
+   (dialogs portal to <body>, outside every premium subtree — the wrapper
+   puts the class straight on the content element). Same for drawers. ------ */
 .premium [data-slot="dialog-content"],
-.premium [data-slot="alert-dialog-content"] {
+.premium [data-slot="alert-dialog-content"],
+.premium[data-slot="dialog-content"],
+.premium[data-slot="alert-dialog-content"] {
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-pop);
 }
@@ -625,7 +631,8 @@ html.lenis body {
 }
 
 /* ---- Drawer (mobile bottom sheet) → rounded top + grabber ------------------ */
-.premium [data-slot="drawer-content"] {
+.premium [data-slot="drawer-content"],
+.premium[data-slot="drawer-content"] {
   border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   box-shadow: var(--shadow-pop);
 }

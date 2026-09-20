@@ -153,7 +153,7 @@ export function ApplicationDetailModal({
                     </span>
                   )}
                   {job?.positionType && (
-                    <span className="border border-input px-2.5 py-0.5 text-foreground">{job.positionType}</span>
+                    <span className="rounded-full border border-input px-2.5 py-0.5 text-foreground">{job.positionType}</span>
                   )}
                 </div>
               </div>
@@ -162,7 +162,7 @@ export function ApplicationDetailModal({
               <div className="min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-8">
                 {!job ? (
                   /* Defensive fallback: the linked posting record is gone. */
-                  <div className="flex items-start gap-3 border border-border bg-card p-6">
+                  <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-6">
                     <AlertCircle className="mt-0.5 size-5 shrink-0 text-muted-foreground" strokeWidth={1.5} />
                     <div>
                       <p className="text-sm font-semibold text-foreground">Posting details unavailable</p>
@@ -212,7 +212,7 @@ export function ApplicationDetailModal({
                     {/* Minimum Qualification Requirements ledger */}
                     {pos && (pos.cscEducation || pos.cscWorkExperience || pos.cscTrainingRequirements || pos.cscEligibilityGroup || pos.specialSkill) && (
                       <DetailSection title="Minimum Qualification Requirements" icon={<GraduationCap className="size-4" strokeWidth={1.5} />}>
-                        <dl className="divide-y divide-border/70 overflow-hidden border border-border">
+                        <dl className="divide-y divide-border/70 overflow-hidden rounded-xl border border-border">
                           {pos.cscEducation && <ReqRow icon={<GraduationCap className="size-4" strokeWidth={1.5} />} label="Education" value={pos.cscEducation} />}
                           {pos.cscWorkExperience && <ReqRow icon={<Briefcase className="size-4" strokeWidth={1.5} />} label="Work Experience" value={pos.cscWorkExperience} />}
                           {pos.cscTrainingRequirements && <ReqRow icon={<Award className="size-4" strokeWidth={1.5} />} label="Training" value={pos.cscTrainingRequirements} />}
@@ -246,7 +246,7 @@ export function ApplicationDetailModal({
               {/* ===== Footer — applied strip + the cancel action ===== */}
               <div className="shrink-0 border-t border-border px-5 py-4 sm:px-8">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-3 border border-success/40 bg-success/10 px-4 py-2.5">
+                  <div className="flex items-center gap-3 rounded-xl border border-success/40 bg-success/10 px-4 py-2.5">
                     <CheckCircle2 className="size-5 shrink-0 text-success" strokeWidth={1.5} />
                     <div>
                       <p className="text-sm font-semibold text-success">Successfully Applied</p>
@@ -256,7 +256,7 @@ export function ApplicationDetailModal({
                   <button
                     onClick={() => setConfirmOpen(true)}
                     disabled={cancelling}
-                    className="group flex h-11 shrink-0 items-center gap-2 border border-input px-5 text-sm font-semibold text-foreground transition-colors hover:border-destructive/60 hover:bg-destructive/5 hover:text-danger-ink disabled:opacity-50"
+                    className="group flex h-11 shrink-0 items-center gap-2 rounded-lg border border-input px-5 text-sm font-semibold text-foreground transition-colors hover:border-destructive/60 hover:bg-destructive/5 hover:text-danger-ink disabled:opacity-50"
                   >
                     <Trash2 className="size-4" strokeWidth={1.5} />
                     Cancel Application
@@ -273,7 +273,7 @@ export function ApplicationDetailModal({
         <AlertDialogContent>
           <AlertDialogHeader className="shrink-0">
             <div className="flex items-start gap-3">
-              <div className="grid size-10 shrink-0 place-items-center border border-destructive/40 bg-destructive/10 text-danger-ink">
+              <div className="grid size-10 shrink-0 place-items-center rounded-xl border border-destructive/40 bg-destructive/10 text-danger-ink">
                 <AlertCircle className="size-5" strokeWidth={1.5} />
               </div>
               <div className="min-w-0 flex-1">
@@ -285,7 +285,7 @@ export function ApplicationDetailModal({
             </div>
           </AlertDialogHeader>
           {app && (
-            <div className="space-y-1.5 border border-border bg-secondary px-4 py-3">
+            <div className="space-y-1.5 rounded-xl border border-border bg-secondary px-4 py-3">
               <div className="flex items-center gap-2">
                 <Briefcase className="size-4 shrink-0 text-foreground" strokeWidth={1.5} />
                 <p className="truncate text-sm font-semibold text-foreground">{title}</p>

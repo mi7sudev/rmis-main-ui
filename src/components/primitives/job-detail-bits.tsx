@@ -8,7 +8,7 @@
 // modal). Extracted verbatim from jobs-view so the modal that opens from the
 // "Your Applications" rail renders the EXACT same blocks as the posting page
 // it mirrors — fixing a cell fixes both surfaces (locality, like wire.ts).
-// Sharp 0px corners, hairline borders, zero shadows — the Accenture block.
+// Soft premium geometry: rounded cards, hairline borders, quiet shadows.
 // ============================================================================
 
 import type { ReactNode } from "react";
@@ -17,7 +17,7 @@ import type { ReactNode } from "react";
 // (Item No. · Vacancies · Salary Grade · Monthly Salary).
 export function SummaryCell({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="border border-border bg-card p-3.5 sm:p-4">
+    <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4">
       <div className="flex items-center gap-1.5 text-muted-foreground">{icon}<span className="kicker">{label}</span></div>
       <div className="mt-1.5 break-all text-sm font-semibold tracking-[-0.01em] text-foreground">{value}</div>
     </div>
@@ -28,7 +28,7 @@ export function SummaryCell({ icon, label, value }: { icon: ReactNode; label: st
 // warning tone (deadline inside the next 7 days).
 export function DateCell({ icon, label, value, urgent }: { icon: ReactNode; label: string; value: string; urgent?: boolean }) {
   return (
-    <div className={`flex items-center gap-2.5 border p-3.5 sm:p-4 ${urgent ? "border-warning/40 bg-warning/10" : "border-border bg-card"}`}>
+    <div className={`flex items-center gap-2.5 rounded-xl border p-3.5 sm:p-4 ${urgent ? "border-warning/40 bg-warning/10" : "border-border bg-card"}`}>
       <span className={urgent ? "text-warning" : "text-muted-foreground"}>{icon}</span>
       <div>
         <div className="kicker text-muted-foreground">{label}</div>
@@ -40,12 +40,12 @@ export function DateCell({ icon, label, value, urgent }: { icon: ReactNode; labe
 
 // DetailSection — one titled document block of the posting body
 // (Brief Description · MQR · Duties & Responsibilities · Compensation ·
-// Other Qualifications), led by the square icon chip.
+// Other Qualifications), led by the rounded icon chip.
 export function DetailSection({ title, icon, children }: { title: string; icon: ReactNode; children: ReactNode }) {
   return (
-    <div className="mt-6 border border-border bg-card p-5 sm:mt-8 sm:p-6">
+    <div className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm sm:mt-8 sm:p-6">
       <h3 className="flex items-center gap-2.5 text-base font-semibold tracking-[-0.01em] text-foreground">
-        <span className="grid size-8 shrink-0 place-items-center border border-border bg-secondary text-primary">{icon}</span> {title}
+        <span className="grid size-8 shrink-0 place-items-center rounded-lg border border-border bg-secondary text-primary">{icon}</span> {title}
       </h3>
       <div className="mt-4">{children}</div>
     </div>

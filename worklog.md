@@ -5897,3 +5897,22 @@ Work Log:
 Stage Summary:
 - Horizontal swipe now scrolls ONLY the 01-07 chip strip; page never scrolls sideways
 - PDS dropzone card text wraps correctly at 390px again
+
+---
+Task ID: mobile-site-header-01
+Agent: Z.ai Code (main)
+Task: Mobile UX — make the public SiteHeader responsive: horizontally scrollable nav links instead of hiding "Positions" behind sm:block; plus sandbox recovery (preview died)
+
+Work Log:
+- SANDBOX RECOVERY first: preview died because the sandbox reset .env (kept only DATABASE_URL=file:/home/z/my-project/db/custom.db) and the NextAuth env vars vanished → src/lib/env.ts threw on every API route (500s). Restored .env (DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, SMS_PROVIDER=mock).
+- LESSON: relative SQLite path file:./db/production-data.db fails at runtime ("Error code 14: Unable to open the database file") — Prisma resolves it against prisma/, not project root. .env MUST use the absolute path file:/home/z/my-project/db/production-data.db.
+- LESSON: .zscripts/dev.sh's production-db guard checks the SHELL env var, so DATABASE_URL must be exported when launching, or the script reaches "bun run db:push" (must never touch production-data.db). Tool-launched background processes get reaped; the surviving launch pattern was: ( ENV=... setsid nohup bash .zscripts/dev.sh > .zscripts/dev-sh.log 2>&1 < /dev/null & ) with the launching tool call kept alive ~45s. Server verified healthy: {"status":"healthy","checks":{"app":"ok","database":"ok"}}, /api/jobs returns production data.
+- SiteHeader fix (src/components/site-header.tsx): the right cluster is now ThemeToggle (pinned) + <nav aria-label="Primary"> (min-w-0, flex-nowrap, overflow-x-auto, scrollbar hidden via [scrollbar-width:none] + [&::-webkit-scrollbar]:hidden) + Sign in/Dashboard CTA (shrink-0, pinned). "Positions" link is no longer hidden sm:block — it is always rendered inside the scrollable strip (block + shrink-0), bumped to min-h-11 (44px touch target, inline-flex items-center; absolute hover-swap span now flex items-center px-3). The button's own overflow-hidden still contains the text-swap effect, so the scroll container never sees the absolute span.
+- Outer container got gap-2 so a shrinking cluster never collides with the logo; logo already shrink-0.
+- Verified in browser: 1440×900 header pixel-identical to before (nav not scrollable 85/85, Positions 44px); 390×844 anonymous: docSW=390 (page never scrolls sideways), Sign in fully visible, Positions reachable; 320×844: nav strip scrollable (scrollWidth 85 vs clientWidth 40), scrollLeft 0→45 reveals Positions fully, CTA/theme pinned, no page overflow; Positions tap → #/jobs navigates; jobs view leaves the strip empty (onJobs) with no layout artifacts; logged-in flows unaffected (authed shell uses WorkspaceHeader as before). bun run lint clean; dev.log all 200s, zero ⨯ errors.
+
+Stage Summary:
+- SiteHeader on mobile: pinned brand + pinned theme toggle + pinned CTA, with primary links ("Positions") in a swipeable, scrollbar-hidden strip — same pattern as the profile 01-07 chips. Nav items are no longer hidden on mobile; nothing can stretch the page.
+- Files changed: src/components/site-header.tsx only.
+- Ops: .env restored with ABSOLUTE DATABASE_URL (sandbox resets wipe it — re-check .env at session start); dev.sh guard requires DATABASE_URL exported in the shell at launch.
+- Known cosmetic (not addressed, needs user decision): public/MIRDC.png ships TWO logo variants side-by-side, so the small header logo box shows both marks squeezed; consider a cropped/square single-mark asset.

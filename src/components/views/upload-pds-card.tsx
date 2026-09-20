@@ -297,14 +297,14 @@ export function UploadPdsCard({
           onDragLeave={() => setDragging(false)}
           onDrop={onDrop}
           aria-label="Upload PDS, resume, or certificate for auto-extraction"
-          className={`flex w-full items-center gap-3.5 rounded-xl border border-dashed p-4 text-left shadow-sm transition-all sm:gap-4 ${
+          className={`flex w-full items-center gap-3 rounded-xl border border-dashed p-3.5 text-left shadow-sm transition-all sm:gap-3.5 ${
             dragging
               ? "border-primary bg-primary/10 ring-2 ring-primary/25"
               : "border-primary/35 bg-secondary/40 hover:border-primary hover:bg-secondary/70 hover:shadow"
           }`}
         >
-          <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-primary to-[#0E7ABF] text-white shadow-sm">
-            <UploadCloud className="size-5" strokeWidth={1.5} />
+          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-primary to-[#0E7ABF] text-white shadow-sm">
+            <UploadCloud className="size-4.5" strokeWidth={1.5} />
           </span>
           <span className="min-w-0 flex-1">
             <span className="flex items-center gap-1.5 text-sm font-bold tracking-[-0.01em] text-foreground">

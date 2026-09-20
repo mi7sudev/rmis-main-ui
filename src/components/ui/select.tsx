@@ -7,9 +7,28 @@ import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 function Select({
+  onValueChange,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Root>) {
-  return <SelectPrimitive.Root data-slot="select" {...props} />
+  return (
+    <SelectPrimitive.Root
+      data-slot="select"
+      // Guard: Radix can emit a spurious onValueChange("") during the mount
+      // cycle when the controlled `value` flips undefined → defined (e.g. a
+      // draft seeding in an effect). No SelectItem in the app carries an
+      // empty-string value, so "" can never be a legitimate selection —
+      // swallow it to protect form drafts from being wiped.
+      onValueChange={
+        onValueChange
+          ? (v) => {
+              if (v === "") return;
+              onValueChange(v);
+            }
+          : undefined
+      }
+      {...props}
+    />
+  )
 }
 
 function SelectGroup({

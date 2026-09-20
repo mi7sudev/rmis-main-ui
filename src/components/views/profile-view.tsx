@@ -172,7 +172,7 @@ function DesktopStepper({
                 : "border-border"
             : "";
           return (
-            <li key={s.id} className="flex min-w-0 flex-1 items-start last:flex-none">
+            <li key={s.id} className="relative flex min-w-0 flex-1 items-start last:flex-none">
               <button
                 type="button"
                 onClick={() => onSelect(s.id)}
@@ -180,12 +180,15 @@ function DesktopStepper({
                 aria-label={`Section ${i + 1}: ${s.label}`}
                 className="group flex min-w-0 flex-col items-start rounded-lg text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
               >
-                <span className="flex items-baseline gap-1.5 whitespace-nowrap">
-                  <span className="text-[15px] font-extrabold tabular-nums tracking-tight text-foreground">
+                {/* Fixed-height number row — keeps the circle center at a
+                    deterministic y (20 + 8 + 11 = 39px) so the progress
+                    connector aligns exactly with it. */}
+                <span className="flex h-5 items-center gap-1.5 whitespace-nowrap">
+                  <span className="text-[15px] font-extrabold leading-none tabular-nums tracking-tight text-foreground">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span
-                    className={`max-w-40 truncate text-[13px] font-semibold leading-snug transition-colors ${
+                    className={`max-w-40 truncate text-[13px] font-semibold leading-none transition-colors ${
                       isActive || done ? "text-foreground" : "text-muted-foreground"
                     } group-hover:text-primary`}
                   >
@@ -210,10 +213,15 @@ function DesktopStepper({
                   </span>
                 )}
               </button>
+              {/* Connector — absolute so it starts at THIS circle's right
+                  edge (left-6 = 22px circle + 2px) and runs to the li edge,
+                  which is exactly the next circle's left edge: no gap, no
+                  dependence on label widths. Vertically centered on the
+                  circle (top-[38px] + 2px border = 39px center). */}
               {next && (
                 <span
                   aria-hidden
-                  className={`mx-2.5 mt-[38px] h-0 min-w-4 flex-1 border-t-2 ${lineTone}`}
+                  className={`pointer-events-none absolute left-6 right-0 top-[38px] h-0 border-t-2 ${lineTone}`}
                 />
               )}
             </li>
@@ -461,6 +469,23 @@ export function ProfileView() {
               </span>
             </div>
           )}
+
+          {/* PDS auto-fill — docked at the bottom of the identity card so the
+              stepper → form-card rhythm below stays exactly like the reference
+              (no standalone banner card between them). */}
+          <div className="mt-4 border-t border-border/70 pt-3.5 sm:mt-5 sm:pt-4">
+            <UploadPdsCard
+              locked={pdsLocked}
+              onClearForms={handleClearForms}
+              onApplied={() => loadAll(true)}
+              onReview={() => {
+                setActiveSection("personal");
+                requestAnimationFrame(() => {
+                  sectionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                });
+              }}
+            />
+          </div>
         </div>
 
         {/* DESKTOP STEPPER (lg+) — the reference layout base: a horizontal
@@ -565,22 +590,6 @@ export function ProfileView() {
               </button>
             </div>
           </nav>
-
-          {/* PDS auto-extraction — full-width upload strip between the step
-              bar and the section card so it stays in reach while filling out. */}
-          <div className="min-w-0">
-            <UploadPdsCard
-              locked={pdsLocked}
-              onClearForms={handleClearForms}
-              onApplied={() => loadAll(true)}
-              onReview={() => {
-                setActiveSection("personal");
-                requestAnimationFrame(() => {
-                  sectionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                });
-              }}
-            />
-          </div>
 
           {/* RIGHT CONTENT — section cards swap with a quiet fade/rise
               (180ms): perceptible placement without choreography. */}

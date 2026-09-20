@@ -168,13 +168,13 @@ export type ReferenceData = {
 // -----------------------------------------------------------------------------
 
 export const SECTIONS = [
-  { id: "personal", label: "Personal Information", icon: User },
-  { id: "education", label: "Education", icon: GraduationCap },
-  { id: "work", label: "Work Experience", icon: Briefcase },
-  { id: "training", label: "Training", icon: BookOpen },
-  { id: "eligibility", label: "Eligibility", icon: ShieldCheck },
-  { id: "awards", label: "Awards", icon: AwardIcon },
-  { id: "documents", label: "Supporting Documents", icon: FileStack },
+  { id: "personal", label: "Personal Information", icon: User, minutes: 8 },
+  { id: "education", label: "Education", icon: GraduationCap, minutes: 3 },
+  { id: "work", label: "Work Experience", icon: Briefcase, minutes: 5 },
+  { id: "training", label: "Training", icon: BookOpen, minutes: 2 },
+  { id: "eligibility", label: "Eligibility", icon: ShieldCheck, minutes: 3 },
+  { id: "awards", label: "Awards", icon: AwardIcon, minutes: 2 },
+  { id: "documents", label: "Supporting Documents", icon: FileStack, minutes: 3 },
 ] as const;
 
 export type SectionId = (typeof SECTIONS)[number]["id"];

@@ -47,6 +47,7 @@ import {
   Award as AwardIcon,
   ChevronRight,
   RotateCcw,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -271,8 +272,8 @@ export function UploadPdsCard({
         // Compact single-column layout on phones: icon inline with the copy,
         // action button tucked under it — the strip is informational, not a
         // hero, so it must not eat a phone screen.
-        <div className="flex w-full gap-3 border border-border bg-secondary/40 p-4 sm:items-center sm:gap-4">
-          <span className="grid size-10 shrink-0 place-items-center rounded-none bg-success/10 text-success">
+        <div className="pui-card flex w-full gap-3 p-4 sm:items-center sm:gap-4">
+          <span className="pui-tile grid size-10 shrink-0 place-items-center bg-success/10 text-success">
             <CheckCircle2 className="size-5" strokeWidth={1.5} />
           </span>
           <div className="min-w-0 flex-1">
@@ -296,18 +297,19 @@ export function UploadPdsCard({
           onDragLeave={() => setDragging(false)}
           onDrop={onDrop}
           aria-label="Upload PDS, resume, or certificate for auto-extraction"
-          className={`flex w-full items-center gap-3.5 rounded-none border border-dashed p-4 text-left transition-colors sm:gap-4 ${
+          className={`flex w-full items-center gap-3.5 rounded-xl border border-dashed p-4 text-left shadow-sm transition-all sm:gap-4 ${
             dragging
-              ? "border-primary bg-primary/10"
-              : "border-input bg-secondary/40 hover:border-primary hover:bg-secondary/70"
+              ? "border-primary bg-primary/10 ring-2 ring-primary/25"
+              : "border-primary/35 bg-secondary/40 hover:border-primary hover:bg-secondary/70 hover:shadow"
           }`}
         >
-          <span className="grid size-10 shrink-0 place-items-center rounded-none bg-primary text-white">
+          <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-primary to-[#0E7ABF] text-white shadow-sm">
             <UploadCloud className="size-5" strokeWidth={1.5} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-sm font-bold tracking-[-0.01em] text-foreground">
-              PDS Upload · Auto-Extraction
+            <span className="flex items-center gap-1.5 text-sm font-bold tracking-[-0.01em] text-foreground">
+              PDS Upload · AI Auto-Fill
+              <Sparkles className="size-3.5 text-primary" />
             </span>
             <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
               Drop your PDS, resume, or certificates — AI fills your profile fields
@@ -319,7 +321,7 @@ export function UploadPdsCard({
           </span>
         </button>
       ) : (
-        <div className="rounded-none border border-border bg-card p-4 text-foreground sm:p-5">
+        <div className="pui-card p-4 text-foreground sm:p-5">
           {(phase === "uploading" || phase === "extracting" || phase === "applying") && (
             <div>
               <div className="flex items-center gap-3">
@@ -354,7 +356,7 @@ export function UploadPdsCard({
           {phase === "done" && applied && (
             <div>
               <div className="flex items-start gap-3">
-                <span className="grid size-9 shrink-0 place-items-center rounded-none bg-success/10 text-success">
+                <span className="pui-tile grid size-9 shrink-0 place-items-center bg-success/10 text-success">
                   <CheckCircle2 className="size-4.5" strokeWidth={1.5} />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -404,7 +406,7 @@ export function UploadPdsCard({
           {phase === "error" && (
             <div>
               <div className="flex items-start gap-3">
-                <span className="grid size-9 shrink-0 place-items-center rounded-none bg-destructive/10 text-destructive">
+                <span className="pui-tile grid size-9 shrink-0 place-items-center bg-destructive/10 text-destructive">
                   <AlertCircle className="size-4.5" strokeWidth={1.5} />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -497,11 +499,11 @@ function SummaryChip({
   const replaced = replacedCount != null && replacedCount > 0;
   return (
     <div
-      className={`flex items-center gap-2 rounded-none border border-border p-2.5 transition-colors ${
+      className={`flex items-center gap-2 rounded-lg border border-border/70 p-2.5 transition-colors ${
         has ? "bg-secondary/60" : "bg-secondary/30"
       }`}
     >
-      <span className={`grid size-7 shrink-0 place-items-center rounded-none ${has ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
+      <span className={`grid size-7 shrink-0 place-items-center rounded-md ${has ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
         <Icon className="size-3.5" strokeWidth={1.5} />
       </span>
       <div className="min-w-0 flex-1">

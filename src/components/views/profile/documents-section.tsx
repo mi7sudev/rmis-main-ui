@@ -1,8 +1,9 @@
 // =============================================================================
-// RMIS — Profile View: Documents Section + DocumentRow (Accenture language)
-// Flat sharp panels on the mode-aware canvas; sharp dashed dropzone
-// (border-input → blue on hover/drag); zero shadows. STORAGE-ONLY: every row
-// is a plain uploaded attachment — no extraction states, no AI artifacts.
+// RMIS — Profile View: Documents Section + DocumentRow (premium scope)
+// Soft panels on the premium canvas; rounded dashed dropzone
+// (border-primary/35 → blue on hover/drag); subtle elevation. STORAGE-ONLY:
+// every row is a plain uploaded attachment — no extraction states, no AI
+// artifacts.
 // ==============================================================================
 
 "use client";
@@ -24,7 +25,7 @@ import { formatDateTime } from "@/lib/client";
 import {
   FileStack,
   FileText,
-  Upload,
+  CloudUpload,
   Trash2,
   Loader2,
 } from "lucide-react";
@@ -95,7 +96,7 @@ export function DocumentsSection({
       />
 
       {/* Upload area */}
-      <section className="space-y-4 rounded-none border border-border bg-card p-5">
+      <section className="pui-card space-y-4 p-4 sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1 space-y-1.5">
               <Label className="font-semibold text-foreground">
@@ -120,7 +121,7 @@ export function DocumentsSection({
                 >
                   <SelectValue placeholder="Select a category…" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="premium max-h-80">
                   {CATEGORIES.map((c) => (
                     <SelectItem key={c.value} value={c.value}>
                       {c.label}
@@ -140,6 +141,15 @@ export function DocumentsSection({
             </div>
           </div>
           <div
+            role="button"
+            tabIndex={0}
+            aria-label={uploading ? "Uploading documents" : "Upload documents — click or drop files"}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                fileInputRef.current?.click();
+              }
+            }}
             onDragOver={(e) => {
               e.preventDefault();
               setDragging(true);
@@ -151,10 +161,10 @@ export function DocumentsSection({
               handleFiles(e.dataTransfer.files);
             }}
             onClick={() => fileInputRef.current?.click()}
-            className={`cursor-pointer rounded-none border border-dashed border-input bg-secondary/50 p-8 text-center transition-colors ${
+            className={`cursor-pointer rounded-xl border-[1.5px] border-dashed p-8 text-center transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
               dragging
-                ? "border-primary bg-primary/10"
-                : "hover:border-primary hover:bg-secondary/70"
+                ? "border-primary bg-primary/10 ring-2 ring-primary/25"
+                : "border-primary/40 bg-card hover:border-primary hover:bg-primary/5"
             }`}
           >
             <input
@@ -172,14 +182,14 @@ export function DocumentsSection({
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2.5">
-                <div className="grid size-12 place-items-center rounded-none bg-primary/10 text-primary">
-                  <Upload className="h-6 w-6" />
+                <div className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary transition-colors">
+                  <CloudUpload className="h-7 w-7" strokeWidth={1.6} />
                 </div>
-                <p className="text-sm font-semibold text-foreground">
-                  Select a document category above, then click to upload or drag &amp; drop
+                <p className="text-sm font-semibold text-primary">
+                  Click to upload or drag &amp; drop
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  PDF, PNG, JPG, GIF, WEBP, DOC, DOCX, XLSX, XLS (max 10MB each)
+                  PDF, PNG, JPG, GIF, WEBP, DOC, DOCX, XLSX, XLS — max 10MB each
                 </p>
               </div>
             )}
@@ -188,7 +198,7 @@ export function DocumentsSection({
 
       {/* Document list */}
       {documents.length === 0 ? (
-        <div className="rounded-none border border-border bg-card p-4 sm:p-6">
+        <div className="pui-card p-4 sm:p-6">
           <EmptyState
             title="No documents uploaded yet"
             description="Upload your supporting documents above — these are stored for HR verification. To auto-fill your profile from a PDS or resume, use the PDS Upload · Auto-Extraction tool at the top of the page."
@@ -196,9 +206,9 @@ export function DocumentsSection({
           />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-none border border-border bg-card">
-          <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
-            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <div className="pui-card overflow-hidden">
+          <div className="flex items-center justify-between border-b border-border/60 px-5 py-3.5">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               Uploaded Documents
             </h3>
             {selectedIds.size > 0 && (
@@ -207,7 +217,7 @@ export function DocumentsSection({
               </span>
             )}
           </div>
-          <div className="sm:max-h-[480px] sm:overflow-y-auto p-3 sm:pr-2">
+          <div className="pui-scroll sm:max-h-[480px] sm:overflow-y-auto p-3 sm:pr-2">
             <div className="space-y-2 pr-1">
               {documents.map((doc) => (
                 <DocumentRow
@@ -249,10 +259,10 @@ function DocumentRow({
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-none border bg-card p-3 transition-colors ${
+      className={`flex items-center gap-3 rounded-xl border bg-card p-3 transition-colors ${
         selected
-          ? "border-primary bg-primary/5"
-          : "border-border hover:bg-secondary/50"
+          ? "border-primary bg-primary/5 shadow-sm"
+          : "border-border/70 hover:border-primary/30 hover:bg-secondary/50"
       }`}
     >
       <Checkbox
@@ -262,7 +272,7 @@ function DocumentRow({
         aria-label={selected ? "Deselect" : "Select"}
       />
 
-      <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-none bg-primary/10">
+      <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary/10">
         {isImage ? (
           <img
             src={`/api/files/${doc.filePath}`}
@@ -279,12 +289,12 @@ function DocumentRow({
           <p className="truncate text-sm font-medium text-foreground">
             {doc.originalName}
           </p>
-          <span className="inline-flex shrink-0 items-center rounded-none bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          <span className="pui-chip inline-flex shrink-0 items-center bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
             {CATEGORY_LABEL[doc.category] || doc.category}
           </span>
         </div>
         <div className="mt-0.5 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center rounded-none border border-border bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+          <span className="pui-chip inline-flex items-center border border-border/70 bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
             Uploaded
           </span>
           <span className="text-[11px] text-muted-foreground">
@@ -302,7 +312,7 @@ function DocumentRow({
           variant="ghost"
           onClick={handleDelete}
           disabled={deleting}
-          className="size-11 sm:size-8 rounded-none text-muted-foreground hover:bg-destructive/10 hover:text-danger-ink"
+          className="size-11 sm:size-8 rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-danger-ink"
           title="Delete document"
         >
           {deleting ? (

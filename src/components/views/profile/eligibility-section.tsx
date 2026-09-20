@@ -1,22 +1,17 @@
 // =============================================================================
-// RMIS — Profile View: Eligibility Section (Accenture language)
-// Flat sharp cards on the mode-aware canvas — no rounded corners, no shadows.
-// ==============================================================================
+// RMIS — Profile View: Eligibility Section (premium scope)
+// Entity cards on the premium canvas, following the education-section
+// reference: ResponsiveFormDialog (bottom sheet on phones / dialog on
+// desktop), inline field validation with an error digest, and the
+// unsaved-changes guard. The CSC eligibility registry logic (type-specific
+// field specs, legacy-name healing, free-text "Others" mode) is unchanged.
+// =============================================================================
 
 "use client";
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
 import {
   Select,
   SelectTrigger,
@@ -27,8 +22,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/primitives/workspace";
 import { formatDate } from "@/lib/client";
-import { toast } from "sonner";
-import { ShieldCheck, Plus, Loader2 } from "lucide-react";
+import { ShieldCheck, Plus, CircleAlert } from "lucide-react";
 import { EligibilityItem, ReferenceData, toISODate, isPendingId } from "./types";
 import {
   mergeEligibilityOptions,
@@ -43,6 +37,7 @@ import {
   EntityCard,
   FormField,
 } from "./form-fields";
+import { ResponsiveFormDialog } from "./form-dialog";
 
 // Sentinel value used in the eligibility title <Select> to indicate that the
 // user wants to type a custom eligibility that isn't in the predefined list.
@@ -100,6 +95,10 @@ export function EligibilitySection({
   const [editing, setEditing] = useState<EligibilityItem | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  // Snapshot captured when the dialog opens — drives the unsaved-changes guard.
+  const [baseline, setBaseline] = useState("{}");
+  const dirty = JSON.stringify(form) !== baseline;
 
   // Dropdown choices = the SAME standard CSC eligibility registry the job
   // posting form uses for its eligibility requirement (see
@@ -129,7 +128,7 @@ export function EligibilitySection({
 
   function openCreate() {
     setEditing(null);
-    setForm({
+    const next = {
       eligibilityTitle: "",
       eligibilityTitleCustom: "",
       rating: "",
@@ -137,7 +136,10 @@ export function EligibilitySection({
       examPlace: "",
       licenseNumber: "",
       licenseValidity: "",
-    });
+    };
+    setForm(next);
+    setBaseline(JSON.stringify(next));
+    setErrors({});
     setOpen(true);
   }
 
@@ -152,7 +154,7 @@ export function EligibilitySection({
     const normalizedTitle = normalizeLegacyEligibilityName(item.eligibilityTitle);
     const isKnown =
       !!normalizedTitle && eligibilityOptions.includes(normalizedTitle);
-    setForm({
+    const next = {
       eligibilityTitle: isKnown ? normalizedTitle : OTHERS_VALUE,
       eligibilityTitleCustom: isKnown ? "" : item.eligibilityTitle ?? "",
       rating: item.rating ?? "",
@@ -160,26 +162,43 @@ export function EligibilitySection({
       examPlace: item.examPlace ?? "",
       licenseNumber: item.licenseNumber ?? "",
       licenseValidity: toISODate(item.licenseValidity) ?? "",
-    });
+    };
+    setForm(next);
+    setBaseline(JSON.stringify(next));
+    setErrors({});
     setOpen(true);
   }
 
+  function updateField(key: string, value: string) {
+    setForm((p) => ({ ...p, [key]: value }));
+    // Inline validation clears the moment the applicant starts fixing it.
+    setErrors((e) => {
+      if (!e[key]) return e;
+      const next = { ...e };
+      delete next[key];
+      return next;
+    });
+  }
+
+  function validate(): string[] {
+    const e: Record<string, string> = {};
+    if (form.eligibilityTitle === OTHERS_VALUE && !form.eligibilityTitleCustom?.trim())
+      e.eligibilityTitleCustom = "Please type your eligibility title.";
+    if (!form.eligibilityTitle)
+      e.eligibilityTitle = "Eligibility title is required.";
+    setErrors(e);
+    return Object.values(e);
+  }
+
   async function submit() {
+    if (validate().length > 0) return;
+    setSaving(true);
     // Resolve the final title: if the user picked "Others", use the custom
     // text they typed; otherwise use the selected predefined option.
     const finalTitle =
       form.eligibilityTitle === OTHERS_VALUE
         ? form.eligibilityTitleCustom
         : form.eligibilityTitle;
-    if (!finalTitle?.trim()) {
-      toast.error(
-        form.eligibilityTitle === OTHERS_VALUE
-          ? "Please type your eligibility title"
-          : "Eligibility title is required"
-      );
-      return;
-    }
-    setSaving(true);
     // Only persist fields relevant to the selected type — switching a type
     // clears the fields that don't apply instead of leaking stale values
     // (e.g. a license number left over from a previously selected Bar/Board).
@@ -219,173 +238,171 @@ export function EligibilitySection({
           once entries exist, the header button takes over. */}
       <SectionHeader
         title="Eligibility"
+        meta="Approx 3 min"
         description="Civil service eligibilities earned by examination or conferment"
         icon={ShieldCheck}
         action={
           items.length === 0 ? undefined : (
             <Button onClick={openCreate} variant="outline">
-              <Plus className="h-4 w-4" /> Add Eligibility
+              <Plus className="size-4" /> Add Eligibility
             </Button>
           )
         }
       />
 
-      <section className="rounded-none border border-border bg-card">
       {items.length === 0 ? (
-        <div className="p-4 sm:p-6">
-        <EmptyState
-          title="No eligibility entries yet"
-          description="Add civil service or professional eligibilities you've earned, or upload eligibility certificates to auto-extract."
-          icon={<ShieldCheck className="h-7 w-7" />}
-          className="border-0 bg-transparent"
-          action={
-            <Button onClick={openCreate}>
-              <Plus className="h-4 w-4" /> Add Eligibility
-            </Button>
-          }
-        />
+        <div className="pui-card p-4 sm:p-6">
+          <EmptyState
+            title="No eligibility entries yet"
+            description="Add civil service or professional eligibilities you've earned, or upload eligibility certificates to auto-extract."
+            icon={<ShieldCheck className="size-7" />}
+            className="border-0 bg-transparent"
+            action={
+              <Button onClick={openCreate}>
+                <Plus className="size-4" /> Add Eligibility
+              </Button>
+            }
+          />
         </div>
       ) : (
-        <div className="sm:max-h-[480px] sm:overflow-y-auto sm:pr-1">
-          <div className="space-y-3 p-4">
-            {items.map((item) => (
-              <EntityCard
-                key={item.id}
-                fromExtraction={item.__fromExtraction}
-                onEdit={() => openEdit(item)}
-                onDelete={() => onDelete(item.id)}
-                rows={eligibilityCardRows(item)}
-              />
-            ))}
-          </div>
+        <div className="pui-scroll space-y-3 sm:max-h-[560px] sm:overflow-y-auto sm:pr-1">
+          {items.map((item) => (
+            <EntityCard
+              key={item.id}
+              icon={ShieldCheck}
+              title={item.eligibilityTitle || "Untitled entry"}
+              subtitle={null}
+              fromExtraction={item.__fromExtraction}
+              onEdit={() => openEdit(item)}
+              onDelete={() => onDelete(item.id)}
+              rows={eligibilityCardRows(item)}
+            />
+          ))}
         </div>
       )}
-      </section>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[520px]">
-          <DialogHeader className="shrink-0">
-            <DialogTitle className="font-bold tracking-[-0.01em] text-foreground">
-              {editing ? "Edit Eligibility Entry" : "Add Eligibility Entry"}
-            </DialogTitle>
-            <DialogDescription>
-              Select a standard CSC eligibility — or choose "Others" to type your own — and the form will show only the fields that apply to it.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto py-2 pr-1 md:grid-cols-2">
-            <div className="md:col-span-2">
-              <Label className="font-semibold text-foreground">
-                Eligibility Title <span className="text-danger-ink">*</span>
-              </Label>
-              <Select
-                value={form.eligibilityTitle}
-                onValueChange={(v) =>
-                  setForm((p) => ({ ...p, eligibilityTitle: v }))
-                }
+      <ResponsiveFormDialog
+        open={open}
+        onOpenChange={setOpen}
+        dirty={dirty}
+        title={editing ? "Edit Eligibility Entry" : "Add Eligibility Entry"}
+        description='Select a standard CSC eligibility — or choose "Others" to type your own — and the form will show only the fields that apply to it.'
+        submitLabel={editing ? "Save Changes" : "Add Entry"}
+        saving={saving}
+        onSubmit={submit}
+        errors={Object.values(errors)}
+      >
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="md:col-span-2 space-y-1.5">
+            <Label className="text-[13px] font-medium leading-tight text-foreground">
+              Eligibility Title <span className="ml-0.5 text-danger-ink">*</span>
+            </Label>
+            <Select
+              value={form.eligibilityTitle}
+              onValueChange={(v) => updateField("eligibilityTitle", v)}
+            >
+              <SelectTrigger
+                aria-invalid={errors.eligibilityTitle ? true : undefined}
+                className="h-11 w-full"
               >
-                <SelectTrigger className="mt-1.5 h-11 w-full">
-                  <SelectValue placeholder="Select an eligibility" />
-                </SelectTrigger>
-                <SelectContent className="max-h-96">
-                  {eligibilityOptions.map((name) => (
-                    <SelectItem
-                      key={name}
-                      value={name}
-                      description={getEligibilityDescription(name)}
-                    >
-                      {name}
-                    </SelectItem>
-                  ))}
+                <SelectValue placeholder="Select an eligibility" />
+              </SelectTrigger>
+              <SelectContent className="premium max-h-80">
+                {eligibilityOptions.map((name) => (
                   <SelectItem
-                    value={OTHERS_VALUE}
-                    description="Your eligibility isn't listed above — type it in full below."
+                    key={name}
+                    value={name}
+                    description={getEligibilityDescription(name)}
                   >
-                    Others (type manually)
+                    {name}
                   </SelectItem>
-                </SelectContent>
-              </Select>
-              {form.eligibilityTitle &&
-                form.eligibilityTitle !== OTHERS_VALUE && (
-                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-                    {getEligibilityDescription(form.eligibilityTitle)}
-                  </p>
-                )}
-              {form.eligibilityTitle === OTHERS_VALUE && (
-                <div className="mt-2">
-                  <Textarea
-                    value={form.eligibilityTitleCustom}
-                    onChange={(e) =>
-                      setForm((p) => ({
-                        ...p,
-                        eligibilityTitleCustom: e.target.value,
-                      }))
-                    }
-                    className="min-h-[180px] resize-y"
-                    placeholder={
-                      'Type your eligibility in full — including any rating, date, place or license details — e.g. "Civil Service Eligibility under Special Laws, granted 15 March 2021, DOST-MIRDC Taguig"'
-                    }
-                    aria-label="Your eligibility (free text)"
-                    autoFocus
-                  />
-                  <p className="mt-1.5 text-xs text-muted-foreground">
-                    Free-text entry — it will appear on your profile and to evaluators exactly as typed.
-                  </p>
-                </div>
+                ))}
+                <SelectItem
+                  value={OTHERS_VALUE}
+                  description="Your eligibility isn't listed above — type it in full below."
+                >
+                  Others (type manually)
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            {form.eligibilityTitle &&
+              form.eligibilityTitle !== OTHERS_VALUE && (
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  {getEligibilityDescription(form.eligibilityTitle)}
+                </p>
               )}
-            </div>
-            {selectedSpec?.rating && (
-              <FormField
-                label={selectedSpec.rating.label}
-                value={form.rating}
-                onChange={(v) => setForm((p) => ({ ...p, rating: v }))}
-                placeholder={selectedSpec.rating.placeholder}
-              />
+            {errors.eligibilityTitle && (
+              <p className="flex items-start gap-1 text-xs font-medium text-danger-ink">
+                <CircleAlert className="mt-px size-3.5 shrink-0" />
+                <span>{errors.eligibilityTitle}</span>
+              </p>
             )}
-            {selectedSpec?.examDate && (
-              <FormField
-                label={selectedSpec.examDate.label}
-                value={form.examDate}
-                onChange={(v) => setForm((p) => ({ ...p, examDate: v }))}
-                type="date"
-              />
+            {form.eligibilityTitle === OTHERS_VALUE && (
+              <div className="space-y-1.5">
+                <Textarea
+                  value={form.eligibilityTitleCustom}
+                  onChange={(e) =>
+                    updateField("eligibilityTitleCustom", e.target.value)
+                  }
+                  className="min-h-[180px] resize-y"
+                  placeholder={
+                    'Type your eligibility in full — including any rating, date, place or license details — e.g. "Civil Service Eligibility under Special Laws, granted 15 March 2021, DOST-MIRDC Taguig"'
+                  }
+                  aria-label="Your eligibility (free text)"
+                  autoFocus
+                />
+                <p className="text-xs text-muted-foreground">
+                  Free-text entry — it will appear on your profile and to evaluators exactly as typed.
+                </p>
+              </div>
             )}
-            {selectedSpec?.examPlace && (
-              <FormField
-                label={selectedSpec.examPlace.label}
-                value={form.examPlace}
-                onChange={(v) => setForm((p) => ({ ...p, examPlace: v }))}
-              />
-            )}
-            {selectedSpec?.licenseNumber && (
-              <FormField
-                label={selectedSpec.licenseNumber.label}
-                value={form.licenseNumber}
-                onChange={(v) => setForm((p) => ({ ...p, licenseNumber: v }))}
-              />
-            )}
-            {selectedSpec?.licenseValidity && (
-              <FormField
-                label={selectedSpec.licenseValidity.label}
-                value={form.licenseValidity}
-                onChange={(v) => setForm((p) => ({ ...p, licenseValidity: v }))}
-                type="date"
-              />
+            {errors.eligibilityTitleCustom && (
+              <p className="flex items-start gap-1 text-xs font-medium text-danger-ink">
+                <CircleAlert className="mt-px size-3.5 shrink-0" />
+                <span>{errors.eligibilityTitleCustom}</span>
+              </p>
             )}
           </div>
-          <DialogFooter className="shrink-0">
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button
-              onClick={submit}
-              disabled={saving}
-            >
-              {saving && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
-              {editing ? "Save Changes" : "Add Entry"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          {selectedSpec?.rating && (
+            <FormField
+              label={selectedSpec.rating.label}
+              value={form.rating}
+              onChange={(v) => updateField("rating", v)}
+              placeholder={selectedSpec.rating.placeholder}
+            />
+          )}
+          {selectedSpec?.examDate && (
+            <FormField
+              label={selectedSpec.examDate.label}
+              value={form.examDate}
+              onChange={(v) => updateField("examDate", v)}
+              type="date"
+            />
+          )}
+          {selectedSpec?.examPlace && (
+            <FormField
+              label={selectedSpec.examPlace.label}
+              value={form.examPlace}
+              onChange={(v) => updateField("examPlace", v)}
+            />
+          )}
+          {selectedSpec?.licenseNumber && (
+            <FormField
+              label={selectedSpec.licenseNumber.label}
+              value={form.licenseNumber}
+              onChange={(v) => updateField("licenseNumber", v)}
+            />
+          )}
+          {selectedSpec?.licenseValidity && (
+            <FormField
+              label={selectedSpec.licenseValidity.label}
+              value={form.licenseValidity}
+              onChange={(v) => updateField("licenseValidity", v)}
+              type="date"
+            />
+          )}
+        </div>
+      </ResponsiveFormDialog>
     </div>
   );
 }

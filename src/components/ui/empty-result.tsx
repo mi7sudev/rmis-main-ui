@@ -31,6 +31,7 @@ const EmptyResult = ({
 }: EmptyResultProps) => {
   return (
     <div
+      data-slot="empty-result"
       className={cn(
         "mx-auto flex w-full max-w-sm flex-col items-center px-6 py-10 text-center sm:py-12",
         className
@@ -42,6 +43,7 @@ const EmptyResult = ({
         </div>
       ) : (
         <div
+          data-slot="empty-result-icon"
           className="mb-4 grid size-12 shrink-0 place-items-center rounded-none border border-border bg-muted/40 text-muted-foreground"
           aria-hidden
         >

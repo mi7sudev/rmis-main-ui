@@ -1,20 +1,23 @@
 "use client";
 
 // =============================================================================
-// RMIS — Applicant Profile View (Accenture language)
-// Mode-aware canvas (light :root / dark .dark token sheets) · electric blue
-// #1591DC · royal-gold kickers only.
-// WorkspaceTitle header + flat sharp cards, square avatar block, section nav
-// rail with solid primary active block. 7-section profile wizard with AI
-// document intelligence.
+// RMIS — Applicant Profile View (premium scope)
+// Modern enterprise surface for the applicant experience: soft rounded cards,
+// layered elevation, an animated completion ring, a sliding segmented section
+// navigator on mobile and a tinted rail on desktop. AI automation (document
+// extraction + AI Profile Coach) is surfaced as first-class citizens.
+//
+// The `premium` class on the root opts this subtree into the modern geometry
+// defined in globals.css — every other RMIS view keeps the Accenture-flat
+// language. All data logic lives in use-profile-data; this file is chrome.
 // =============================================================================
 
 import { useRef } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { useSession } from "@/components/session-provider";
 import { apiFetch } from "@/lib/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -36,6 +39,8 @@ import {
   CircleDot,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
+  FileStack,
 } from "lucide-react";
 import { Eyebrow, WorkspaceTitle, Skeleton, ErrorState } from "@/components/primitives/workspace";
 
@@ -50,6 +55,7 @@ import { EligibilitySection } from "./profile/eligibility-section";
 import { AwardsSection } from "./profile/awards-section";
 import { DocumentsSection } from "./profile/documents-section";
 import { UploadPdsCard } from "./upload-pds-card";
+import { AiCoachCard } from "./profile/ai-coach-card";
 
 // Mirrors the extract route's EXTRACTABLE_CATEGORIES — categories whose
 // extraction populates profile forms (everything else is a storage-only
@@ -64,6 +70,59 @@ const EXTRACTABLE_DOC_CATEGORIES: ReadonlySet<string> = new Set([
   "AWARD",
   "ACCOMPLISHMENT",
 ]);
+
+// -----------------------------------------------------------------------------
+// CompletionRing — animated SVG progress ring (the hero's primary signal)
+// -----------------------------------------------------------------------------
+function CompletionRing({ percent, size = 76 }: { percent: number; size?: number }) {
+  const stroke = 6;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const offset = c - (Math.min(100, Math.max(0, percent)) / 100) * c;
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90" aria-hidden>
+        <defs>
+          <linearGradient id="pui-ring-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#1591DC" />
+            <stop offset="100%" stopColor="#6FC6F2" />
+          </linearGradient>
+        </defs>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          strokeWidth={stroke}
+          className="stroke-muted-foreground/15"
+        />
+        <motion.circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="url(#pui-ring-grad)"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={c}
+          initial={{ strokeDashoffset: c }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </svg>
+      <div
+        className="absolute inset-0 grid place-items-center"
+        aria-hidden
+      >
+        <span className="text-base font-extrabold tabular-nums tracking-[-0.02em] text-foreground sm:text-lg">
+          {percent}
+          <span className="text-[10px] font-bold text-muted-foreground">%</span>
+        </span>
+      </div>
+      <span className="sr-only" role="status">{`Profile ${percent} percent complete`}</span>
+    </div>
+  );
+}
 
 export function ProfileView() {
   const { user, refresh: refreshSession } = useSession();
@@ -135,7 +194,7 @@ export function ProfileView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background text-foreground">
+      <div className="premium min-h-screen bg-background text-foreground">
         <div className="relative z-10 mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
           <div className="border-b border-border pb-5 sm:pb-8">
             <Eyebrow>Profile</Eyebrow>
@@ -144,11 +203,11 @@ export function ProfileView() {
             </div>
           </div>
           <>
-            <Skeleton className="mt-6 h-24 w-full" />
-            <Skeleton className="mt-3 h-16 w-full" />
-            <div className="mt-6 grid gap-4 lg:grid-cols-[260px_1fr]">
-              <Skeleton className="h-72" />
-              <Skeleton className="h-96" />
+            <Skeleton className="mt-6 h-28 w-full rounded-2xl" />
+            <Skeleton className="mt-4 h-16 w-full rounded-2xl" />
+            <div className="mt-6 grid gap-4 lg:grid-cols-[352px_minmax(0,1fr)]">
+              <Skeleton className="h-72 rounded-2xl" />
+              <Skeleton className="h-96 rounded-2xl" />
             </div>
           </>
         </div>
@@ -158,7 +217,7 @@ export function ProfileView() {
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen bg-background text-foreground">
+      <div className="premium min-h-screen bg-background text-foreground">
         <div className="relative z-10 mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
           <div className="border-b border-border pb-5 sm:pb-8">
             <Eyebrow>Profile</Eyebrow>
@@ -166,7 +225,7 @@ export function ProfileView() {
               <WorkspaceTitle title="My Profile" />
             </div>
           </div>
-          <div className="mt-8 border border-border bg-card">
+          <div className="pui-card mt-8">
             <ErrorState message={error || "Profile not found"} onRetry={loadAll} />
           </div>
         </div>
@@ -181,7 +240,7 @@ export function ProfileView() {
     extensionName: profile.extensionName,
   });
 
-  // Initials for the square avatar block ("Maria C. Santos" → "MS").
+  // Initials for the avatar block ("Maria C. Santos" → "MS").
   const initials = (applicantName || "?")
     .split(/\s+/)
     .filter((w) => w && w !== "Jr." && w !== "Sr." && w !== "III")
@@ -196,246 +255,337 @@ export function ProfileView() {
   const photoDoc = documents.find((d) => d.category === "PROFILE_PICTURE");
   const photoUrl = photoDoc ? `/api/files/${photoDoc.filePath}` : null;
 
+  // AI Profile Coach digest input — core personal field fill count. Labels
+  // only; values never leave the client (the API route re-validates).
+  const PERSONAL_CORE_KEYS = [
+    "firstName", "lastName", "emailAddress", "mobileNumber", "birthDate",
+    "gender", "civilStatus", "presentAddress", "city", "province",
+  ] as const;
+  const personalFilled = PERSONAL_CORE_KEYS.filter(
+    (k) => String(profile[k] ?? "").trim().length > 0
+  ).length;
+  const personalTotal = PERSONAL_CORE_KEYS.length;
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="premium relative min-h-screen bg-background text-foreground">
+      {/* Ambient brand wash — a faint primary gradient bleeds from the top of
+          the canvas, lifting the card layer off the flat background. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-[420px]"
+        style={{ backgroundImage: "var(--pui-canvas)" }}
+      />
+
       <div className="relative z-10 mx-auto max-w-[1400px] 2xl:max-w-[1680px] px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
         {/* Header — kicker → display title. Phones skip it entirely: the
             workspace shell already reads "Profile" at the top of the screen,
-            so the in-page title is 150px of redundant chrome before the
-            identity card. ≥ sm it returns for the editorial hero grammar. */}
+            so the in-page title is redundant chrome. ≥ sm it returns for the
+            editorial hero grammar. */}
         <header className="hidden border-b border-border pb-5 sm:block sm:pb-8">
           <Eyebrow>Profile</Eyebrow>
           <div className="mt-2 sm:mt-3">
             <WorkspaceTitle
               title="My Profile"
-              description="Document-assisted application system — upload, extract, review, save."
+              description="AI-assisted application system — upload a document, let it fill your forms, review, save."
               descriptionClassName="hidden sm:block"
             />
           </div>
         </header>
 
-        {/* Identity + completion — first surface on phones, single compact
-            card (section fill state lives in the sticky step grid below). */}
-        <div className="overflow-hidden rounded-none border border-border bg-card sm:mt-6">
-            <div className="px-4 py-3.5 sm:px-6 sm:py-5">
-              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div className="flex min-w-0 items-center gap-3.5">
-                  <ProfileAvatar
-                    photoUrl={photoUrl}
-                    initials={initials}
-                    name={applicantName || "Applicant"}
-                    onPhotoChanged={() => void loadAll(true)}
-                  />
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="truncate text-base font-bold tracking-[-0.01em] text-foreground sm:text-lg">{applicantName}</h2>
-                      {profile.isProfileComplete ? (
-                        <Badge variant="success"><CheckCircle2 className="size-3" /> Complete</Badge>
-                      ) : (
-                        // Amber, not red: "incomplete" is a work-in-progress
-                        // state, not an error — red is reserved for failures.
-                        <Badge variant="warning"><AlertCircle className="size-3" /> Incomplete</Badge>
-                      )}
-                    </div>
-                    {/* Submitted date is the only meta that can't be read off
-                        the completion bar — the fill count lives there now. */}
-                    {profile.submittedDate && (
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        Submitted {formatDate(profile.submittedDate)}
-                      </p>
-                    )}
-                  </div>
+        {/* Identity + completion hero — first surface on phones. */}
+        <div className="pui-card mt-0 p-4 sm:mt-6 sm:p-5 lg:p-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
+            <div className="flex min-w-0 items-center gap-4">
+              <ProfileAvatar
+                photoUrl={photoUrl}
+                initials={initials}
+                name={applicantName || "Applicant"}
+                onPhotoChanged={() => void loadAll(true)}
+              />
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="truncate text-base font-bold tracking-[-0.015em] text-foreground sm:text-lg">
+                    {applicantName}
+                  </h2>
+                  {profile.isProfileComplete ? (
+                    <Badge variant="success" className="gap-1">
+                      <CheckCircle2 className="size-3" /> Complete
+                    </Badge>
+                  ) : (
+                    // Amber, not red: "incomplete" is a work-in-progress
+                    // state, not an error — red is reserved for failures.
+                    <Badge variant="warning" className="gap-1">
+                      <AlertCircle className="size-3" /> Incomplete
+                    </Badge>
+                  )}
+                  {pdsLocked && (
+                    <Badge
+                      variant="outline"
+                      className="gap-1 border-primary/30 bg-primary/10 text-[11px] text-info-ink"
+                    >
+                      <Sparkles className="size-3" /> AI-assisted
+                    </Badge>
+                  )}
                 </div>
-                {/* Actionable-only button: a permanently-disabled "Mark
-                    Complete" is dead chrome that eats a full-width row on
-                    phones. It appears once requirements are met; until then
-                    the requirement strip below explains what is missing. */}
-                {!profile.isProfileComplete && canMarkComplete && (
-                  <Button
-                    onClick={() => setCompleteOpen(true)}
-                    disabled={markingComplete}
-                    className="shrink-0"
-                  >
-                    <ShieldCheck className="size-4" strokeWidth={1.5} /> Mark Complete
-                  </Button>
-                )}
-              </div>
-              <div className="mt-3 flex items-center gap-3 sm:mt-4">
-                <span className="kicker hidden shrink-0 text-muted-foreground sm:inline">Completion</span>
-                <Progress
-                  value={completion.percent}
-                  className="h-1.5 flex-1"
-                />
-                <span className="shrink-0 text-sm font-extrabold tabular-nums text-foreground">
-                  {completion.percent}%
-                </span>
-                {/* Fill count only where there's room — phones read the same
-                    signal from the checkmarks in the step grid below. */}
-                <span className="kicker hidden shrink-0 text-muted-foreground sm:inline">
-                  {completion.filled}/{completion.total} sections
-                </span>
+                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                  {profile.submittedDate && (
+                    <span>Submitted {formatDate(profile.submittedDate)}</span>
+                  )}
+                  <span className="inline-flex items-center gap-1">
+                    <FileStack className="size-3.5" />
+                    {documents.length} document{documents.length === 1 ? "" : "s"}
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Requirements hint — calm amber advisory (guidance, not an
-                error: red is reserved for real failures). */}
-            {!canMarkComplete && !profile.isProfileComplete && (
-              <div className="flex items-start gap-2.5 border-t border-border bg-warning/10 px-4 py-2.5 sm:px-6">
-                <Info className="mt-0.5 size-3.5 shrink-0 text-warning" strokeWidth={1.5} />
-                <span className="text-xs leading-relaxed text-warning-ink">
-                  To mark your profile complete: fill in Personal Information (first name, last name, email) and add at least one Education and one Work Experience entry.
+            {/* Ring + primary action cluster */}
+            <div className="flex items-center justify-between gap-4 md:justify-end md:gap-6">
+              <div className="flex items-center gap-3 md:flex-col md:items-end md:gap-1.5">
+                <CompletionRing percent={completion.percent} />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground md:order-first">
+                  {completion.filled} of {completion.total} sections
                 </span>
               </div>
-            )}
+              {!profile.isProfileComplete && canMarkComplete && (
+                <Button
+                  onClick={() => setCompleteOpen(true)}
+                  disabled={markingComplete}
+                  className="shrink-0 md:order-last"
+                >
+                  <ShieldCheck className="size-4" strokeWidth={1.5} />
+                  Mark Complete
+                </Button>
+              )}
+            </div>
           </div>
+
+          {/* Requirements hint — calm amber advisory (guidance, not an error:
+              red is reserved for real failures). */}
+          {!canMarkComplete && !profile.isProfileComplete && (
+            <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-warning/25 bg-warning/10 px-3.5 py-2.5">
+              <Info className="mt-0.5 size-3.5 shrink-0 text-warning" strokeWidth={1.5} />
+              <span className="text-xs leading-relaxed text-warning-ink">
+                To mark your profile complete: fill in Personal Information (first
+                name, last name, email) and add at least one Education and one Work
+                Experience entry.
+              </span>
+            </div>
+          )}
+        </div>
 
         {/* Two-column layout: sections nav + PDS upload rail + right content
             cards.
             On desktop: the rail is sticky with its own scroll container so it
             stays in view while the right content scrolls.
-            On mobile: the step grid is its own grid child so it can STICK
+            On mobile: the step strip is its own grid child so it can STICK
             under the workspace header — navigation stays reachable anywhere
             in the wizard — with the upload strip and content flowing below. */}
-        <div ref={sectionsRef} className="mt-4 grid scroll-mt-20 grid-cols-[minmax(0,1fr)] gap-4 sm:mt-6 sm:gap-6 lg:grid-cols-[352px_minmax(0,1fr)]">
-            {/* MOBILE (< lg) — sticky 7-cell step grid + caption + prev/next.
-                A direct grid child so its sticky containing block is the full
-                grid: the whole card pins below the workspace header while the
-                forms scroll beneath it. Cells carry 01–07 + fill state; the
-                caption row adds one-tap sequential stepping. */}
+        <div ref={sectionsRef} className="mt-4 grid scroll-mt-24 grid-cols-[minmax(0,1fr)] gap-4 sm:mt-6 sm:gap-6 lg:grid-cols-[352px_minmax(0,1fr)]">
+          {/* MOBILE (< lg) — sticky segmented strip + caption + prev/next.
+              A direct grid child so its sticky containing block is the full
+              grid: the whole card pins below the workspace header while the
+              forms scroll beneath it. The active cell is a sliding pill
+              (motion layoutId) — one saturated element, no double borders. */}
+          <nav
+            aria-label="Profile sections"
+            className="pui-card sticky top-16 z-30 p-1.5 lg:hidden"
+          >
+            <div className="grid grid-cols-7 gap-1">
+              {SECTIONS.map((s, i) => {
+                const isActive = activeSection === s.id;
+                const filled = completion.checks[s.id];
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => handleMobileSectionChange(s.id)}
+                    aria-label={`Section ${i + 1}: ${s.label}`}
+                    aria-current={isActive ? "page" : undefined}
+                    className={`relative isolate flex min-h-11 min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-0.5 transition-colors ${
+                      isActive
+                        ? "text-white"
+                        : "text-foreground hover:bg-secondary"
+                    }`}
+                  >
+                    {/* Sliding pill — rendered INSIDE the active cell so
+                        inset-0 matches the cell bounds; layoutId slides it
+                        between cells on section change. (Rendered once at
+                        grid level, inset-0 would cover the entire strip.) */}
+                    {isActive && (
+                      <motion.span
+                        aria-hidden
+                        layoutId="pui-mobile-seg"
+                        className="absolute inset-0 -z-10 rounded-lg bg-primary shadow-sm"
+                        transition={{ type: "spring", stiffness: 500, damping: 42 }}
+                      />
+                    )}
+                    <span
+                      className={`text-[10px] font-extrabold leading-none tabular-nums ${
+                        isActive ? "text-white/85" : "text-muted-foreground"
+                      }`}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    {filled ? (
+                      <CheckCircle2
+                        className={`size-3.5 shrink-0 ${isActive ? "text-white" : "text-success"}`}
+                        strokeWidth={2}
+                      />
+                    ) : (
+                      <span
+                        aria-hidden
+                        className={`size-1.5 shrink-0 rounded-full ${
+                          isActive ? "bg-white/60" : "bg-muted-foreground/35"
+                        }`}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            {/* Caption + sequential stepping — hairline footer bar with ghost
+                chevrons and an aria-live position readout. */}
+            <div className="mt-1.5 flex items-stretch border-t border-border/60">
+              <button
+                type="button"
+                onClick={() => activeIdx > 0 && handleMobileSectionChange(SECTIONS[activeIdx - 1].id)}
+                disabled={activeIdx === 0}
+                aria-label="Previous section"
+                className="grid w-12 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary disabled:opacity-40"
+              >
+                <ChevronLeft className="size-4" strokeWidth={1.5} />
+              </button>
+              <p aria-live="polite" className="min-w-0 flex-1 truncate py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                {`Section ${activeIdx + 1} of ${SECTIONS.length} · ${SECTIONS[activeIdx]?.label ?? ""}`}
+              </p>
+              <button
+                type="button"
+                onClick={() => activeIdx < SECTIONS.length - 1 && handleMobileSectionChange(SECTIONS[activeIdx + 1].id)}
+                disabled={activeIdx === SECTIONS.length - 1}
+                aria-label="Next section"
+                className="grid w-12 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary disabled:opacity-40"
+              >
+                <ChevronRight className="size-4" strokeWidth={1.5} />
+              </button>
+            </div>
+          </nav>
+
+          {/* LEFT RAIL — desktop vertical nav + AI upload strip. Sticks on
+              desktop as one unit (internal scroll when tall). On phones only
+              the upload strip remains here; the step strip is the sticky nav
+              above. */}
+          <div className="h-fit min-w-0 lg:sticky lg:top-16 lg:max-h-[calc(100dvh-80px)] lg:overflow-y-auto lg:pr-1">
+            {/* DESKTOP (lg+) — tinted rail list with sliding indicator */}
             <nav
               aria-label="Profile sections"
-              className="sticky top-16 z-30 overflow-hidden rounded-none border border-border bg-card lg:hidden"
+              className="pui-card hidden p-2 lg:block"
             >
-              {/* Unified instrument strip — contiguous cells with hairline
-                  dividers (no floating boxes inside boxes); the solid primary
-                  cell is the only saturated element. */}
-              <div className="grid grid-cols-7">
+              <p className="px-3 pb-1.5 pt-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+                Sections · {completion.filled}/{completion.total}
+              </p>
+              <div className="flex flex-col gap-0.5">
                 {SECTIONS.map((s, i) => {
                   const isActive = activeSection === s.id;
                   const filled = completion.checks[s.id];
+                  const Icon = s.icon;
                   return (
                     <button
                       key={s.id}
-                      onClick={() => handleMobileSectionChange(s.id)}
-                      aria-label={`Section ${i + 1}: ${s.label}`}
+                      onClick={() => setActiveSection(s.id)}
                       aria-current={isActive ? "page" : undefined}
-                      className={`flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 px-0.5 transition-colors ${
-                        i < SECTIONS.length - 1 ? "border-r border-border" : ""
-                      } ${
+                      className={`relative flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm font-semibold transition-colors ${
                         isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-card text-foreground hover:bg-secondary"
+                          ? "bg-primary/10 text-primary"
+                          : "text-foreground hover:bg-secondary/70"
                       }`}
                     >
-                      <span className={`text-[11px] font-extrabold leading-none tabular-nums ${isActive ? "text-white/80" : "text-muted-foreground"}`}>
+                      {isActive && (
+                        <motion.span
+                          aria-hidden
+                          layoutId="pui-rail-indicator"
+                          className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary"
+                          transition={{ type: "spring", stiffness: 500, damping: 42 }}
+                        />
+                      )}
+                      <span
+                        className={`w-5 shrink-0 self-start text-[11px] font-bold tabular-nums leading-6 ${
+                          isActive ? "text-primary/70" : "text-muted-foreground/60"
+                        }`}
+                      >
                         {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <Icon
+                        className={`size-4.5 mt-1 shrink-0 ${isActive ? "" : "text-muted-foreground"}`}
+                        strokeWidth={1.5}
+                      />
+                      {/* Two-line label — the reference stepper shows each
+                          step's time estimate right under its name. */}
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate leading-tight">{s.label}</span>
+                        <span
+                          className={`block text-[10.5px] font-normal leading-tight ${
+                            isActive ? "text-primary/60" : "text-muted-foreground/60"
+                          }`}
+                        >
+                          Approx {s.minutes} min
+                        </span>
                       </span>
                       {filled ? (
                         <CheckCircle2
-                          className={`size-3.5 shrink-0 ${isActive ? "text-white" : "text-success"}`}
+                          className={`size-4.5 shrink-0 ${isActive ? "text-primary" : "text-success"}`}
                           strokeWidth={2}
                         />
                       ) : (
-                        <span
-                          aria-hidden
-                          className={`size-1.5 shrink-0 rounded-full ${isActive ? "bg-white/50" : "bg-muted-foreground/40"}`}
+                        <CircleDot
+                          className="size-4.5 shrink-0 text-muted-foreground/35"
+                          strokeWidth={1.5}
                         />
                       )}
                     </button>
                   );
                 })}
               </div>
-              {/* Caption + sequential stepping — a machined footer bar: hairline
-                  top rule, ghost chevrons, aria-live position readout. */}
-              <div className="flex items-stretch border-t border-border">
-                <button
-                  type="button"
-                  onClick={() => activeIdx > 0 && handleMobileSectionChange(SECTIONS[activeIdx - 1].id)}
-                  disabled={activeIdx === 0}
-                  aria-label="Previous section"
-                  className="grid w-12 shrink-0 place-items-center border-r border-border text-muted-foreground transition-colors hover:bg-secondary disabled:opacity-40"
-                >
-                  <ChevronLeft className="size-4" strokeWidth={1.5} />
-                </button>
-                <p aria-live="polite" className="kicker min-w-0 flex-1 truncate px-2 py-2.5 text-center text-muted-foreground">
-                  {`Section ${activeIdx + 1} of ${SECTIONS.length} · ${SECTIONS[activeIdx]?.label ?? ""}`}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => activeIdx < SECTIONS.length - 1 && handleMobileSectionChange(SECTIONS[activeIdx + 1].id)}
-                  disabled={activeIdx === SECTIONS.length - 1}
-                  aria-label="Next section"
-                  className="grid w-12 shrink-0 place-items-center border-l border-border text-muted-foreground transition-colors hover:bg-secondary disabled:opacity-40"
-                >
-                  <ChevronRight className="size-4" strokeWidth={1.5} />
-                </button>
-              </div>
             </nav>
 
-            {/* LEFT RAIL — desktop vertical nav + PDS upload strip. Sticks on
-                desktop as one unit (internal scroll when tall). On phones only
-                the upload strip remains here; the step grid is the sticky nav
-                above. */}
-            <div className="h-fit min-w-0 lg:sticky lg:top-16 lg:max-h-[calc(100dvh-80px)] lg:overflow-y-auto">
-              {/* DESKTOP (lg+) — full vertical nav rail (unchanged) */}
-              <nav
-                aria-label="Profile sections"
-                className="hidden rounded-none border border-border bg-card p-2 lg:block"
-              >
-                <p className="kicker px-3 pb-1.5 pt-2.5 text-sm! text-muted-foreground">Sections</p>
-                <div className="flex flex-col gap-1">
-                  {SECTIONS.map((s, i) => {
-                    const isActive = activeSection === s.id;
-                    const filled = completion.checks[s.id];
-                    const Icon = s.icon;
-                    return (
-                      <button
-                        key={s.id}
-                        onClick={() => setActiveSection(s.id)}
-                        aria-current={isActive ? "page" : undefined}
-                        className={`flex w-full items-center gap-3 rounded-none px-3 py-2.5 text-left text-base font-semibold transition-colors ${
-                          isActive
-                            ? "bg-primary text-primary-foreground"
-                            : "text-foreground hover:bg-secondary"
-                        }`}
-                      >
-                        <span className={`shrink-0 text-sm font-extrabold tabular-nums ${isActive ? "text-white/70" : "text-muted-foreground"}`}>
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
-                        <Icon className="size-5 shrink-0" strokeWidth={1.5} />
-                        <span className="min-w-0 flex-1 truncate">{s.label}</span>
-                        {filled ? (
-                          <CheckCircle2 className={`size-4.5 shrink-0 ${isActive ? "text-white" : "text-success"}`} strokeWidth={2} />
-                        ) : (
-                          <CircleDot className={`size-4.5 shrink-0 ${isActive ? "text-white/40" : "text-muted-foreground/40"}`} strokeWidth={1.5} />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </nav>
-
-              {/* PDS auto-extraction — upload strip under the Sections list,
-                  beside the form so it's always in reach while filling out. */}
-              <div className="mt-3">
-                <UploadPdsCard
-                  locked={pdsLocked}
-                  onClearForms={handleClearForms}
-                  onApplied={() => loadAll(true)}
-                  onReview={() => {
-                    setActiveSection("personal");
-                    requestAnimationFrame(() => {
-                      sectionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                    });
-                  }}
-                />
-              </div>
+            {/* PDS auto-extraction — upload strip under the Sections list,
+                beside the form so it's always in reach while filling out. */}
+            <div className="mt-3">
+              <UploadPdsCard
+                locked={pdsLocked}
+                onClearForms={handleClearForms}
+                onApplied={() => loadAll(true)}
+                onReview={() => {
+                  setActiveSection("personal");
+                  requestAnimationFrame(() => {
+                    sectionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  });
+                }}
+              />
             </div>
 
-            {/* RIGHT CONTENT — flat section cards scroll naturally; the
-                active section swaps in instantly (minimal enterprise: no
-                entrance choreography). */}
-            <div className="min-w-0">
+            {/* AI Profile Coach — on-demand readiness analysis with one-tap
+                actions into the sections it recommends. */}
+            <div className="mt-3">
+              <AiCoachCard
+                profile={profile}
+                personalFilled={personalFilled}
+                personalTotal={personalTotal}
+                onNavigate={(section) => handleMobileSectionChange(section)}
+              />
+            </div>
+          </div>
+
+          {/* RIGHT CONTENT — section cards swap with a quiet fade/rise
+              (180ms): perceptible placement without choreography. */}
+          <div className="min-w-0">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={activeSection}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
+              >
                 {activeSection === "personal" && (
                   <PersonalInfoSection
                     form={personalForm}
@@ -464,12 +614,14 @@ export function ProfileView() {
                 {activeSection === "documents" && (
                   <DocumentsSection documents={documents} {...documentsHandlers} />
                 )}
-            </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
+        </div>
 
         {/* Mark Profile Complete Confirmation */}
         <AlertDialog open={completeOpen} onOpenChange={setCompleteOpen}>
-          <AlertDialogContent>
+          <AlertDialogContent className="premium">
             <AlertDialogHeader className="shrink-0">
               <AlertDialogTitle className="text-lg font-bold tracking-[-0.01em] text-foreground">
                 Mark Profile as Complete?

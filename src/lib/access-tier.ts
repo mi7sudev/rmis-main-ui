@@ -113,6 +113,11 @@ function isPrivateIpv4(ip: string): boolean {
   );
 }
 
+/** Is this a public (internet-side) IPv4? Anything not in the private ranges. */
+function isPublicIpv4(ip: string): boolean {
+  return !isPrivateIpv4(ip);
+}
+
 /** Is this a public (internet-side) IPv6? Loopback/ULA/link-local/mapped are intranet-side. */
 function isPublicIpv6(raw: string): boolean {
   const ip = raw.trim().toLowerCase();

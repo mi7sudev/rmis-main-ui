@@ -1,25 +1,18 @@
 // =============================================================================
-// RMIS — Profile View: Awards Section (Accenture language)
-// Flat sharp cards on the black canvas — no rounded corners, no shadows.
-// ==============================================================================
+// RMIS — Profile View: Awards Section (premium scope)
+// Entity cards on the premium canvas, following the education-section
+// reference: ResponsiveFormDialog (bottom sheet on phones / dialog on
+// desktop), inline field validation with an error digest, and the
+// unsaved-changes guard.
+// =============================================================================
 
 "use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
 import { EmptyState } from "@/components/primitives/workspace";
 import { formatDate } from "@/lib/client";
-import { toast } from "sonner";
-import { Award as AwardIcon, Plus, Loader2 } from "lucide-react";
+import { Award as AwardIcon, Plus } from "lucide-react";
 import { AwardItem, toISODate, isPendingId } from "./types";
 import {
   SectionHeader,
@@ -27,6 +20,7 @@ import {
   FormField,
   SelectField,
 } from "./form-fields";
+import { ResponsiveFormDialog } from "./form-dialog";
 
 export function AwardsSection({
   items,
@@ -43,38 +37,64 @@ export function AwardsSection({
   const [editing, setEditing] = useState<AwardItem | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  // Snapshot captured when the dialog opens — drives the unsaved-changes guard.
+  const [baseline, setBaseline] = useState("{}");
+  const dirty = JSON.stringify(form) !== baseline;
 
   function openCreate() {
     setEditing(null);
-    setForm({
+    const next = {
       recognitionType: "Award",
       recognitionDetails: "",
       recognitionScope: "",
       recognitionCategory: "",
       recognitionProvider: "",
       dateGranted: "",
-    });
+    };
+    setForm(next);
+    setBaseline(JSON.stringify(next));
+    setErrors({});
     setOpen(true);
   }
 
   function openEdit(item: AwardItem) {
     setEditing(item);
-    setForm({
+    const next = {
       recognitionType: item.recognitionType ?? "Award",
       recognitionDetails: item.recognitionDetails ?? "",
       recognitionScope: item.recognitionScope ?? "",
       recognitionCategory: item.recognitionCategory ?? "",
       recognitionProvider: item.recognitionProvider ?? "",
       dateGranted: toISODate(item.dateGranted) ?? "",
-    });
+    };
+    setForm(next);
+    setBaseline(JSON.stringify(next));
+    setErrors({});
     setOpen(true);
   }
 
+  function updateField(key: string, value: string) {
+    setForm((p) => ({ ...p, [key]: value }));
+    // Inline validation clears the moment the applicant starts fixing it.
+    setErrors((e) => {
+      if (!e[key]) return e;
+      const next = { ...e };
+      delete next[key];
+      return next;
+    });
+  }
+
+  function validate(): string[] {
+    const e: Record<string, string> = {};
+    if (!form.recognitionDetails?.trim())
+      e.recognitionDetails = "Recognition details are required.";
+    setErrors(e);
+    return Object.values(e);
+  }
+
   async function submit() {
-    if (!form.recognitionDetails?.trim()) {
-      toast.error("Recognition details are required");
-      return;
-    }
+    if (validate().length > 0) return;
     setSaving(true);
     const payload: Record<string, unknown> = {
       recognitionType: form.recognitionType || "Award",
@@ -120,127 +140,118 @@ export function AwardsSection({
           once entries exist, the header button takes over. */}
       <SectionHeader
         title="Awards & Recognition"
+        meta="Approx 2 min"
         description="Awards, accomplishments, and recognitions received"
         icon={AwardIcon}
         action={
           items.length === 0 ? undefined : (
             <Button onClick={openCreate} variant="outline">
-              <Plus className="h-4 w-4" /> Add Award
+              <Plus className="size-4" /> Add Award
             </Button>
           )
         }
       />
 
-      <section className="rounded-none border border-border bg-card">
       {items.length === 0 ? (
-        <div className="p-4 sm:p-6">
-        <EmptyState
-          title="No awards yet"
-          description="Add awards and recognitions you've received, or upload award certificates to auto-extract."
-          icon={<AwardIcon className="h-7 w-7" />}
-          className="border-0 bg-transparent"
-          action={
-            <Button onClick={openCreate}>
-              <Plus className="h-4 w-4" /> Add Award
-            </Button>
-          }
-        />
+        <div className="pui-card p-4 sm:p-6">
+          <EmptyState
+            title="No awards yet"
+            description="Add awards and recognitions you've received, or upload award certificates to auto-extract."
+            icon={<AwardIcon className="size-7" />}
+            className="border-0 bg-transparent"
+            action={
+              <Button onClick={openCreate}>
+                <Plus className="size-4" /> Add Award
+              </Button>
+            }
+          />
         </div>
       ) : (
-        <div className="sm:max-h-[480px] sm:overflow-y-auto sm:pr-1">
-          <div className="space-y-3 p-4">
-            {items.map((item) => (
-              <EntityCard
-                key={item.id}
-                fromExtraction={item.__fromExtraction}
-                onEdit={() => openEdit(item)}
-                onDelete={() => onDelete(item.id)}
-                rows={[
-                  { label: "Type", value: item.recognitionType },
-                  { label: "Details", value: item.recognitionDetails },
-                  { label: "Scope", value: item.recognitionScope },
-                  { label: "Category", value: item.recognitionCategory },
-                  { label: "Provider", value: item.recognitionProvider },
-                  {
-                    label: "Date Granted",
-                    value: item.dateGranted
-                      ? formatDate(item.dateGranted)
-                      : null,
-                  },
-                ]}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-      </section>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[520px]">
-          <DialogHeader className="shrink-0">
-            <DialogTitle className="font-bold tracking-[-0.01em] text-foreground">
-              {editing ? "Edit Award / Recognition" : "Add Award / Recognition"}
-            </DialogTitle>
-            <DialogDescription>
-              Enter details about the award or accomplishment.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto py-2 pr-1 md:grid-cols-2">
-            <SelectField
-              label="Recognition Type"
-              value={form.recognitionType}
-              onChange={(v) => setForm((p) => ({ ...p, recognitionType: v, recognitionScope: "" }))}
-              options={[
-                { value: "Award", label: "Award" },
-                { value: "Accomplishment", label: "Accomplishment" },
+        <div className="pui-scroll space-y-3 sm:max-h-[560px] sm:overflow-y-auto sm:pr-1">
+          {items.map((item) => (
+            <EntityCard
+              key={item.id}
+              icon={AwardIcon}
+              title={item.recognitionDetails || "Untitled entry"}
+              subtitle={
+                [
+                  item.recognitionType,
+                  item.recognitionScope,
+                  item.dateGranted ? formatDate(item.dateGranted) : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ") || null
+              }
+              fromExtraction={item.__fromExtraction}
+              onEdit={() => openEdit(item)}
+              onDelete={() => onDelete(item.id)}
+              rows={[
+                { label: "Category", value: item.recognitionCategory },
+                { label: "Awarding Body", value: item.recognitionProvider },
               ]}
             />
-            <SelectField
-              label="Scope"
-              value={form.recognitionScope}
-              onChange={(v) => setForm((p) => ({ ...p, recognitionScope: v }))}
-              options={scopeOptions}
-              placeholder="Select scope"
-            />
-            <div className="md:col-span-2">
-              <FormField
-                label="Recognition Details"
-                value={form.recognitionDetails}
-                onChange={(v) => setForm((p) => ({ ...p, recognitionDetails: v }))}
-                required
-              />
-            </div>
+          ))}
+        </div>
+      )}
+
+      <ResponsiveFormDialog
+        open={open}
+        onOpenChange={setOpen}
+        dirty={dirty}
+        title={editing ? "Edit Award / Recognition" : "Add Award / Recognition"}
+        description="Enter details about the award or accomplishment."
+        submitLabel={editing ? "Save Changes" : "Add Entry"}
+        saving={saving}
+        onSubmit={submit}
+        errors={Object.values(errors)}
+      >
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <SelectField
+            label="Recognition Type"
+            value={form.recognitionType}
+            onChange={(v) => {
+              updateField("recognitionType", v);
+              updateField("recognitionScope", "");
+            }}
+            options={[
+              { value: "Award", label: "Award" },
+              { value: "Accomplishment", label: "Accomplishment" },
+            ]}
+          />
+          <SelectField
+            label="Scope"
+            value={form.recognitionScope}
+            onChange={(v) => updateField("recognitionScope", v)}
+            options={scopeOptions}
+            placeholder="Select scope"
+          />
+          <div className="md:col-span-2">
             <FormField
-              label="Category"
-              value={form.recognitionCategory}
-              onChange={(v) => setForm((p) => ({ ...p, recognitionCategory: v }))}
-            />
-            <FormField
-              label="Awarding Body / Provider"
-              value={form.recognitionProvider}
-              onChange={(v) => setForm((p) => ({ ...p, recognitionProvider: v }))}
-            />
-            <FormField
-              label="Date Granted"
-              value={form.dateGranted}
-              onChange={(v) => setForm((p) => ({ ...p, dateGranted: v }))}
-              type="date"
+              label="Recognition Details"
+              value={form.recognitionDetails}
+              onChange={(v) => updateField("recognitionDetails", v)}
+              required
+              error={errors.recognitionDetails}
             />
           </div>
-          <DialogFooter className="shrink-0">
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button
-              onClick={submit}
-              disabled={saving}
-            >
-              {saving && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
-              {editing ? "Save Changes" : "Add Entry"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          <FormField
+            label="Category"
+            value={form.recognitionCategory}
+            onChange={(v) => updateField("recognitionCategory", v)}
+          />
+          <FormField
+            label="Awarding Body / Provider"
+            value={form.recognitionProvider}
+            onChange={(v) => updateField("recognitionProvider", v)}
+          />
+          <FormField
+            label="Date Granted"
+            value={form.dateGranted}
+            onChange={(v) => updateField("dateGranted", v)}
+            type="date"
+          />
+        </div>
+      </ResponsiveFormDialog>
     </div>
   );
 }

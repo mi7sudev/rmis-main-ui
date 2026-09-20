@@ -41,6 +41,7 @@ import {
   FieldWithExtraction,
   SelectField,
   RefInput,
+  YesNoField,
 } from "./form-fields";
 
 // Extraction is owned exclusively by the PDS Upload · Auto-Extraction strip
@@ -123,19 +124,19 @@ function SubSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-none border border-border bg-card">
+    <section className="pui-card overflow-hidden">
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={open}
         className="flex w-full items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-secondary/50 sm:px-5 sm:py-3.5"
       >
-        <Icon className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
-        <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <Icon className="size-4.5 shrink-0 text-primary" strokeWidth={1.5} />
+        <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-foreground">
           {title}
         </h3>
         {summary && (
-          <span className="hidden min-w-0 truncate text-[11px] font-medium text-muted-foreground/70 sm:inline">
+          <span className="hidden min-w-0 truncate text-[11.5px] font-medium text-muted-foreground/80 sm:inline">
             · {summary}
           </span>
         )}
@@ -145,7 +146,7 @@ function SubSection({
           strokeWidth={1.5}
         />
       </button>
-      {open && <div className="border-t border-border">{children}</div>}
+      {open && <div className="border-t border-border/60">{children}</div>}
     </section>
   );
 }
@@ -253,7 +254,7 @@ export function PersonalInfoSection({
       />
 
       {fromExtraction.size > 0 && (
-        <div className="flex items-start gap-2.5 rounded-none border border-primary/40 bg-primary/10 px-3.5 py-2.5 text-xs leading-relaxed text-info-ink">
+        <div className="flex items-start gap-2.5 rounded-xl border border-primary/35 bg-primary/10 px-3.5 py-2.5 text-xs leading-relaxed text-info-ink">
           <Sparkles className="h-4 w-4 shrink-0 mt-0.5 text-info-ink" />
           <span>
             <strong>{fromExtraction.size} fields</strong> were pre-filled from your
@@ -305,6 +306,7 @@ export function PersonalInfoSection({
             onChange={(v) => onChange("emailAddress", v)}
             type="email"
             required
+            helper="Interview invites and job offers are sent here."
           />
           <FieldWithExtraction
             label="Mobile Number"
@@ -312,6 +314,7 @@ export function PersonalInfoSection({
             fromExtraction={fromExtraction.has("mobileNumber")}
             onChange={(v) => onChange("mobileNumber", v)}
             placeholder="09XXXXXXXXX"
+            hint="Format: 09XXXXXXXXX · 11 digits"
           />
           <FieldWithExtraction
             label="Contact Number"
@@ -374,15 +377,11 @@ export function PersonalInfoSection({
             fromExtraction={fromExtraction.has("religion")}
             onChange={(v) => onChange("religion", v)}
           />
-          <SelectField
+          <YesNoField
             label="PWD (Person with Disability)"
             value={form.isPwd ? "Yes" : "No"}
-            fromExtraction={false}
             onChange={(v) => onChange("isPwd", v === "Yes")}
-            options={[
-              { value: "No", label: "No" },
-              { value: "Yes", label: "Yes" },
-            ]}
+            helper="Declared for accommodation and quota compliance."
           />
           <FieldWithExtraction
             label="Ethnicity / Indigenous Group"
@@ -450,15 +449,11 @@ export function PersonalInfoSection({
       >
         <div className="space-y-4 p-4 sm:p-5">
           <div className="grid grid-cols-1 gap-3.5 sm:gap-4 md:grid-cols-2">
-            <SelectField
-              label="Have you ever been found guilty of any administrative offense?"
-              value={form.adminCase ? "Yes" : "No"}
-              onChange={(v) => onChange("adminCase", v === "Yes")}
-              options={[
-                { value: "No", label: "No" },
-                { value: "Yes", label: "Yes" },
-              ]}
-            />
+          <YesNoField
+            label="Have you ever been found guilty of any administrative offense?"
+            value={form.adminCase ? "Yes" : "No"}
+            onChange={(v) => onChange("adminCase", v === "Yes")}
+          />
             {form.adminCase && (
               <FieldWithExtraction
                 label="Administrative Offense Details"
@@ -467,15 +462,11 @@ export function PersonalInfoSection({
                 onChange={(v) => onChange("adminCaseDetails", v)}
               />
             )}
-            <SelectField
-              label="Have you been criminally charged before any court?"
-              value={form.crimeCharge ? "Yes" : "No"}
-              onChange={(v) => onChange("crimeCharge", v === "Yes")}
-              options={[
-                { value: "No", label: "No" },
-                { value: "Yes", label: "Yes" },
-              ]}
-            />
+          <YesNoField
+            label="Have you been criminally charged before any court?"
+            value={form.crimeCharge ? "Yes" : "No"}
+            onChange={(v) => onChange("crimeCharge", v === "Yes")}
+          />
             {form.crimeCharge && (
               <>
                 <FieldWithExtraction
@@ -529,7 +520,7 @@ export function PersonalInfoSection({
                 {charRefs.map((ref, idx) => (
                   <div
                     key={idx}
-                    className="rounded-none border border-border bg-secondary/60 p-4"
+                    className="rounded-xl border border-border/70 bg-secondary/50 p-4 transition-colors hover:border-primary/30"
                   >
                     <div className="mb-3 flex items-center justify-between">
                       <span className="kicker text-muted-foreground">
@@ -596,7 +587,7 @@ export function PersonalInfoSection({
           scrolled. Desktop keeps the in-header button (no duplication). */}
       {dirty && (
         <div
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:hidden"
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-card/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-6px_20px_-8px_rgb(9_14_24/0.25)] backdrop-blur md:hidden"
           role="toolbar"
           aria-label="Save changes"
         >

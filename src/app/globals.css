@@ -498,3 +498,189 @@ html.lenis body {
     transform: translateX(3px);
   }
 }
+
+/* ============================================================================
+   PREMIUM SCOPE — modern soft-surface layer for the applicant Profile
+   experience. The base RMIS sheet is hard-flat (radius 0, no shadows); the
+   applicant-facing profile and its forms opt into a contemporary enterprise
+   language (Deel / Greenhouse / LinkedIn grade) by carrying the `.premium`
+   class on their root element. Everything outside the scope — admin,
+   evaluator, public pages — keeps the Accenture-flat geometry untouched.
+
+   Mechanics: radius/shadow custom properties are re-declared inside the
+   scope (they cascade to every descendant), and the canonical shadcn
+   primitives are re-rounded via their data-slot hooks. Portaled surfaces
+   (Dialog / Drawer / Select content) render outside the subtree, so each
+   portal root also carries the .premium class from its wrapper component.
+   ============================================================================ */
+
+.premium {
+  /* Re-tuned geometry tokens (cascade into every descendant) */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius: 0.625rem;
+  /* Layered elevation — soft, ambient, never heavy */
+  --shadow-soft: 0 1px 2px 0 rgb(9 14 24 / 0.05), 0 1px 3px 0 rgb(9 14 24 / 0.04);
+  --shadow-lift: 0 4px 8px -2px rgb(9 14 24 / 0.06), 0 12px 28px -6px rgb(9 14 24 / 0.1);
+  --shadow-pop: 0 8px 16px -4px rgb(9 14 24 / 0.1), 0 24px 56px -12px rgb(9 14 24 / 0.18);
+  /* Ambient canvas wash behind the scope's cards */
+  --pui-canvas: radial-gradient(1200px 480px at 50% -160px,
+    color-mix(in oklab, var(--primary) 9%, transparent), transparent 70%);
+  --pui-ring: 0 0 0 3px color-mix(in oklab, var(--primary) 22%, transparent);
+}
+
+/* ---- Controls: inputs, selects, textareas → soft modern fields ------------ */
+.premium [data-slot="input"],
+.premium [data-slot="textarea"],
+.premium [data-slot="select-trigger"] {
+  border-radius: var(--radius-md);
+  background: var(--card);
+  box-shadow: var(--shadow-soft);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.premium [data-slot="input"]:hover,
+.premium [data-slot="textarea"]:hover,
+.premium [data-slot="select-trigger"]:hover {
+  border-color: color-mix(in oklab, var(--primary) 35%, var(--input));
+}
+.premium [data-slot="input"]:focus-visible,
+.premium [data-slot="textarea"]:focus-visible,
+.premium [data-slot="select-trigger"]:focus-visible {
+  border-color: var(--primary);
+  box-shadow: var(--pui-ring);
+}
+.premium [data-slot="input"][aria-invalid="true"],
+.premium [data-slot="textarea"][aria-invalid="true"] {
+  border-color: var(--destructive);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--destructive) 16%, transparent);
+}
+.premium [data-slot="select-trigger"] {
+  height: 2.75rem;
+  padding-inline: 0.875rem;
+}
+/* Multiline fields → tinted canvas wash (reference form's textarea register:
+   a breath of primary inside the field so long-form text feels like a
+   dedicated writing surface, not another input). */
+.premium [data-slot="textarea"] {
+  background: color-mix(in oklab, var(--primary) 4%, var(--card));
+}
+.premium [data-slot="textarea"]::placeholder {
+  color: color-mix(in oklab, var(--muted-foreground) 75%, transparent);
+}
+
+/* ---- Buttons → pill-soft modern actions ----------------------------------- */
+.premium [data-slot="button"] {
+  border-radius: var(--radius-md);
+  transition: box-shadow 0.15s ease, transform 0.15s ease, background-color 0.15s ease,
+    border-color 0.15s ease, color 0.15s ease;
+}
+.premium [data-slot="button"]:not([data-variant="ghost"]):not([data-variant="link"]):active {
+  transform: translateY(0.5px);
+}
+.premium [data-slot="button"][data-variant="default"] {
+  box-shadow: 0 1px 2px rgb(9 14 24 / 0.12), inset 0 1px 0 rgb(255 255 255 / 0.12);
+}
+.premium [data-slot="button"][data-variant="default"]:hover {
+  box-shadow: 0 4px 12px -2px color-mix(in oklab, var(--primary) 45%, transparent);
+}
+.premium [data-slot="button"][data-variant="outline"] {
+  box-shadow: var(--shadow-soft);
+}
+
+/* ---- Badges → true pills ---------------------------------------------------- */
+.premium [data-slot="badge"] {
+  border-radius: 999px;
+}
+
+/* ---- Progress → rounded track with gradient fill --------------------------- */
+.premium [data-slot="progress"] {
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--muted-foreground) 14%, transparent);
+}
+.premium [data-slot="progress-indicator"] {
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary), color-mix(in oklab, var(--primary) 55%, #7FD1F5));
+}
+
+/* ---- Dialogs (desktop) → floating rounded sheets --------------------------- */
+.premium [data-slot="dialog-content"],
+.premium [data-slot="alert-dialog-content"] {
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-pop);
+}
+.premium [data-slot="dialog-overlay"],
+.premium [data-slot="alert-dialog-overlay"] {
+  background: rgb(9 14 24 / 0.5);
+  backdrop-filter: blur(3px);
+}
+
+/* ---- Drawer (mobile bottom sheet) → rounded top + grabber ------------------ */
+.premium [data-slot="drawer-content"] {
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  box-shadow: var(--shadow-pop);
+}
+
+/* ---- Select dropdown panel (portal root carries .premium itself) ----------- */
+.premium[data-slot="select-content"],
+.premium [data-slot="select-content"] {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-pop);
+}
+.premium[data-slot="select-item"],
+.premium [data-slot="select-item"] {
+  border-radius: calc(var(--radius-lg) - 4px);
+}
+
+/* ---- Scrollable lists: slim modern scrollbar -------------------------------- */
+.premium .pui-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 30%, transparent) transparent;
+}
+.premium .pui-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.premium .pui-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--muted-foreground) 28%, transparent);
+}
+.premium .pui-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---- Empty states → soft AI-tinted icon tile -------------------------------- */
+.premium [data-slot="empty-result-icon"] {
+  border-radius: var(--radius-xl);
+  border: 1px solid color-mix(in oklab, var(--primary) 22%, transparent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--primary) 12%, transparent),
+    color-mix(in oklab, var(--primary) 4%, transparent)
+  );
+  color: var(--primary);
+  box-shadow: var(--shadow-soft);
+}
+
+/* ---- Cards: standard + interactive lift variant ------------------------------ */
+.premium .pui-card {
+  border-radius: var(--radius-2xl);
+  border: 1px solid color-mix(in oklab, var(--border) 82%, transparent);
+  background: var(--card);
+  box-shadow: var(--shadow-soft);
+}
+.premium .pui-card-interactive {
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.premium .pui-card-interactive:hover {
+  box-shadow: var(--shadow-lift);
+  border-color: color-mix(in oklab, var(--primary) 30%, var(--border));
+}
+.premium .pui-tile {
+  border-radius: var(--radius-xl);
+}
+.premium .pui-chip {
+  border-radius: 999px;
+}

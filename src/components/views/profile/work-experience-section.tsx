@@ -1,34 +1,29 @@
 // =============================================================================
-// RMIS — Profile View: Work Experience Section (Accenture language)
-// Flat sharp cards on the black canvas — no rounded corners, no shadows.
-// ==============================================================================
+// RMIS — Profile View: Work Experience Section (premium scope)
+// Entity cards on the premium canvas, following the education-section
+// reference: ResponsiveFormDialog (bottom sheet on phones / dialog on
+// desktop), inline field validation with an error digest, and the
+// unsaved-changes guard.
+// =============================================================================
 
 "use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
 import { EmptyState } from "@/components/primitives/workspace";
 import { formatDate } from "@/lib/client";
-import { toast } from "sonner";
-import { Briefcase, Plus, Loader2 } from "lucide-react";
+import { Briefcase, Plus } from "lucide-react";
 import { WorkItem, toISODate, isPendingId } from "./types";
 import {
   SectionHeader,
   EntityCard,
   FormField,
   SelectField,
+  SuffixField,
+  YesNoField,
+  TextareaField,
 } from "./form-fields";
+import { ResponsiveFormDialog } from "./form-dialog";
 
 export function WorkExperienceSection({
   items,
@@ -45,10 +40,14 @@ export function WorkExperienceSection({
   const [editing, setEditing] = useState<WorkItem | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  // Snapshot captured when the dialog opens — drives the unsaved-changes guard.
+  const [baseline, setBaseline] = useState("{}");
+  const dirty = JSON.stringify(form) !== baseline;
 
   function openCreate() {
     setEditing(null);
-    setForm({
+    const next = {
       positionTitle: "",
       employerName: "",
       employerAddress: "",
@@ -59,13 +58,16 @@ export function WorkExperienceSection({
       monthlySalary: "",
       isGovtService: "No",
       actualDuties: "",
-    });
+    };
+    setForm(next);
+    setBaseline(JSON.stringify(next));
+    setErrors({});
     setOpen(true);
   }
 
   function openEdit(item: WorkItem) {
     setEditing(item);
-    setForm({
+    const next = {
       positionTitle: item.positionTitle ?? "",
       employerName: item.employerName ?? "",
       employerAddress: item.employerAddress ?? "",
@@ -76,15 +78,36 @@ export function WorkExperienceSection({
       monthlySalary: item.monthlySalary ? String(item.monthlySalary) : "",
       isGovtService: item.isGovtService ? "Yes" : "No",
       actualDuties: item.actualDuties ?? "",
-    });
+    };
+    setForm(next);
+    setBaseline(JSON.stringify(next));
+    setErrors({});
     setOpen(true);
   }
 
+  function updateField(key: string, value: string) {
+    setForm((p) => ({ ...p, [key]: value }));
+    // Inline validation clears the moment the applicant starts fixing it.
+    setErrors((e) => {
+      if (!e[key]) return e;
+      const next = { ...e };
+      delete next[key];
+      return next;
+    });
+  }
+
+  function validate(): string[] {
+    const e: Record<string, string> = {};
+    if (!form.positionTitle?.trim())
+      e.positionTitle = "Position title is required.";
+    if (!form.employerName?.trim())
+      e.employerName = "Employer name is required.";
+    setErrors(e);
+    return Object.values(e);
+  }
+
   async function submit() {
-    if (!form.positionTitle?.trim() || !form.employerName?.trim()) {
-      toast.error("Position title and employer name are required");
-      return;
-    }
+    if (validate().length > 0) return;
     setSaving(true);
     const isPresent = form.isPresentWork === "Yes";
     const payload: Record<string, unknown> = {
@@ -123,58 +146,52 @@ export function WorkExperienceSection({
           once entries exist, the header button takes over. */}
       <SectionHeader
         title="Work Experience"
+        meta="Approx 5 min"
         description="Your employment history — most recent first"
         icon={Briefcase}
         action={
           items.length === 0 ? undefined : (
             <Button onClick={openCreate} variant="outline">
-              <Plus className="h-4 w-4" /> Add Experience
+              <Plus className="size-4" /> Add Experience
             </Button>
           )
         }
       />
 
-      <section className="rounded-none border border-border bg-card">
       {items.length === 0 ? (
-        <div className="p-4 sm:p-6">
-        <EmptyState
-          title="No work experience yet"
-          description="Add your employment history, or upload a Certificate of Employment / PDS to auto-extract."
-          icon={<Briefcase className="h-7 w-7" />}
-          className="border-0 bg-transparent"
-          action={
-            <Button onClick={openCreate}>
-              <Plus className="h-4 w-4" /> Add Experience
-            </Button>
-          }
-        />
+        <div className="pui-card p-4 sm:p-6">
+          <EmptyState
+            title="No work experience yet"
+            description="Add your employment history, or upload a Certificate of Employment / PDS to auto-extract."
+            icon={<Briefcase className="size-7" />}
+            className="border-0 bg-transparent"
+            action={
+              <Button onClick={openCreate}>
+                <Plus className="size-4" /> Add Experience
+              </Button>
+            }
+          />
         </div>
       ) : (
-        <div className="sm:max-h-[480px] sm:overflow-y-auto sm:pr-1">
-          <div className="space-y-3 p-4">
-            {items.map((item) => (
+        <div className="pui-scroll space-y-3 sm:max-h-[560px] sm:overflow-y-auto sm:pr-1">
+          {items.map((item) => {
+            const period = `${item.inclusiveDateFrom ? formatDate(item.inclusiveDateFrom) : "—"} → ${
+              item.isPresentWork
+                ? "Present"
+                : item.inclusiveDateTo
+                ? formatDate(item.inclusiveDateTo)
+                : "—"
+            }`;
+            return (
               <EntityCard
                 key={item.id}
+                icon={Briefcase}
+                title={item.positionTitle || item.employerName || "Untitled entry"}
+                subtitle={[item.employerName, period].filter(Boolean).join(" · ") || null}
                 fromExtraction={item.__fromExtraction}
                 onEdit={() => openEdit(item)}
                 onDelete={() => onDelete(item.id)}
                 rows={[
-                  { label: "Position", value: item.positionTitle },
-                  { label: "Employer", value: item.employerName },
-                  { label: "Address", value: item.employerAddress },
-                  {
-                    label: "Period",
-                    value:
-                      (item.inclusiveDateFrom
-                        ? formatDate(item.inclusiveDateFrom)
-                        : "—") +
-                      " → " +
-                      (item.isPresentWork
-                        ? "Present"
-                        : item.inclusiveDateTo
-                        ? formatDate(item.inclusiveDateTo)
-                        : "—"),
-                  },
                   { label: "Status", value: item.statusOfEmployment },
                   {
                     label: "Monthly Salary",
@@ -186,128 +203,106 @@ export function WorkExperienceSection({
                     label: "Government Service",
                     value: item.isGovtService ? "Yes" : "No",
                   },
+                  { label: "Address", value: item.employerAddress },
                   { label: "Duties", value: item.actualDuties },
                 ]}
               />
-            ))}
-          </div>
+            );
+          })}
         </div>
       )}
-      </section>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[560px]">
-          <DialogHeader className="shrink-0">
-            <DialogTitle className="font-bold tracking-[-0.01em] text-foreground">
-              {editing ? "Edit Work Experience" : "Add Work Experience"}
-            </DialogTitle>
-            <DialogDescription>
-              Enter your employment details for this position.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto py-2 pr-1 md:grid-cols-2">
-            <div className="md:col-span-2">
-              <FormField
-                label="Position Title"
-                value={form.positionTitle}
-                onChange={(v) => setForm((p) => ({ ...p, positionTitle: v }))}
-                required
-              />
-            </div>
+      <ResponsiveFormDialog
+        open={open}
+        onOpenChange={setOpen}
+        dirty={dirty}
+        title={editing ? "Edit Work Experience" : "Add Work Experience"}
+        description="Enter your employment details for this position."
+        submitLabel={editing ? "Save Changes" : "Add Entry"}
+        saving={saving}
+        onSubmit={submit}
+        errors={Object.values(errors)}
+      >
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="md:col-span-2">
             <FormField
-              label="Employer Name"
-              value={form.employerName}
-              onChange={(v) => setForm((p) => ({ ...p, employerName: v }))}
+              label="Position Title"
+              value={form.positionTitle}
+              onChange={(v) => updateField("positionTitle", v)}
               required
+              error={errors.positionTitle}
             />
-            <SelectField
-              label="Status of Employment"
-              value={form.statusOfEmployment}
-              onChange={(v) => setForm((p) => ({ ...p, statusOfEmployment: v }))}
-              options={[
-                { value: "Regular", label: "Regular" },
-                { value: "Temporary", label: "Temporary" },
-                { value: "Contract of Service", label: "Contract of Service" },
-                { value: "Contractual", label: "Contractual" },
-                { value: "Job Order", label: "Job Order" },
-                {
-                  value: "Government Internship Program",
-                  label: "Government Internship Program",
-                },
-              ]}
-              placeholder="Select status"
-            />
-            <FormField
-              label="Employer Address"
-              value={form.employerAddress}
-              onChange={(v) => setForm((p) => ({ ...p, employerAddress: v }))}
-              className="md:col-span-2"
-            />
-            <FormField
-              label="Date From"
-              value={form.inclusiveDateFrom}
-              onChange={(v) => setForm((p) => ({ ...p, inclusiveDateFrom: v }))}
-              type="date"
-            />
-            <FormField
-              label="Date To"
-              value={form.inclusiveDateTo}
-              onChange={(v) => setForm((p) => ({ ...p, inclusiveDateTo: v }))}
-              type="date"
-              disabled={form.isPresentWork === "Yes"}
-            />
-            <SelectField
-              label="Currently employed here?"
-              value={form.isPresentWork}
-              onChange={(v) => setForm((p) => ({ ...p, isPresentWork: v }))}
-              options={[
-                { value: "No", label: "No" },
-                { value: "Yes", label: "Yes (Present)" },
-              ]}
-            />
-            <FormField
-              label="Monthly Salary (₱)"
-              value={form.monthlySalary}
-              onChange={(v) => setForm((p) => ({ ...p, monthlySalary: v }))}
-              type="number"
-            />
-            <SelectField
-              label="Government Service?"
-              value={form.isGovtService}
-              onChange={(v) => setForm((p) => ({ ...p, isGovtService: v }))}
-              options={[
-                { value: "No", label: "No (Private)" },
-                { value: "Yes", label: "Yes (Government)" },
-              ]}
-            />
-            <div className="md:col-span-2">
-              <Label className="font-semibold text-foreground">
-                Actual Duties
-              </Label>
-              <Textarea
-                value={form.actualDuties}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, actualDuties: e.target.value }))
-                }
-                className="mt-1.5 min-h-[80px]"
-                placeholder="Describe your main responsibilities and accomplishments..."
-              />
-            </div>
           </div>
-          <DialogFooter className="shrink-0">
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button
-              onClick={submit}
-              disabled={saving}
-            >
-              {saving && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
-              {editing ? "Save Changes" : "Add Entry"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          <FormField
+            label="Employer Name"
+            value={form.employerName}
+            onChange={(v) => updateField("employerName", v)}
+            required
+            error={errors.employerName}
+          />
+          <SelectField
+            label="Status of Employment"
+            value={form.statusOfEmployment}
+            onChange={(v) => updateField("statusOfEmployment", v)}
+            options={[
+              { value: "Regular", label: "Regular" },
+              { value: "Temporary", label: "Temporary" },
+              { value: "Contract of Service", label: "Contract of Service" },
+              { value: "Contractual", label: "Contractual" },
+              { value: "Job Order", label: "Job Order" },
+              {
+                value: "Government Internship Program",
+                label: "Government Internship Program",
+              },
+            ]}
+            placeholder="Select status"
+          />
+          <FormField
+            label="Employer Address"
+            value={form.employerAddress}
+            onChange={(v) => updateField("employerAddress", v)}
+            className="md:col-span-2"
+          />
+          <FormField
+            label="Date From"
+            value={form.inclusiveDateFrom}
+            onChange={(v) => updateField("inclusiveDateFrom", v)}
+            type="date"
+          />
+          <FormField
+            label="Date To"
+            value={form.inclusiveDateTo}
+            onChange={(v) => updateField("inclusiveDateTo", v)}
+            type="date"
+            disabled={form.isPresentWork === "Yes"}
+          />
+          <YesNoField
+            label="Currently employed here?"
+            value={form.isPresentWork}
+            onChange={(v) => updateField("isPresentWork", v)}
+          />
+          <SuffixField
+            label="Monthly Salary"
+            suffix="PHP"
+            value={form.monthlySalary}
+            onChange={(v) => updateField("monthlySalary", v)}
+            type="number"
+            hint="Gross monthly, before deductions"
+          />
+          <YesNoField
+            label="Government Service?"
+            value={form.isGovtService}
+            onChange={(v) => updateField("isGovtService", v)}
+          />
+          <TextareaField
+            label="Actual Duties"
+            value={form.actualDuties}
+            onChange={(v) => updateField("actualDuties", v)}
+            placeholder="Describe your main responsibilities and accomplishments..."
+            className="md:col-span-2"
+          />
+        </div>
+      </ResponsiveFormDialog>
     </div>
   );
 }

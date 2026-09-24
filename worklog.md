@@ -6427,3 +6427,18 @@ Stage Summary:
 - .env created; INTRANET_ENFORCEMENT=off for sandbox preview (set to on + INTRANET_CIDRS for real MIRDC deployment).
 - Helper: /home/z/my-project/.dev-up.sh restarts server if port 3000 is down.
 - AI_API_KEY unset — document (PDS) auto-extract disabled; all other features verified working.
+
+---
+Task ID: 2
+Agent: Z.ai Code (main agent)
+Task: Frontpage cleanup — remove hero + live-snapshot block, remove "How to apply" band, replace the frontpage footer with the app-wide footer.
+
+Work Log:
+- Removed the landing hero section (kicker/tagline/standfirst/CTA pair + "Live snapshot" panel incl. "Browse all positions on the board") from src/components/workspaces/public/sections/positions.tsx; deleted HeroLead, SnapshotPanel, computeStats, LandingStats and now-unused imports (motion, ArrowRight, useMemo, useReducedMotion).
+- Removed the "How to apply" 3-step band (HowToApply usage + import) from the same file.
+- Deleted dead files: src/components/workspaces/public/sections/how-to-apply.tsx and sections/footer.tsx (PublicFooter — only used by the landing).
+- Swapped PublicFooter for the app-wide Footer (src/components/footer.tsx — same footer rendered by app-shell PublicShell/AuthedShell on all other pages) in public-landing.tsx.
+- bun run lint clean. Browser-verified (desktop + 390px mobile): frontpage now = SiteHeader → gold ticker → "Open now" jobs grid → app-wide Data-Privacy footer; footer pushes naturally below content; no runtime errors in dev.log.
+
+Stage Summary:
+- Frontpage is now jobs-first: header → ticker → open positions grid → unified app footer. Hero, live snapshot, and how-to-apply sections fully removed. Footer consistent across every page.

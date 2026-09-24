@@ -362,20 +362,28 @@ export function ProfileView() {
                 indicator, the quiet completion note, and the PDS import
                 workspace. Flat enterprise surfaces, no floating card stack. ── */}
         <section aria-label="Profile record" className="pui-card p-4 sm:p-6">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
-            {/* Identity — avatar, name, status pill, document count */}
-            <div className="flex min-w-0 items-center gap-4">
+          <div className="flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+            {/* Identity — avatar + name/status/documents. The completion ring
+                is pinned to the RIGHT of this row on phones (shrink-0, and
+                the name column is min-w-0 + truncate, so a long applicant
+                name only ever ellipsizes — it can never push the circle out
+                of view); on lg the ring lives in the right-hand lockup. */}
+            <div className="flex min-w-0 items-center gap-3 sm:gap-4">
               <ProfileAvatar
                 photoUrl={photoUrl}
                 initials={initials}
                 name={applicantName || "Applicant"}
                 onPhotoChanged={() => void loadAll(true)}
               />
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
-                  <h2 className="text-[20px] font-semibold tracking-[-0.02em] text-foreground sm:text-[22px]">
-                    {applicantName}
-                  </h2>
+              <div className="min-w-0 flex-1">
+                <h2
+                  className="truncate text-[20px] font-semibold tracking-[-0.02em] text-foreground sm:text-[22px]"
+                  title={applicantName}
+                >
+                  {applicantName}
+                </h2>
+                {/* Status BELOW the name — never squeezed beside it. */}
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
                   {statusBadge}
                   {pdsLocked && (
                     <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/[0.07] px-2 py-1 text-[11px] font-medium leading-none text-primary">
@@ -388,13 +396,24 @@ export function ProfileView() {
                   {documents.length} document{documents.length === 1 ? "" : "s"}
                 </p>
               </div>
+              {/* Phones: compact ring at the right edge of the identity row.
+                  lg hides it — the lockup below-right owns the ring there. */}
+              <div className="shrink-0 lg:hidden" title={`Profile ${completion.percent}% complete`}>
+                <CompletionRing percent={completion.percent} size={64} />
+              </div>
             </div>
 
-            {/* Completion indicator — enterprise analytics lockup: ring +
-                position readout (and the finalize CTA when eligible). */}
-            <div className="flex items-center gap-4 lg:shrink-0 lg:border-l lg:border-border lg:pl-8">
+            {/* Completion lockup — lg: ring + readout + finalize CTA on the
+                right (hairline-separated). Phones: the ring is already in
+                the identity row, so this row carries the readout + CTA only
+                under a hairline. Exactly one ring is visible per viewport
+                (display:none instances also drop out of the a11y tree, so
+                the sr-only percent status never announces twice). */}
+            <div className="flex items-center justify-between gap-4 border-t border-border pt-4 lg:shrink-0 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
               <div className="flex items-center gap-4">
-                <CompletionRing percent={completion.percent} />
+                <div className="hidden lg:block">
+                  <CompletionRing percent={completion.percent} />
+                </div>
                 <div>
                   <p className="text-[14px] font-semibold leading-tight text-foreground">
                     {completion.filled} of {completion.total} sections

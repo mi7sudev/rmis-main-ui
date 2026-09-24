@@ -6497,3 +6497,17 @@ Stage Summary:
 - SMS Gateway feature fully removed from the system (UI, API, lib, schema model, env template, docs); email notifications untouched and verified working; deep links to the old tab no longer break.
 - Evaluator account confirmed to have the exact same Analytics page as admin.
 - /dash architecture understood and documented: old repo = previous dev workspace where the dashboard was rebuilt Atlas-style under src/components/dash; our repo adopted only the Review Queue + Candidates views (byte-identical) with two intentional, documented adaptations. No DB changes (sms_logs table left in place, unused).
+
+---
+Task ID: 6
+Agent: Z.ai Code (main agent)
+Task: Fix applicant Profile header responsiveness on mobile — status must sit BELOW the name, the completion percentage circle must sit at the RIGHT side, and a long applicant name must never push the circle out of view.
+
+Work Log:
+- Identified the surface: src/components/views/profile-view.tsx (applicant Profile page) — header had name + status pill INLINE (flex-wrap) and the CompletionRing stacked BELOW the identity row on mobile; a long name squeezed/wrapped the pill and the ring sat under everything.
+- Restructured the header (single markup, all breakpoints): identity row = ProfileAvatar + min-w-0 flex-1 text column + ring pinned right. Name h2 now `truncate` + title attr; status badge (and AI-assisted chip) moved to their own row BELOW the name; documents count follows; mobile-only CompletionRing (size 64, shrink-0, lg:hidden) rides the right edge of the row.
+- Completion lockup row reworked: on lg it keeps the ring + "X of Y sections" + Mark Complete with the hairline border-l (unchanged behavior); below lg it becomes a full-width readout + CTA row under a border-t (ring hidden there — already shown in the identity row; exactly one ring visible per viewport, so the sr-only percent status never announces twice).
+- Verification (agent-browser, testapplicant / profile view, long name "MAR JAMES KENITTE JULE DELIMIOS"): 390px — name ellipsized, status under name, 86% ring fully visible right, readout + Mark Complete row below; 320px — h2 scrollWidth 355 vs clientWidth 102 (truncated, zero overflow), ring unpushed; 768px and 1366px — full name one line, right-hand ring lockup intact. bunx tsc clean, bun run lint clean, dev.log clean (200s + pre-existing AI_API_KEY warning only).
+
+Stage Summary:
+- Profile header is now fully responsive: status below the name, percentage circle pinned right on phones (tablet/desktop keep the right-hand lockup), and truncation guarantees a long applicant name can never push or displace the circle.

@@ -16,10 +16,9 @@
 //     Review / View Decision (opens the review modal) + Profile
 //     (→ #/candidate?id=), and the bulk regret batch on the Rejected tab
 //     (confirm gate → POST /api/evaluator/applications/regrets).
-//   · Analytics band under the board (pipeline view only): Pipeline Overview
-//     donut + legend, Requirements Match (avg % + verdict bar), Time in
-//     Pipeline (avg days + 14-day volume sparkline) — all client-computed
-//     from the same queue payload.
+//   · The analytics band (Pipeline Overview / Requirements Match / Time in
+//     Pipeline) moved to views/analytics.tsx — the dedicated Analytics
+//     sidebar page (#/analytics). This view stays a pure work surface.
 //   · Qualified-only lens: restricts BOTH views to match.verdict === "ALL_MET"
 //     ("Meets the minimum requirements").
 // ============================================================================
@@ -32,7 +31,6 @@ import {
   MatchScoreChip,
   MidDot,
   PipelineBoard,
-  PipelineStats,
   QueueEmptyState,
   QueueErrorState,
   QueueSkeleton,
@@ -279,16 +277,12 @@ export function QueueView() {
             }}
           />
         ) : view === "kanban" ? (
-          <>
-            <PipelineBoard
-              items={visibleItems}
-              onOpenCandidate={(item) =>
-                item.applicant && navigate("candidate", { id: String(item.applicant.id) })
-              }
-            />
-            {/* Analytics band — page truth from the FULL queue payload */}
-            {items.length > 0 && <PipelineStats items={items} />}
-          </>
+          <PipelineBoard
+            items={visibleItems}
+            onOpenCandidate={(item) =>
+              item.applicant && navigate("candidate", { id: String(item.applicant.id) })
+            }
+          />
         ) : (
           /* Fixed-height ledger sheet — the frame stays put and the rows
              scroll inside it, so a long queue never runs the page down. */

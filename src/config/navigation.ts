@@ -11,6 +11,7 @@ import {
   Briefcase,
   Users,
   BarChart3,
+  LineChart,
   Settings,
   Inbox,
   ClipboardCheck,
@@ -50,7 +51,8 @@ export const ADMIN_NAV: NavSection[] = [
   {
     label: "Insights",
     items: [
-      { label: "Analytics", view: "analytics", icon: BarChart3, hint: "Recruitment analytics" },
+      { label: "Analytics", view: "analytics", icon: BarChart3, hint: "Pipeline overview & insights" },
+      { label: "Reports", view: "reports", icon: LineChart, hint: "Trends, funnels & audit feed" },
     ],
   },
   {
@@ -67,6 +69,7 @@ export const EVALUATOR_NAV: NavSection[] = [
     label: "My Work",
     items: [
       { label: "Review Queue", view: "review-queue", icon: Inbox, hint: "Applications to review" },
+      { label: "Analytics", view: "analytics", icon: BarChart3, hint: "Pipeline overview & insights" },
     ],
   },
   {

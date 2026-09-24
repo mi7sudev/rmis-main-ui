@@ -27,7 +27,8 @@ export type View =
   | "job"             // NEW: job workspace (params: id, tab)
   | "candidates"      // NEW: candidate workspace (list/kanban)
   | "candidate"       // NEW: candidate detail workspace (params: id)
-  | "analytics"       // NEW: recruitment analytics
+  | "analytics"       // NEW: pipeline analytics (Pipeline Overview page)
+  | "reports"         // NEW: admin deep-dive analytics (funnels, volume, audit)
   | "settings"        // NEW: admin settings hub
   // Legacy admin views (kept for deep-link compat, routed to new workspaces)
   | "admin-dashboard"
@@ -53,7 +54,7 @@ const VALID_VIEWS: View[] = [
   "signin", "signup", "jobs",
   "home", "profile",
   "review-queue", "evaluator-queue", "evaluator-review",
-  "operations", "recruitment", "job", "candidates", "candidate", "analytics", "settings",
+  "operations", "recruitment", "job", "candidates", "candidate", "analytics", "reports", "settings",
   "admin-dashboard", "admin-users", "admin-jobs", "admin-applicants", "admin-audit-log", "admin-positions",
   "applicant-details", "my-applications",
 ];

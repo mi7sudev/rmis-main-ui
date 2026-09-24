@@ -372,10 +372,10 @@ export function AnalyticsWorkspace() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
-              Analytics
+              Insights
             </p>
             <h1 className="mt-0.5 text-xl font-semibold tracking-tight text-foreground">
-              Analytics
+              Reports
             </h1>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">

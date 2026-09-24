@@ -6461,3 +6461,19 @@ Work Log:
 
 Stage Summary:
 - Candidates + Review Queue now run the user's Atlas dash rebuild under src/components/dash/ (kit + views), wired into the hash router for both EVALUATOR and ADMIN. Legacy workspace files left in tree for reference; shared ReviewModal reused unchanged. tsc + eslint + browser verification all pass.
+
+---
+Task ID: 4
+Agent: Z.ai Code (main agent)
+Task: Promote the Pipeline Overview analytics (Pipeline Overview donut / Requirements Match / Time in Pipeline) from the Review Queue page into a dedicated Analytics sidebar page; remove it from the Review Queue.
+
+Work Log:
+- Created src/components/dash/views/analytics.tsx — new Atlas-style AnalyticsView (#/analytics): PageHeader (eyebrow "Insights", title "Analytics", "Live pipeline" chip, live sub count, Refresh action), PipelineOverview (the three panels moved verbatim from queue-bits PipelineStats: Pipeline Overview donut + stage legend with counts/%, Requirements Match avg out of 100 + verdict meters + "N fully qualified · N partial · N unmet · N to verify", Time in Pipeline avg days + 14-day volume sparkline), a reading-aid footnote (N awaiting decision), AnalyticsSkeleton (3-panel loading shape), EmptyState with "Go to Review Queue" CTA, and QueueErrorState reuse. Data: GET /api/evaluator/queue (EVALUATOR + ADMIN both allowed by requireEvaluatorFromReq), 15s silent poll + focus refetch (useRefetchOnFocus), silent failures never clear good data.
+- Removed the PipelineStats band from the Review Queue: queue.tsx no longer imports/renders PipelineStats (kanban branch is now just PipelineBoard); queue-bits.tsx dropped the PipelineStats component + unused imports (Donut, Sparkline, StageMeters, Users, Target, Hourglass) with header comments updated in both files.
+- Navigation: EVALUATOR_NAV "My Work" gains { Analytics, view "analytics", BarChart3 }. ADMIN_NAV "Insights" now has two items: Analytics (new Pipeline Overview page) and Reports (the former admin-only analytics workspace, re-routed to view "reports", LineChart icon) so no existing functionality was lost. nav-provider: added "reports" to the View union + VALID_VIEWS.
+- Router (src/app/page.tsx): EVALUATOR view "analytics" → AnalyticsView; ADMIN view "analytics" → AnalyticsView, view "reports" → legacy AnalyticsWorkspace. Old workspace's internal header re-titled "Reports" (eyebrow "Insights") to match its nav label. Command Center's "Analytics" overview button now leads to the new page (intended).
+- bunx tsc --noEmit clean; bun run lint clean.
+- Browser-verified (agent-browser): ADMIN — rail shows Analytics + Reports; #/analytics renders the exact pasted figures (1 Candidates donut, Applied 1 (100%), Requirements Match 0 out of 100 "0 fully qualified · 1 unmet", Time in Pipeline 8 Days + sparkline "Applications received · last 14 days"); #/reports still renders the full deep-dive workspace; #/review-queue no longer shows the band (clean board + footer). EVALUATOR (testevaluator) — sidebar My Work = Review Queue, Analytics; queue clean; Analytics page identical. Mobile 390px: panels stack, no horizontal scroll, footer sticks to bottom. dev.log: only 200s, no runtime errors (pre-existing AI_API_KEY notice only).
+
+Stage Summary:
+- Analytics is now a first-class sidebar page for EVALUATOR and ADMIN at #/analytics showing the Pipeline Overview trio, live-polled from /api/evaluator/queue; Review Queue is a pure work surface without the band; the admin deep-dive analytics page remains reachable as Insights → Reports (#/reports). No DB changes; no API changes.

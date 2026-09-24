@@ -20,6 +20,9 @@ import { ProfileView } from "@/components/views/profile-view";
 import { QueueView } from "@/components/dash/views/queue";
 import { ReviewWorkspace } from "@/components/workspaces/evaluator/review-workspace";
 
+// Atlas dash — Analytics (Pipeline Overview) sidebar page
+import { AnalyticsView } from "@/components/dash/views/analytics";
+
 // Admin (new workspaces)
 import { CommandCenter } from "@/components/workspaces/admin/command-center";
 import { RecruitmentList } from "@/components/workspaces/recruitment/recruitment-list";
@@ -28,7 +31,7 @@ import { JobWorkspace } from "@/components/workspaces/recruitment/job-workspace"
 // Admin — Atlas dash views (rebuilt candidate registry + dossier)
 import { CandidatesView } from "@/components/dash/views/candidates";
 import { CandidateDetailView } from "@/components/dash/views/candidate";
-import { AnalyticsWorkspace } from "@/components/workspaces/analytics/analytics";
+import { AnalyticsWorkspace } from "@/components/workspaces/analytics/analytics"; // deep-dive reports
 import { SettingsWorkspace } from "@/components/workspaces/settings/settings";
 
 function LoadingShell() {
@@ -119,6 +122,7 @@ function Router() {
       if (view === "evaluator-review") return <ReviewWorkspace />;
       if (view === "candidate") return <CandidateDetailView />;
       if (view === "candidates") return <CandidatesView />;
+      if (view === "analytics") return <AnalyticsView />;
       if (view === "recruitment") return <RecruitmentList />;
       if (view === "job") return <JobWorkspace />;
       if (view === "jobs") return <JobsView />;
@@ -133,7 +137,8 @@ function Router() {
       if (view === "candidate") return <CandidateDetailView />;
       if (view === "review-queue") return <QueueView />;
       if (view === "evaluator-review") return <ReviewWorkspace />;
-      if (view === "analytics") return <AnalyticsWorkspace />;
+      if (view === "analytics") return <AnalyticsView />;
+      if (view === "reports") return <AnalyticsWorkspace />;
       if (view === "settings") return <SettingsWorkspace initial={view} />;
       if (view === "jobs") return <JobsView />;
       return <CommandCenter />;

@@ -6511,3 +6511,17 @@ Work Log:
 
 Stage Summary:
 - Profile header is now fully responsive: status below the name, percentage circle pinned right on phones (tablet/desktop keep the right-hand lockup), and truncation guarantees a long applicant name can never push or displace the circle.
+
+---
+Task ID: 7
+Agent: Z.ai Code (main agent)
+Task: Make the post-upload "Profile updated" success banner (N fields updated from <file> + per-section counts + Review Sections / Clear Forms buttons) collapsible like the form-field groups so it stops taking up space on the Profile page.
+
+Work Log:
+- Reworked the phase==="done" block in src/components/views/upload-pds-card.tsx into a collapsible panel using the same disclosure language as the profile form groups (personal-info-section SubSection pattern): full-row header button (green check chip + "Profile updated" + one-line "32 fields updated from DELIMIOS PDS.xlsx" summary, truncating long file names) + rotating ChevronDown + aria-expanded/aria-controls.
+- Body (conditionally rendered, {open && …} like the form groups) keeps everything that existed: full description incl. replaced-entries warning, the 6 SummaryChips (Personal Info / Education / Work / Training / Eligibility / Awards), Review Sections + Clear Forms & Re-upload buttons.
+- Collapsed by default (the sonner toast already announces "N fields updated…" so no feedback is lost); summaryOpen resets on every new upload. Clicking "Review Sections" now also collapses the banner so the strip gets out of the way while the applicant reviews the forms.
+- Browser-verified as testapplicant with mocked upload endpoints (no production data touched — real extract/auto-apply can't run here without AI_API_KEY): done state renders collapsed slim strip; header click expands to the full quoted breakdown (9 fields / 3 entries / 1 entry / 18 entries / — / 1 entry + both buttons); second click collapses; "Review Sections" auto-collapses and scrolls to the sections. Verified at 390px and 1366px. bunx tsc clean, bun run lint clean.
+
+Stage Summary:
+- PDS success banner is now a one-row collapsible strip (expanded state holds the full per-section breakdown + actions), matching the form-field collapse interaction; profile space reclaimed on mobile and desktop.

@@ -47,6 +47,7 @@ import {
   ShieldCheck,
   Award as AwardIcon,
   ChevronRight,
+  ChevronDown,
   RotateCcw,
   Sparkles,
 } from "lucide-react";
@@ -131,11 +132,17 @@ export function UploadPdsCard({
   const [dragging, setDragging] = useState(false);
   const [clearOpen, setClearOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
+  // Done-banner disclosure — collapsed by default (the toast carries the
+  // full "N fields updated" message) so the success card stays a slim
+  // one-row strip instead of eating profile space. Same disclosure language
+  // as the collapsible form groups below the card.
+  const [summaryOpen, setSummaryOpen] = useState(false);
 
   async function handleFile(file: File) {
     setFileName(file.name);
     setError("");
     setApplied(null);
+    setSummaryOpen(false); // each fresh result starts collapsed
     setPhase("uploading");
 
     try {
@@ -374,13 +381,45 @@ export function UploadPdsCard({
 
           {phase === "done" && applied && (
             <div>
-              <div className="flex items-start gap-3">
+              {/* Collapsed-by-default header — full-row toggle using the same
+                  disclosure language as the form groups below (icon + title +
+                  one-line summary + rotating chevron, aria-expanded). The
+                  toast already announces the result, so the card rests as a
+                  slim strip until the applicant wants the details. */}
+              <button
+                type="button"
+                onClick={() => setSummaryOpen((o) => !o)}
+                aria-expanded={summaryOpen}
+                aria-controls="pds-applied-summary"
+                className="flex w-full items-center gap-3 rounded-lg text-left transition-colors hover:bg-secondary/40"
+              >
                 <span className="grid size-9 shrink-0 place-items-center rounded-[10px] border border-success/25 bg-success/10 text-success">
                   <CheckCircle2 className="size-4.5" strokeWidth={1.5} />
                 </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold tracking-[-0.01em] text-foreground">Profile updated</p>
-                  <p className="mt-0.5 break-words text-xs leading-relaxed text-muted-foreground">
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold tracking-[-0.01em] text-foreground">
+                    Profile updated
+                  </span>
+                  <span
+                    className="mt-0.5 block truncate text-xs text-muted-foreground"
+                    title={fileName}
+                  >
+                    {totalFilled} field{totalFilled === 1 ? "" : "s"} updated from {fileName}
+                  </span>
+                </span>
+                <ChevronDown
+                  aria-hidden
+                  className={`size-4 shrink-0 text-muted-foreground/70 transition-transform duration-200 ${summaryOpen ? "rotate-180" : ""}`}
+                  strokeWidth={1.5}
+                />
+              </button>
+
+              {/* Expandable body — the full breakdown (per-section counts,
+                  replaced warnings, and both actions). Conditional render,
+                  same as the form groups. */}
+              {summaryOpen && (
+                <div id="pds-applied-summary" className="mt-3 border-t border-border/70 pt-3">
+                  <p className="break-words text-xs leading-relaxed text-muted-foreground">
                     {totalFilled} field{totalFilled === 1 ? "" : "s"} updated from{" "}
                     <span className="font-semibold text-foreground">{fileName}</span>.
                     {totalReplaced > 0 && (
@@ -395,30 +434,36 @@ export function UploadPdsCard({
                     {" "}Please review each section below for accuracy. Uploading a
                     different document requires clearing the forms first.
                   </p>
+
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <SummaryChip icon={User} label="Personal Info" count={applied.personal} unit={applied.personal === 1 ? "field" : "fields"} />
+                    <SummaryChip icon={GraduationCap} label="Education" count={applied.education} unit={applied.education === 1 ? "entry" : "entries"} replacedCount={replaced?.education} />
+                    <SummaryChip icon={Briefcase} label="Work Experience" count={applied.work} unit={applied.work === 1 ? "entry" : "entries"} replacedCount={replaced?.work} />
+                    <SummaryChip icon={BookOpen} label="Training" count={applied.training} unit={applied.training === 1 ? "entry" : "entries"} replacedCount={replaced?.training} />
+                    <SummaryChip icon={ShieldCheck} label="Eligibility" count={applied.eligibility} unit={applied.eligibility === 1 ? "entry" : "entries"} replacedCount={replaced?.eligibility} />
+                    <SummaryChip icon={AwardIcon} label="Awards" count={applied.awards} unit={applied.awards === 1 ? "entry" : "entries"} replacedCount={replaced?.awards} />
+                  </div>
+
+                  <div className="mt-3 flex flex-col gap-2">
+                    <Button
+                      onClick={() => {
+                        // Collapse on the way out — the strip gets out of the
+                        // profile's way while the applicant reviews sections.
+                        setSummaryOpen(false);
+                        if (onReview) onReview();
+                        else navigate("profile");
+                      }}
+                      className="group w-full"
+                    >
+                      {onReview ? "Review Sections" : "Review in Profile"}
+                      <ChevronRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+                    </Button>
+                    {clearFormsButton(
+                      "border-destructive/40 text-danger-ink hover:bg-destructive/10 hover:text-danger-ink"
+                    )}
+                  </div>
                 </div>
-              </div>
-
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                <SummaryChip icon={User} label="Personal Info" count={applied.personal} unit={applied.personal === 1 ? "field" : "fields"} />
-                <SummaryChip icon={GraduationCap} label="Education" count={applied.education} unit={applied.education === 1 ? "entry" : "entries"} replacedCount={replaced?.education} />
-                <SummaryChip icon={Briefcase} label="Work Experience" count={applied.work} unit={applied.work === 1 ? "entry" : "entries"} replacedCount={replaced?.work} />
-                <SummaryChip icon={BookOpen} label="Training" count={applied.training} unit={applied.training === 1 ? "entry" : "entries"} replacedCount={replaced?.training} />
-                <SummaryChip icon={ShieldCheck} label="Eligibility" count={applied.eligibility} unit={applied.eligibility === 1 ? "entry" : "entries"} replacedCount={replaced?.eligibility} />
-                <SummaryChip icon={AwardIcon} label="Awards" count={applied.awards} unit={applied.awards === 1 ? "entry" : "entries"} replacedCount={replaced?.awards} />
-              </div>
-
-              <div className="mt-3 flex flex-col gap-2">
-                <Button
-                  onClick={() => (onReview ? onReview() : navigate("profile"))}
-                  className="group w-full"
-                >
-                  {onReview ? "Review Sections" : "Review in Profile"}
-                  <ChevronRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
-                </Button>
-                {clearFormsButton(
-                  "border-destructive/40 text-danger-ink hover:bg-destructive/10 hover:text-danger-ink"
-                )}
-              </div>
+              )}
             </div>
           )}
 

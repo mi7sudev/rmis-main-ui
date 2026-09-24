@@ -1461,28 +1461,7 @@ model Custom {
   @@map("customs")
 }
 
-// ============================================================================
-// SMS gateway log — every outbound SMS attempt (all providers, including the
-// dev "mock" driver) is persisted here for auditing + the admin SMS panel.
-// ============================================================================
-model SmsLog {
-  id          Int      @id @default(autoincrement())
-  to          String
-  message     String
-  provider    String
-  /// "sent" | "failed" | "mock"
-  status      String
-  providerRef String?  @map("provider_ref")
-  error       String?
-  relatedType String?  @map("related_type")
-  relatedId   Int?     @map("related_id")
-  createdAt   DateTime @default(now()) @map("created_at")
-
-  @@index([createdAt])
-  @@map("sms_logs")
-}
-
-// Outbound email audit trail — mirrors SmsLog. Every send (real or mock)
+// Outbound email audit trail. Every send (real or mock)
 // lands here so admins can audit exactly what was sent to whom, and the
 // shortlist email is provable even in the mock dev driver.
 model EmailLog {

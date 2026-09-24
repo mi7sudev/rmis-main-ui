@@ -25,7 +25,7 @@
 | Step 3 — HR reviews qualified + shortlists | Review Queue: **"Qualified only"** lens (`match.verdict === ALL_MET`) in both views; decision flow unchanged | Browser ✓ |
 | Step 4 — automated regret letters | `src/lib/email.ts` `emailRegretLetter` + `POST /api/evaluator/applications/[id]/notice {type:"regret"}` (single) + `POST /api/evaluator/applications/regrets` (bulk, dedup via email_logs, shortlisted hard-skip); Rejected-tab bulk button | Browser: single send + bulk re-run ("0 sent, 1 already sent") ✓ |
 | Step 5 — interview invitations + skills-exam notices | `emailInterviewInvitation` / `emailSkillsExamNotice` + notice dialog (date/time/venue/contact/notes/exam type) in Review Workspace Notices card | Browser: send → toast + audit chip ✓ |
-| Audit trail | email_logs + sms_logs + notifications (+applicant link) + audit_logs (`NOTICE_SENT`, `REGRET_LETTERS_BULK_SENT`) | DB rows confirmed ✓ |
+| Audit trail | email_logs + notifications (+applicant link) + audit_logs (`NOTICE_SENT`, `REGRET_LETTERS_BULK_SENT`) — the SMS channel was removed from the system | DB rows confirmed ✓ |
 | Pipeline ends at notification | Untouched — `lib/status.ts` pipeline already terminates at Shortlisted/Rejected | ✓ |
 
 ---

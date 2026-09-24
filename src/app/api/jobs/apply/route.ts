@@ -16,7 +16,6 @@ import {
 } from "@/lib/profile-completeness";
 import { auditLog } from "@/lib/audit-log";
 import { getClientIp } from "@/lib/rate-limit";
-import { notifyApplicationSubmitted } from "@/lib/sms";
 
 const applySchema = z.object({ jobId: z.union([z.string(), z.number()]) });
 
@@ -160,19 +159,6 @@ export const POST = handleApi(async (req: NextRequest) => {
     description: `Applied for job #${jobId}${position?.positionTitle ? ` — ${position.positionTitle}` : ""}`,
     ipAddress: getClientIp(req),
   });
-
-  // SMS notification — fire after the success path; sendSms never throws so
-  // a gateway outage can never break a submitted application. Every attempt
-  // (incl. dev "mock") is persisted to sms_logs for the admin panel.
-  const sms = await notifyApplicationSubmitted({
-    mobile: fullApplicant.mobileNumber ?? fullApplicant.contactNumber,
-    firstName: fullApplicant.firstName,
-    positionTitle: position?.positionTitle || job.briefDescription || `job #${jobId}`,
-    applicationId: application.id,
-  });
-  if (sms.status === "failed") {
-    console.warn("[jobs/apply] SMS notification failed:", sms.error);
-  }
 
   return ok(
     {

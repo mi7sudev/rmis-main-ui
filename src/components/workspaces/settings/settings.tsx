@@ -5,13 +5,13 @@
 // A separate administration area — NOT mixed into operations.
 //
 // Layout: settings-style two-column with a left sub-nav (Users & Roles /
-// Audit Log / SMS / Email) and a right content panel. Each panel is a clean
+// Audit Log / Email) and a right content panel. Each panel is a clean
 // re-implementation of the legacy admin views (admin-users.tsx,
 // admin-audit-log.tsx) using the same API contracts but rebuilt on the new
 // design system primitives.
 //
 // Sub-section is controlled by `initial` prop (or `params.tab` for deep-links
-// from the Command Center). Values: "users" | "audit" | "sms" | "email".
+// from the Command Center). Values: "users" | "audit" | "email".
 //
 // Visual register (minimalist restyle): quiet compact header, a quiet sub-nav
 // tab strip, and flat bordered bg-card sheets with token inks
@@ -81,7 +81,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { SmsPanel } from "@/components/workspaces/settings/sms-panel";
 import { EmailPanel } from "@/components/workspaces/settings/email-panel";
 import type { Role } from "@/lib/roles";
 import type { Paginated } from "@/lib/validation";
@@ -103,14 +102,13 @@ import {
   ChevronLeft,
   ChevronRight,
   RefreshCw,
-  MessageSquare,
   Mail,
 } from "lucide-react";
 
 // =========================================================================
 // Section union + normalization
 // =========================================================================
-type Section = "users" | "audit" | "sms" | "email";
+type Section = "users" | "audit" | "email";
 
 function normalizeSection(value: string | undefined): Section {
   if (!value) return "users";
@@ -121,7 +119,10 @@ function normalizeSection(value: string | undefined): Section {
   // requirements are now owned entirely by the job posting form (Recruitment).
   if (v === "positions" || v === "admin-positions") return "users";
   if (v === "audit" || v === "admin-audit-log") return "audit";
-  if (v === "sms" || v === "notifications" || v === "admin-sms") return "sms";
+  // "sms" / "notifications" / "admin-sms" deep-links — the SMS Gateway panel
+  // was removed from the system; they land on Email Notices (the remaining
+  // outbound-notifications panel).
+  if (v === "sms" || v === "notifications" || v === "admin-sms") return "email";
   if (v === "email" || v === "admin-email") return "email";
   return "users";
 }
@@ -177,13 +178,6 @@ export function SettingsWorkspace({ initial }: { initial?: string }) {
             hint="Activity trail"
           />
           <SubNavLink
-            active={section === "sms"}
-            onClick={() => go("sms")}
-            icon={<MessageSquare className="size-4" />}
-            label="SMS Gateway"
-            hint="Notifications & test sends"
-          />
-          <SubNavLink
             active={section === "email"}
             onClick={() => go("email")}
             icon={<Mail className="size-4" />}
@@ -197,7 +191,6 @@ export function SettingsWorkspace({ initial }: { initial?: string }) {
         <div className="min-w-0">
           {section === "users" && <UsersPanel />}
           {section === "audit" && <AuditPanel />}
-          {section === "sms" && <SmsPanel />}
           {section === "email" && <EmailPanel />}
         </div>
       </div>

@@ -1,7 +1,7 @@
 // ============================================================================
 // email.ts — provider-agnostic EMAIL sender for RMIS notifications.
 //
-// Mirrors the design of sms.ts (same contract, same audit story):
+// Mirrors the audit-trail design of the notification surfaces:
 //
 //   1. "mock" (default, dev) — FREE forever. No external service: every send
 //      is logged to the `email_logs` table so the whole flow (shortlist
@@ -18,7 +18,7 @@
 //   RESEND_API_KEY=<key from resend.com>
 //   EMAIL_FROM="DOST-MIRDC Recruitment <recruitment@mirdc.gov.ph>"
 //
-// Design rules (identical to sms.ts):
+// Design rules:
 //   - sendEmail() NEVER throws — callers fire it after their own success
 //     path and a provider outage must never break a status update.
 //     Results are always persisted to `email_logs`.

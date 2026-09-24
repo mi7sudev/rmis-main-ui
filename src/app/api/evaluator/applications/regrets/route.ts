@@ -12,7 +12,6 @@ import {
 } from "@/lib/applicant-data";
 import { stageForStatus } from "@/lib/status";
 import { emailApplicationRegret } from "@/lib/email";
-import { sendSms } from "@/lib/sms";
 
 // ============================================================================
 // MOM (2026-09-03) step 4 — BULK automated regret letters.
@@ -63,7 +62,6 @@ export const POST = handleApi(async (req: NextRequest) => {
     applicationId: number;
     outcome: "sent" | "already_sent" | "shortlisted" | "not_found" | "no_applicant" | "failed";
     emailStatus?: string;
-    smsStatus?: string;
     error?: string;
   }> = [];
 
@@ -114,13 +112,6 @@ export const POST = handleApi(async (req: NextRequest) => {
       applicationId: id,
     });
 
-    const name = applicant.firstName ? `Hi ${applicant.firstName}` : "Hi";
-    const smsResult = await sendSms({
-      to: applicant.mobileNumber ?? applicant.contactNumber,
-      message: `DOST-MIRDC Recruitment: ${name}, thank you for applying for ${positionTitle}. After careful review, your application was not shortlisted. We encourage you to apply for future vacancies. (automated — do not reply)`.slice(0, 640),
-      related: { type: "application", id },
-    });
-
     try {
       const notification = await db.notification.create({
         data: {
@@ -144,7 +135,6 @@ export const POST = handleApi(async (req: NextRequest) => {
       applicationId: id,
       outcome: emailOk ? "sent" : "failed",
       emailStatus: emailResult.status,
-      smsStatus: smsResult.status,
       error: emailResult.error,
     });
   }

@@ -16,7 +16,6 @@ import {
   emailApplicationInterviewInvite,
   emailApplicationSkillsExam,
 } from "@/lib/email";
-import { sendSms } from "@/lib/sms";
 
 // ============================================================================
 // MOM (2026-09-03) — recruitment-flow notices (steps 4 & 5).
@@ -27,9 +26,9 @@ import { sendSms } from "@/lib/sms";
 //   step 5  "skills_exam"   — skills-examination notice for shortlisted
 //                             applicants.
 //
-// Every send fans out to the three delivery surfaces the system already has:
-// EMAIL (provider-agnostic, logged to email_logs), SMS (best-effort, logged
-// to sms_logs) and an in-app Notification row linked to the applicant.
+// Every send fans out to the two delivery surfaces the system already has:
+// EMAIL (provider-agnostic, logged to email_logs) and an in-app Notification
+// row linked to the applicant.
 // THE PIPELINE ENDS HERE — the in-system status stays "Shortlisted" /
 // "Rejected" and every succeeding step is face-to-face (offline by design).
 // ============================================================================
@@ -168,20 +167,6 @@ export const POST = handleApi(async (
       ? emailApplicationInterviewInvite({ email: applicant.emailAddress, firstName, positionTitle, applicationId: id, details })
       : emailApplicationSkillsExam({ email: applicant.emailAddress, firstName, positionTitle, applicationId: id, details: { ...details, examType } }));
 
-  // --- SMS (best-effort companion; never throws) -----------------------------
-  const name = firstName ? `Hi ${firstName}` : "Hi";
-  const smsMessage =
-    type === "regret"
-      ? `DOST-MIRDC Recruitment: ${name}, thank you for applying for ${positionTitle}. After careful review, your application was not shortlisted. We encourage you to apply for future vacancies. (automated — do not reply)`
-      : type === "interview"
-        ? `DOST-MIRDC Recruitment: ${name}, you are invited to an interview for ${positionTitle} on ${date} at ${time}, ${venue}. Please bring a valid ID. (automated — do not reply)`
-        : `DOST-MIRDC Recruitment: ${name}, your ${examType?.trim() || "skills examination"} for ${positionTitle} is on ${date} at ${time}, ${venue}. Bring a valid ID and pen. (automated — do not reply)`;
-  const smsResult = await sendSms({
-    to: applicant.mobileNumber ?? applicant.contactNumber,
-    message: smsMessage.slice(0, 640),
-    related: { type: "application", id },
-  });
-
   // --- In-app record (Notification linked to the applicant) ------------------
   const noticeLabel =
     type === "regret" ? "Regret letter" : type === "interview" ? "Interview invitation" : "Skills-examination notice";
@@ -214,13 +199,12 @@ export const POST = handleApi(async (
     action: "NOTICE_SENT",
     entityType: "application",
     entityId: id,
-    description: `${noticeLabel} sent for application ${id} (${positionTitle}) — email ${emailResult.status}, sms ${smsResult.status}`,
+    description: `${noticeLabel} sent for application ${id} (${positionTitle}) — email ${emailResult.status}`,
     ipAddress: getClientIp(req),
   });
 
   return ok({
     type,
     email: emailResult,
-    sms: { status: smsResult.status, error: smsResult.error ?? null },
   });
 });

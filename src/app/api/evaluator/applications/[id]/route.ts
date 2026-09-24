@@ -14,7 +14,6 @@ import {
 import { getApplicationSnapshots } from "@/lib/raw-json";
 import { safeJsonParse, transformSnapshotKeys, parseSnapshotArray } from "@/lib/snapshot";
 import { buildRequirementsReport, type RequirementSnapshots } from "@/lib/requirements";
-import { notifyApplicationStatusChanged } from "@/lib/sms";
 import { emailApplicationStatusChanged, emailApplicationRegret } from "@/lib/email";
 import { isRejectedStatus } from "@/lib/status";
 
@@ -198,19 +197,16 @@ export const PATCH = handleApi(async (
     console.warn("[evaluator/applications/[id] PATCH] could not log status change", e);
   }
 
-  // SMS notification to the applicant — best-effort (sendSms never throws).
-  // Resolve the applicant's mobile + first name and the position title.
   // Status "Under Review" (the explicit evaluator Review action) IS a notified
-  // transition: the applicant receives the under-review email + SMS. A literal
+  // transition: the applicant receives the under-review email. A literal
   // "Applied" write remains a SILENT revert kept for backward compatibility.
   const isSilentRevert = status.trim().toUpperCase() === "APPLIED";
   // Rejected family (Rejected/Declined): the applicant's notification is the
   // FORMAL regret letter (MOM step 4) — never a generic status notice on top
-  // of it, and never a second SMS next to the regret SMS. See the blocks below.
+  // of it. See the blocks below.
   const isRejectedFamily = isRejectedStatus(status);
   let applicantFirstName: string | null = null;
   let applicantEmail: string | null | undefined = null;
-  let applicantMobile: string | bigint | number | null | undefined = null;
   let positionTitle = `application #${id}`;
   try {
     const applicantId = await findApplicationApplicantId(id);
@@ -220,8 +216,6 @@ export const PATCH = handleApi(async (
           where: { id: applicantId },
           select: {
             firstName: true,
-            mobileNumber: true,
-            contactNumber: true,
             emailAddress: true,
           },
         })
@@ -230,25 +224,10 @@ export const PATCH = handleApi(async (
     if (applicant) {
       applicantFirstName = applicant.firstName;
       applicantEmail = applicant.emailAddress;
-      applicantMobile = applicant.mobileNumber ?? applicant.contactNumber;
     }
     if (position?.positionTitle) positionTitle = position.positionTitle;
-
-    if (applicant && !isSilentRevert && !isRejectedFamily) {
-      const sms = await notifyApplicationStatusChanged({
-        mobile: applicantMobile,
-        firstName: applicantFirstName,
-        positionTitle,
-        status,
-        reason,
-        applicationId: id,
-      });
-      if (sms.status === "failed") {
-        console.warn("[evaluator/applications/[id] PATCH] SMS failed:", sms.error);
-      }
-    }
   } catch (e) {
-    console.warn("[evaluator/applications/[id] PATCH] SMS notification error", e);
+    console.warn("[evaluator/applications/[id] PATCH] notification resolution error", e);
   }
 
   // EMAIL notification to the applicant — best-effort (sendEmail never

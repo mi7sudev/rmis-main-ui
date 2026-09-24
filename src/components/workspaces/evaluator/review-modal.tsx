@@ -1152,7 +1152,7 @@ function ReviewSkeleton() {
 // ============================================================================
 // NoticesCard — MOM (2026-09-03) steps 4 & 5. The automated notices HR sends
 // after a decision: REGRET LETTER (rejected) or INTERVIEW INVITATION /
-// SKILLS-EXAM NOTICE (shortlisted). Each send fans out to email + SMS + an
+// SKILLS-EXAM NOTICE (shortlisted). Each send fans out to email + an
 // in-app record; email_logs is the audit source rendered back as sent chips.
 // The system's involvement ENDS at the send — succeeding steps are
 // face-to-face, coordinated offline by HR.
@@ -1223,7 +1223,7 @@ function NoticesCard({
               notes: form.notes || undefined,
               examType: form.examType || undefined,
             };
-      const res = await apiFetch<{ email: { status: string }; sms: { status: string } }>(
+      const res = await apiFetch<{ email: { status: string } }>(
         `/api/evaluator/applications/${appId}/notice`,
         { method: "POST", body: JSON.stringify(body) }
       );

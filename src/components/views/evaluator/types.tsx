@@ -98,8 +98,8 @@ export type ApplicationDetail = {
 //
 //   · Shortlisted → the applicant automatically receives an EMAIL notice
 //     (face-to-face hand-off: HR contacts them; succeeding steps happen
-//     in person). A best-effort SMS is sent alongside.
-//   · Rejected → a simple email/SMS notice informs the applicant.
+//     in person).
+//   · Rejected → a simple email notice informs the applicant.
 //
 // There is deliberately NO scoring form, no draft state and no overall
 // rating — legacy assessment rows in the DB are no longer surfaced.

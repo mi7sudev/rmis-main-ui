@@ -6442,3 +6442,22 @@ Work Log:
 
 Stage Summary:
 - Frontpage is now jobs-first: header → ticker → open positions grid → unified app footer. Hero, live snapshot, and how-to-apply sections fully removed. Footer consistent across every page.
+
+---
+Task ID: 3
+Agent: Z.ai Code (main agent)
+Task: Integrate the user's updated "Atlas dash" TSX files (rmisCODES repo) — rebuilt Review Queue, Candidate Registry and Candidate Dossier — replacing the legacy workspaces.
+
+Work Log:
+- Cloned https://github.com/mi7sudev/rmisCODES.git (5 files: queue.tsx, queue-bits.tsx, candidates.tsx, candidate.tsx, candidate-bits.tsx).
+- Mapped dependencies: lib/status (Tone, TONE_CLASSES, PIPELINE_STAGES, stageForStatus, getStatusMeta), lib/client (apiFetch, fullName, formatDate), lib/humanize, hooks/use-refetch-on-focus, lib/csc-requirements, lib/requirements all already existed; the @/components/dash/* namespace did not.
+- Created src/components/dash/kit.tsx — the Atlas kit primitives the new views compose from: PageShell, PageHeader, ViewTabs (generic onChange), Panel/PanelHead, KpiTile, Monogram, Pill, ScoreChip, Dot, Donut, Sparkline, StageMeters, EmptyState, SkBoard/SkLedger, DaysCard, StageStepper (+StepperStage), toneSoft, fmtDate, relDays, initials, useDebounced. All tones flow through lib/status TONE_CLASSES so light/dark tokens stay consistent.
+- Created src/components/dash/views/review.tsx — re-exports the existing shared ReviewModal (props match 1:1: applicationId/open/onOpenChange/onDecided) so the decision flow is never forked.
+- Copied the 5 repo files into src/components/dash/views/ unmodified (behavior contract intact: /api/evaluator/queue 15s poll, /api/admin/applicants server pagination 25/page, deep-link ?status= write-back, bulk regret gate, qualified-only lens).
+- Rewired src/app/page.tsx Router: EVALUATOR review-queue → QueueView, candidates → CandidatesView, candidate → CandidateDetailView; ADMIN same swaps. Legacy review-queue/candidate-workspace/candidate-detail files remain on disk (still referenced by nothing else; evaluator-review still uses legacy ReviewWorkspace).
+- Made ViewTabs generic (T extends string) to satisfy typed setView/setTab handlers; fixed a pre-existing tsc error in views/jobs-view.tsx (divisionLabel returns string|null → ?? "—").
+- bunx tsc --noEmit clean; bun run lint clean.
+- Browser-verified end-to-end (agent-browser): evaluator login → Review Queue pipeline board (4 stage columns, card, 0% chip) + analytics band (Pipeline Overview donut, Requirements Match verdict bar, Time in Pipeline 8 days + sparkline); List view stage tabs with counts; row Review → shared ReviewModal (Start Review/Shortlist/Not Qualified); card/Profile → dossier (breadcrumb, vitals, stepper + days card, About, Matching checklist + Match Summary, Credentials, Complete Profile tabs incl. Applications rows → per-application review modal). Admin login → Candidate Registry (4 KPI tiles, search/filters, ledger, pagination), quick-view modal (Contact/Pipeline/Education/Documents), View full profile → dossier, Kanban tab. Mobile 390px: no horizontal page scroll (kanban columns scroll inside the band); desktop 1440px verified. QueueErrorState renders on API failure. dev.log: no runtime errors (only pre-existing AI_API_KEY notice).
+
+Stage Summary:
+- Candidates + Review Queue now run the user's Atlas dash rebuild under src/components/dash/ (kit + views), wired into the hash router for both EVALUATOR and ADMIN. Legacy workspace files left in tree for reference; shared ReviewModal reused unchanged. tsc + eslint + browser verification all pass.

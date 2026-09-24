@@ -16,16 +16,18 @@ import { SignUpView } from "@/components/views/signup-view";
 import { ApplicantHome } from "@/components/workspaces/applicant/applicant-home";
 import { ProfileView } from "@/components/views/profile-view";
 
-// Evaluator (new workspace)
-import { ReviewQueue } from "@/components/workspaces/evaluator/review-queue";
+// Evaluator — Atlas dash views (rebuilt review queue) + legacy review workspace
+import { QueueView } from "@/components/dash/views/queue";
 import { ReviewWorkspace } from "@/components/workspaces/evaluator/review-workspace";
 
 // Admin (new workspaces)
 import { CommandCenter } from "@/components/workspaces/admin/command-center";
 import { RecruitmentList } from "@/components/workspaces/recruitment/recruitment-list";
 import { JobWorkspace } from "@/components/workspaces/recruitment/job-workspace";
-import { CandidateWorkspace } from "@/components/workspaces/candidates/candidate-workspace";
-import { CandidateDetail } from "@/components/workspaces/candidates/candidate-detail";
+
+// Admin — Atlas dash views (rebuilt candidate registry + dossier)
+import { CandidatesView } from "@/components/dash/views/candidates";
+import { CandidateDetailView } from "@/components/dash/views/candidate";
 import { AnalyticsWorkspace } from "@/components/workspaces/analytics/analytics";
 import { SettingsWorkspace } from "@/components/workspaces/settings/settings";
 
@@ -115,21 +117,21 @@ function Router() {
     // Evaluator role
     if (String(user?.role) === "EVALUATOR") {
       if (view === "evaluator-review") return <ReviewWorkspace />;
-      if (view === "candidate") return <CandidateDetail />;
-      if (view === "candidates") return <CandidateWorkspace />;
+      if (view === "candidate") return <CandidateDetailView />;
+      if (view === "candidates") return <CandidatesView />;
       if (view === "recruitment") return <RecruitmentList />;
       if (view === "job") return <JobWorkspace />;
       if (view === "jobs") return <JobsView />;
-      return <ReviewQueue />;
+      return <QueueView />;
     }
 
     // Administrator role
     if (String(user?.role) === "ADMIN") {
       if (view === "recruitment") return <RecruitmentList />;
       if (view === "job") return <JobWorkspace />;
-      if (view === "candidates") return <CandidateWorkspace />;
-      if (view === "candidate") return <CandidateDetail />;
-      if (view === "review-queue") return <ReviewQueue />;
+      if (view === "candidates") return <CandidatesView />;
+      if (view === "candidate") return <CandidateDetailView />;
+      if (view === "review-queue") return <QueueView />;
       if (view === "evaluator-review") return <ReviewWorkspace />;
       if (view === "analytics") return <AnalyticsWorkspace />;
       if (view === "settings") return <SettingsWorkspace initial={view} />;

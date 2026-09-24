@@ -1266,7 +1266,7 @@ function JobDetailView({
                   <RailRow icon={<Banknote className="size-4" strokeWidth={1.5} />} label="Salary Grade" value={pos?.salaryGrade ? `SG ${pos.salaryGrade}${pos.salaryStep ? `/${pos.salaryStep}` : ""}` : "—"} />
                   <RailRow icon={<Banknote className="size-4" strokeWidth={1.5} />} label="Monthly Salary" value={pos?.salaryAmount ? formatCurrency(pos.salaryAmount) : "—"} accent />
                   <RailRow icon={<MapPin className="size-4" strokeWidth={1.5} />} label="Place of Assignment" value={pos?.placeOfAssignment?.name || "—"} />
-                  <RailRow icon={<Building2 className="size-4" strokeWidth={1.5} />} label="Division" value={pos?.division ? divisionLabel(pos.division) : "—"} />
+                  <RailRow icon={<Building2 className="size-4" strokeWidth={1.5} />} label="Division" value={pos?.division ? (divisionLabel(pos.division) ?? "—") : "—"} />
                   <RailRow icon={<Briefcase className="size-4" strokeWidth={1.5} />} label="Position Type" value={job.positionType || "—"} />
                   <RailRow icon={<Calendar className="size-4" strokeWidth={1.5} />} label="Published" value={formatDate(job.publishDate)} />
                   <RailRow icon={<Clock className="size-4" strokeWidth={1.5} />} label="Deadline" value={formatDate(job.deadlineDate)} urgent={!!job.deadlineDate && new Date(job.deadlineDate).getTime() < Date.now() + 7 * 86400000} />
